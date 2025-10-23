@@ -1,20 +1,14 @@
-# Порт 8761 — це стандартний порт для Eureka
 server:
-  port: 8761
+  port: 8761 # Стандартний порт для Eureka
 
 spring:
   application:
-    # Назва сервісу. За цим іменем його будуть шукати інші
     name: service-discovery
 
-# Конфігурація Eureka
 eureka:
   client:
-    # Eureka — це сервер. Ми кажемо йому "не реєструйся сам у собі"
+    # Це сервер, він не реєструється сам у собі
     register-with-eureka: false
-    # Ми кажемо йому "не шукай інших серверів Eureka" (поки що у нас один)
     fetch-registry: false
   server:
-    # Для розробки: прискорюємо очистку "мертвих" сервісів
-    # (В production це значення має бути вищим)
     wait-time-in-ms-when-sync-empty: 0
