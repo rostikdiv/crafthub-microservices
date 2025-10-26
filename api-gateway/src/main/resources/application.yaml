@@ -4,20 +4,26 @@ server:
 spring:
   application:
     name: api-gateway
+
+  # !!! НОВИЙ СИНТАКСИС ДЛЯ WEBFLUX GATEWAY !!!
   cloud:
     gateway:
       discovery:
         locator:
-          enabled: false # Залишаємо вимкненим
-      # !!! ПОВЕРТАЄМО СЕКЦІЮ routes !!!
+          # Вмикаємо інтеграцію з Eureka
+          enabled: true
+          # Використовуємо 'lb://user-service' (а не lb://USER-SERVICE)
+          lower-case-service-id: true
+
       routes:
         - id: user_service_route
-          uri: lb://user-service # <-- ВЕРХНІЙ РЕГІСТР
+          # lb:// означає "load balanced" (шукай в Eureka)
+          uri: lb://user-service # <-- НИЖНІЙ РЕГІСТР
           predicates:
-            - Path=/api/v1/users/** # <-- Залишаємо спрощений варіант
+            - Path=/api/v1/users/**, /api/v1/auth/**
 
         - id: product_service_route
-          uri: lb://product-service # <-- Нижній для майбутнього сервісу
+          uri: lb://product-service
           predicates:
             - Path=/api/v1/products/**
 
@@ -26,8 +32,8 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
 
-logging: # Можна закоментувати або видалити DEBUG логи, якщо хочеш
+logging:
   level:
-    org.springframework.cloud.gateway: INFO # Повертаємо на INFO
-    # org.springframework.web.reactive.DispatcherHandler: INFO # Не потрібно для MVC
-    org.springframework.cloud.loadbalancer: INFO # Повертаємо на INFO
+    # Логи для WebFlux Gateway
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    
-    <property name="CONSOLE_LOG_PATTERN" 
+
+    <property name="CONSOLE_LOG_PATTERN"
               value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) --- %green([%15.15thread]) %boldYellow([%X{traceId:-},%X{spanId:-}]) --- %cyan(%-40.40logger{39}) : %m%n"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
