@@ -18,34 +18,53 @@ public class JwtUtil {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
-    // "Парсить" токен і витягує всі "claims" (дані)
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts
+                    .parser()
+                    .verifyWith(getSignInKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (Exception e) {
+            log.error("Failed to parse JWT token: {}", e.getMessage());
+            throw e;
+        }
     }
 
-    // Перевіряє, чи валідний підпис і чи не вийшов термін дії
     public boolean isTokenValid(String token) {
         try {
-            extractAllClaims(token);
-            return !isTokenExpired(token);
+            Claims claims = extractAllClaims(token);
+            String username = claims.getSubject();
+            Date expiration = claims.getExpiration();
+
+            log.debug("Token details - Username: {}, Expiration: {}", username, expiration);
+
+            boolean isNotExpired = !isTokenExpired(token);
+            log.debug("Token expired: {}", !isNotExpired);
+
+            return isNotExpired;
         } catch (Exception e) {
-            // (Тут можна логувати помилки валідації)
+            log.error("Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
     private boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+        try {
+            Date expiration = extractAllClaims(token).getExpiration();
+            boolean expired = expiration.before(new Date());
+            log.debug("Checking expiration - Expiration date: {}, Is expired: {}", expiration, expired);
+            return expired;
+        } catch (Exception e) {
+            log.error("Failed to check token expiration: {}", e.getMessage());
+            return true;
+        }
     }
 
-    // Розшифровує ключ
     private SecretKey getSignInKey() {
-        log.info("[api-gateway] Using secret-key: [{}]", secretKey);
+        log.debug("Using secret key (first 20 chars): {}...",
+                secretKey.substring(0, Math.min(20, secretKey.length())));
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }

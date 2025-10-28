@@ -27,7 +27,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private final List<String> publicEndpoints = List.of(
             "/api/v1/auth/register",
             "/api/v1/auth/login"
-            // (Ми можемо додати сюди, наприклад, GET /api/v1/products для всіх)
     );
 
     @Override
@@ -35,10 +34,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
+        log.debug("Processing request to path: {}", path);
+
         // 1. Перевіряємо, чи є шлях публічним
         if (isPublicEndpoint(path)) {
             log.info("Public endpoint: {} - skipping auth.", path);
-            return chain.filter(exchange); // Пропускаємо
+            return chain.filter(exchange);
         }
 
         // 2. Отримуємо заголовок Authorization
@@ -51,7 +52,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         // 4. Витягуємо сам токен
-        String token = authHeader.substring(7); // "Bearer ".length() == 7
+        String token = authHeader.substring(7);
+        log.debug("Extracted token: {}...", token.substring(0, Math.min(20, token.length())));
 
         // 5. Валідуємо токен
         try {
@@ -59,9 +61,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 log.warn("Invalid JWT token for path: {}", path);
                 return unauthorizedResponse(exchange, "Invalid JWT token");
             }
+
+            // Додатково логуємо успішну валідацію
+            log.info("✓ Token validated successfully for path: {}", path);
+
         } catch (Exception e) {
             log.error("JWT validation error for path: {}: {}", path, e.getMessage());
-            return unauthorizedResponse(exchange, "JWT validation error");
+            return unauthorizedResponse(exchange, "JWT validation error: " + e.getMessage());
         }
 
         // 6. Токен валідний - пропускаємо запит далі
@@ -70,18 +76,23 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isPublicEndpoint(String path) {
-        return publicEndpoints.stream().anyMatch(path::startsWith);
+        boolean isPublic = publicEndpoints.stream()
+                .anyMatch(publicPath -> path.equals(publicPath) || path.startsWith(publicPath + "/"));
+        log.debug("Path {} is public: {}", path, isPublic);
+        return isPublic;
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        // Тут можна додати тіло відповіді з message, якщо потрібно
-        return response.setComplete();
+        response.getHeaders().add("Content-Type", "application/json");
+
+        String body = String.format("{\"error\": \"Unauthorized\", \"message\": \"%s\"}", message);
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(body.getBytes())));
     }
 
     @Override
     public int getOrder() {
-        return -1; // Виконуємо цей фільтр *до* фільтрів маршрутизації
+        return -1;
     }
 }
