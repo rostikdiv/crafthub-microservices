@@ -1,16 +1,16 @@
 server:
-  port: 8083 # ❗️ Новий порт
+  port: 8083
 
 spring:
   application:
-    name: order-service # ❗️ Важливо для Eureka та Feign
+    name: order-service
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    # ❗️ Нова, ізольована база даних
-    url: jdbc:postgresql://localhost:5432/crafthub_order_db
-    username: postgres
-    password: 1111 # (твій пароль)
+    # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/crafthub_order_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:1111}
 
   jpa:
     hibernate:
@@ -25,6 +25,16 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+
+# ❗️ ГНУЧКЕ НАЛАШТУВАННЯ ДЛЯ FEIGN CLIENT:
+feign:
+  client:
+    config:
+      product-service: # Назва нашого Feign-клієнта (або 'default')
+        # Це значення буде використано, коли ми НЕ в Docker (http://product-service не працює)
+        # АБО якщо ми не використовуємо @LoadBalanced
+        url: ${PRODUCT_SERVICE_URL:http://localhost:8082/api/v1/products}

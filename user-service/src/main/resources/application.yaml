@@ -1,47 +1,43 @@
-# === ???? ===
 server:
   port: 8081
 
-# === ???????????? Spring ===
 spring:
-  # === ????? ??????? (??? Eureka) ===
   application:
     name: user-service
 
-  # === ???? ????? ===
+  # === Налаштування Бази Даних ===
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/crafthub_user_db
-    username: postgres
-    password: 1111 # ???? ??????
+    # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
+    # Бере 'DB_URL' з docker-compose, або 'localhost:5432' при запуску з IDE
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/crafthub_user_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:1111}
 
-  # === JPA ?? Hibernate ===
+  # === Налаштування JPA / Hibernate ===
   jpa:
     hibernate:
-      ddl-auto: update # ??????????? ????????? ?????
+      ddl-auto: update # Автоматично оновлює схему
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true   # ?????????? SQL-??????
-        format_sql: true # ??????????? SQL-??????
+        show_sql: true   # Показувати SQL-запити в консолі
+        format_sql: true # Форматувати SQL-запити для читабельності
 
-# === Eureka Client ===
+# === Налаштування Eureka Client ===
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
+      # Бере 'EUREKA_SERVER_ADDRESS' з docker-compose, або 'localhost' з IDE
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
-    prefer-ip-address: true
+    prefer-ip-address: true # Використовувати IP для реєстрації
 
-# ===============================================
-# === ?? ???? ?????? (???? 3) ?? ===
-# ???? ???????? ???????????? ???????
-# ===============================================
+# === Налаштування Безпеки (JWT) ===
 application:
   security:
     jwt:
-      # ?? ??? ???? ?????????? ????? ? user-service
-      secret-key: bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==
-
-      # ?? ??????? ?????? (??? ???????????????)
-      expiration: 86400000
+      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
+      secret-key: ${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}
+      expiration: ${JWT_EXPIRATION:86400000}

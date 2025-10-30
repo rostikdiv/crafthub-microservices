@@ -1,0 +1,139 @@
+version: '3.8' # Версія синтаксису docker-compose
+
+services:
+  # 1. Service Discovery (Телефонна книга)
+  service-discovery:
+    build:
+      context: .
+      dockerfile: ./service-discovery/Dockerfile
+    container_name: service-discovery
+    ports:
+      - "8761:8761" # Прокидаємо порт назовні (host:container)
+    networks:
+      - crafthub-net
+
+  # 2. API Gateway (Єдина точка входу)
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080" # Головний порт нашого додатку
+    environment:
+      # ВАЖЛИВО: Кажемо Gateway, де шукати Eureka
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+    networks:
+      - crafthub-net
+    depends_on: # Запуститися ТІЛЬКИ ПІСЛЯ...
+      - service-discovery
+
+  # 3. Бази Даних для User Service
+  postgres-user-db:
+    image: postgres:16.2-alpine # Використовуємо готовий образ Postgres
+    container_name: postgres-user-db
+    environment:
+      - POSTGRES_USER=crafthub
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=user_service_db
+    volumes:
+      - postgres-user-data:/var/lib/postgresql/data # Зберігаємо дані
+    networks:
+      - crafthub-net
+    ports:
+      - "5431:5432" # Для налагодження (наша машина:контейнер)
+
+  # 4. Бази Даних для Product Service
+  postgres-product-db:
+    image: postgres:16.2-alpine
+    container_name: postgres-product-db
+    environment:
+      - POSTGRES_USER=crafthub
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=product_service_db
+    volumes:
+      - postgres-product-data:/var/lib/postgresql/data
+    networks:
+      - crafthub-net
+    ports:
+      - "5434:5432"
+
+  # 5. Бази Даних для Order Service
+  postgres-order-db:
+    image: postgres:16.2-alpine
+    container_name: postgres-order-db
+    environment:
+      - POSTGRES_USER=crafthub
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=order_service_db
+    volumes:
+      - postgres-order-data:/var/lib/postgresql/data
+    networks:
+      - crafthub-net
+    ports:
+      - "5433:5432"
+
+  # 6. User Service
+  user-service:
+    build:
+      context: .
+      dockerfile: ./user-service/Dockerfile
+    container_name: user-service
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - DB_URL=jdbc:postgresql://postgres-user-db:5432/user_service_db
+      - DB_USER=crafthub
+      - DB_PASS=password
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - postgres-user-db # Сервіс не запуститься, поки не стартане його БД
+
+  # 7. Product Service
+  product-service:
+    build:
+      context: .
+      dockerfile: ./product-service/Dockerfile
+    container_name: product-service
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - DB_URL=jdbc:postgresql://postgres-product-db:5432/product_service_db
+      - DB_USER=crafthub
+      - DB_PASS=password
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - postgres-product-db
+
+  # 8. Order Service
+  order-service:
+    build:
+      context: .
+      dockerfile: ./order-service/Dockerfile
+    container_name: order-service
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - DB_URL=jdbc:postgresql://postgres-order-db:5432/order_service_db
+      - DB_USER=crafthub
+      - DB_PASS=password
+      # Кажемо Order Service, як знайти Product Service
+      - PRODUCT_SERVICE_URL=http://product-service/api/v1/products
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - postgres-order-db
+      - product-service # Залежить і від Eureka, і від БД, і від Product
+
+# Створюємо єдину віртуальну мережу для всіх контейнерів
+networks:
+  crafthub-net:
+    driver: bridge
+
+# Створюємо "томи" для постійного зберігання даних БД
+volumes:
+  postgres-user-data:
+  postgres-product-data:
+  postgres-order-data:

@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8080 # ❗️ Змінено на 8888 для узгодженості з docker-compose
 
 spring:
   application:
@@ -11,7 +11,7 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
-
+      # ... (твої роути незмінні) ...
       routes:
         - id: user_service_route
           uri: lb://user-service
@@ -31,7 +31,8 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
 
 logging:
   level:
@@ -42,5 +43,6 @@ logging:
 application:
   security:
     jwt:
-      secret-key: bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==
-      expiration: 86400000
+      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ СЕКРЕТУ:
+      secret-key: ${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}
+      expiration: ${JWT_EXPIRATION:86400000}
