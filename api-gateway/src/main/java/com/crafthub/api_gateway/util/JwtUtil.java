@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.function.Function;
 
 @Component
 @Slf4j
@@ -17,6 +18,17 @@ public class JwtUtil {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
+
+    // ❗️ --- НОВИЙ МЕТОД --- ❗️
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    // ❗️ --- НОВИЙ УНІВЕРСАЛЬНИЙ МЕТОД --- ❗️
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
 
     private Claims extractAllClaims(String token) {
         try {

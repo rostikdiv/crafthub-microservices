@@ -34,45 +34,43 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        log.debug("Processing request to path: {}", path);
-
-        // 1. Перевіряємо, чи є шлях публічним
         if (isPublicEndpoint(path)) {
             log.info("Public endpoint: {} - skipping auth.", path);
             return chain.filter(exchange);
         }
 
-        // 2. Отримуємо заголовок Authorization
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        // 3. Перевіряємо заголовок
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             log.warn("Missing or invalid Authorization Header for path: {}", path);
             return unauthorizedResponse(exchange, "Missing or invalid Authorization Header");
         }
 
-        // 4. Витягуємо сам токен
         String token = authHeader.substring(7);
-        log.debug("Extracted token: {}...", token.substring(0, Math.min(20, token.length())));
 
-        // 5. Валідуємо токен
         try {
             if (!jwtUtil.isTokenValid(token)) {
                 log.warn("Invalid JWT token for path: {}", path);
                 return unauthorizedResponse(exchange, "Invalid JWT token");
             }
 
-            // Додатково логуємо успішну валідацію
-            log.info("✓ Token validated successfully for path: {}", path);
+            // 1. Витягуємо email з токена
+            String userEmail = jwtUtil.extractUsername(token);
+            log.debug("User Email from token: {}", userEmail);
+
+            // 2. Додаємо email в заголовок для downstream-сервісів
+            ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
+                    .header("X-User-Email", userEmail)
+                    .build();
+
+            // 3. Передаємо *модифікований* запит
+            return chain.filter(exchange.mutate().request(modifiedRequest).build());
+
 
         } catch (Exception e) {
             log.error("JWT validation error for path: {}: {}", path, e.getMessage());
             return unauthorizedResponse(exchange, "JWT validation error: " + e.getMessage());
         }
-
-        // 6. Токен валідний - пропускаємо запит далі
-        log.info("Valid token. Forwarding request to: {}", path);
-        return chain.filter(exchange);
     }
 
     private boolean isPublicEndpoint(String path) {
