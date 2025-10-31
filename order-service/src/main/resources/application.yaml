@@ -20,6 +20,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     format_sql: true
+  kafka:
+    # Адреса нашого Kafka-сервера (з docker-compose АБО localhost)
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      # Налаштування серіалізації (ми будемо відправляти JSON як String)
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 # Налаштування реєстрації в Eureka
 eureka:

@@ -126,6 +126,52 @@ services:
       - service-discovery
       - postgres-order-db
       - product-service # Залежить і від Eureka, і від БД, і від Product
+  # 9. Zookeeper (Бригадир для Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1 # Використовуємо надійний образ від Confluent
+    container_name: zookeeper
+    networks:
+      - crafthub-net
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # 10. Kafka (Брокер повідомлень)
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: kafka
+    networks:
+      - crafthub-net
+    ports:
+      # ❗️ 9092 - це порт для ВНУТРІШНЬОГО зв'язку (сервіс -> kafka)
+      # ❗️ 29092 - це порт для ЗОВНІШНЬОГО зв'язку (наш IDE -> kafka)
+      - "29092:29092"
+    depends_on:
+      - zookeeper # Kafka НЕ запуститься, поки не запуститься Zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181' # Кажемо Kafka, де знайти бригадира
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  # 11. Notification Service (Новий!)
+  notification-service:
+    build:
+      context: .
+      dockerfile: ./notification-service/Dockerfile
+    container_name: notification-service
+    environment:
+      # Кажемо сервісу, де знайти Eureka і Kafka (внутрішні імена Docker)
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - kafka # ❗️ Не запускатися, поки не запуститься Kafka
 
 # Створюємо єдину віртуальну мережу для всіх контейнерів
 networks:

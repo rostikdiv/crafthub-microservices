@@ -1,0 +1,28 @@
+server:
+  port: 8084 # ❗️ Новий унікальний порт
+
+spring:
+  application:
+    name: notification-service # ❗️ Важливо для Eureka
+
+  # === Налаштування KAFKA ===
+  kafka:
+    # Адреса нашого Kafka-сервера (з docker-compose АБО localhost)
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+
+    # Налаштування "Слухача" (Consumer)
+    consumer:
+      # ID нашої групи. Якщо ми запустимо 3 копії Notification Service,
+      # Kafka буде знати, що вони - одна команда.
+      group-id: "notification-group"
+      # Почати читати з самого початку, якщо немає збережених "закладок"
+      auto-offset-reset: earliest
+      # Назви полів для десеріалізації (ми будемо передавати JSON як String)
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+# === Налаштування EUREKA ===
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
