@@ -7,10 +7,11 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/crafthub_product_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASS:1111}
+    # ❗️ Використовуємо порт 5434 та назву 'product_service_db'
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/product_service_db}
+    # ❗️ Використовуємо 'crafthub' та 'password'
+    username: ${DB_USER:crafthub}
+    password: ${DB_PASS:password}
 
   jpa:
     hibernate:

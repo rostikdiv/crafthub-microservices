@@ -7,10 +7,11 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/crafthub_order_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASS:1111}
+    # ❗️ Використовуємо порт 5433 та назву 'order_service_db' (з docker-compose)
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/order_service_db}
+    # ❗️ Використовуємо 'crafthub' та 'password' (з docker-compose)
+    username: ${DB_USER:crafthub}
+    password: ${DB_PASS:password}
 
   jpa:
     hibernate:
