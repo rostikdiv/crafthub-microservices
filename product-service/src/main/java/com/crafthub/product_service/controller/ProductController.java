@@ -8,6 +8,8 @@ import com.crafthub.product_service.service.ProductService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*; // ❗️ Імпорт PathVariable
@@ -15,8 +17,9 @@ import org.springframework.web.bind.annotation.*; // ❗️ Імпорт PathVar
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/products")
+@RequestMapping("/api/v1/products/")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductController {
 
     private final ProductRepository productRepository;
@@ -28,17 +31,14 @@ public class ProductController {
         return ResponseEntity.ok(productRepository.findAll());
     }
 
-    // --- ❗️ НОВИЙ МЕТОД ДЛЯ FEIGN-КЛІЄНТА ---
     @GetMapping("/{id}")
+    // ❗️ @Cacheable звідси видалено!
     public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable String id) {
-        return productRepository.findById(Long.parseLong(id)) // ❗️ TODO: Додати обробку NumberFormatException
-                .map(product -> new ProductResponseDTO( // ❗️ Конвертація в DTO
-                        product.getId(),
-                        product.getName(),
-                        product.getPrice(),
-                        product.getStockQuantity()
-                ))
-                .map(ResponseEntity::ok)
+        // ❗️ Лог видалено, він тепер у сервісі
+
+        // ❗️ Контролер просто викликає сервіс
+        return productService.getProductById(id)
+                .map(ResponseEntity::ok) // map(dto -> ResponseEntity.ok(dto))
                 .orElse(ResponseEntity.notFound().build()); // ❗️ Обробка 404
     }
 

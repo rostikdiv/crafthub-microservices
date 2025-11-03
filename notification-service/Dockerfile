@@ -12,6 +12,7 @@ COPY product-service/pom.xml ./product-service/
 COPY order-service/pom.xml ./order-service/
 COPY service-discovery/pom.xml ./service-discovery/
 COPY notification-service/pom.xml ./notification-service/
+COPY cart-service/pom.xml ./cart-service/
 
 # 3. Завантажуємо ВСІ залежності з кешуванням
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline

@@ -1,0 +1,29 @@
+server:
+  port: 8085 # ❗️ Новий унікальний порт для cart-service
+
+spring:
+  application:
+    name: cart-service # ❗️ Важливо для Eureka
+
+  # === ❗️ НОВИЙ БЛОК: Налаштування MongoDB ===
+  data:
+    mongodb:
+      # Ми використовуємо повний URI для підключення
+      # ${MONGO_URI: ...} - гнучке налаштування
+      # mongodb://crafthub:password@localhost:27017/cart_db?authSource=admin
+      #
+      # Пояснення:
+      # crafthub:password - логін/пароль з docker-compose.yml
+      # localhost:27017   - адреса для запуску з IDE
+      # cart_db           - назва бази даних, яка буде створена автоматично
+      # ?authSource=admin - ВАЖЛИВО: вказує, що аутентифікація проходить через 'admin' базу
+      #
+      uri: ${MONGO_URI:mongodb://localhost:27017/cart_db}
+
+# === Налаштування Eureka Client ===
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

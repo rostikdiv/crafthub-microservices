@@ -28,6 +28,11 @@ spring:
           predicates:
             - Path=/api/v1/orders/**
 
+        - id: cart_service_route
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/v1/cart/**
+
 eureka:
   client:
     service-url:

@@ -172,6 +172,54 @@ services:
     depends_on:
       - service-discovery
       - kafka # ❗️ Не запускатися, поки не запуститься Kafka
+  # 12. Cart Service (Новий!)
+  cart-service:
+    build:
+      context: .
+      dockerfile: ./cart-service/Dockerfile
+    container_name: cart-service
+    environment:
+      # Вказуємо адресу Eureka
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      # ❗️ ВАЖЛИВО: адреса MongoDB всередині Docker
+      # Ми використовуємо ім'я сервісу 'mongo', а не 'localhost'
+      - MONGO_URI=mongodb://crafthub:password@mongo:27017/cart_db?authSource=admin
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - mongo # ❗️ Запуститися тільки після старту MongoDB
+  # 13. Redis (In-memory кеш)
+  redis:
+    image: redis:7.2-alpine # Використовуємо легкий alpine образ
+    container_name: redis
+    ports:
+      - "6379:6379" # Стандартний порт Redis
+    networks:
+      - crafthub-net
+    volumes:
+      - redis-data:/data # Зберігаємо дані кешу між перезапусками
+
+  # 14. MongoDB (NoSQL база для Кошика)
+  mongo:
+    image: mongo:7.0 # Використовуємо офіційний образ Mongo
+    container_name: mongo
+    ports:
+      - "27017:27017" # Стандартний порт MongoDB
+    networks:
+      - crafthub-net
+    environment:
+      # Встановлюємо логін/пароль для бази
+      # ❗️ ЗАМІНИ ЦІ ДВА РЯДКИ:
+      # - MONGO_INITDB_ROOT_USERNAME=crafthub
+      # - MONGO_INITDB_ROOT_PASSWORD=password
+      # ❗️ НА ЦІ ТРИ РЯДКИ:
+      - MONGO_INITDB_DATABASE=cart_db       # База даних, яку потрібно створити
+      - MONGO_INITDB_USERNAME=crafthub    # Користувач, якого потрібно створити
+      - MONGO_INITDB_PASSWORD=password    # Пароль для цього користувача
+    volumes:
+      - mongo-data:/data/db # Зберігаємо дані
+    command: ["mongod", "--noauth"]
 
 # Створюємо єдину віртуальну мережу для всіх контейнерів
 networks:
@@ -183,3 +231,5 @@ volumes:
   postgres-user-data:
   postgres-product-data:
   postgres-order-data:
+  redis-data:
+  mongo-data:
