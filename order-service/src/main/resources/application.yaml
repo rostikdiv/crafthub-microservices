@@ -29,6 +29,13 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
+management:
+  tracing:
+    sampling:
+      # ❗️ 1.0 = відправляти 100% трасувань.
+      # (Для production тут ставлять 0.1, тобто 10%)
+      probability: 1.0
+
 # Налаштування реєстрації в Eureka
 eureka:
   client:

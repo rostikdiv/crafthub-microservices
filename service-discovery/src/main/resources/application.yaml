@@ -5,6 +5,13 @@ spring:
   application:
     name: service-discovery
 
+management:
+  tracing:
+    sampling:
+      # ❗️ 1.0 = відправляти 100% трасувань.
+      # (Для production тут ставлять 0.1, тобто 10%)
+      probability: 1.0
+
 eureka:
   client:
     # Це сервер, він не реєструється сам у собі

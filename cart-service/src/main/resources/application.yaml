@@ -20,6 +20,13 @@ spring:
       #
       uri: ${MONGO_URI:mongodb://localhost:27017/cart_db}
 
+management:
+  tracing:
+    sampling:
+      # ❗️ 1.0 = відправляти 100% трасувань.
+      # (Для production тут ставлять 0.1, тобто 10%)
+      probability: 1.0
+
 # === Налаштування Eureka Client ===
 eureka:
   client:

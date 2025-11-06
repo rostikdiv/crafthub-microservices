@@ -220,6 +220,16 @@ services:
     volumes:
       - mongo-data:/data/db # Зберігаємо дані
     command: ["mongod", "--noauth"]
+  # 15. Zipkin (Для Розподіленого Трасування)
+  zipkin:
+    image: openzipkin/zipkin:3 # Використовуємо офіційний образ Zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411" # Прокидаємо порт Zipkin UI
+    networks:
+      - crafthub-net
+    # Zipkin не потребує 'depends_on',
+    # він може приймати дані від сервісів, які запускаються пізніше.
 
 # Створюємо єдину віртуальну мережу для всіх контейнерів
 networks:

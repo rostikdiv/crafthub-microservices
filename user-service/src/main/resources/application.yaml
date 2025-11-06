@@ -24,6 +24,13 @@ spring:
         show_sql: true   # Показувати SQL-запити в консолі
         format_sql: true # Форматувати SQL-запити для читабельності
 
+management:
+  tracing:
+    sampling:
+      # ❗️ 1.0 = відправляти 100% трасувань.
+      # (Для production тут ставлять 0.1, тобто 10%)
+      probability: 1.0
+
 # === Налаштування Eureka Client ===
 eureka:
   client:
@@ -41,3 +48,4 @@ application:
       # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
       secret-key: ${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}
       expiration: ${JWT_EXPIRATION:86400000}
+

@@ -21,6 +21,13 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+management:
+  tracing:
+    sampling:
+      # ❗️ 1.0 = відправляти 100% трасувань.
+      # (Для production тут ставлять 0.1, тобто 10%)
+      probability: 1.0
+
 # === Налаштування EUREKA ===
 eureka:
   client:
