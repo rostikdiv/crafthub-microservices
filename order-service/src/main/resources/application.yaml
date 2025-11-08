@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: order-service
+  profiles:
+    active: kafka # ❗️ Профіль за замовчуванням
 
   datasource:
     driver-class-name: org.postgresql.Driver

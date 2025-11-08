@@ -8,10 +8,10 @@ import com.crafthub.order_service.model.Order;
 import com.crafthub.order_service.model.OrderItem;
 import com.crafthub.order_service.repository.OrderRepository;
 import com.crafthub.order_service.event.OrderCreatedEvent; // ❗️ Імпорт класу події
-import com.fasterxml.jackson.databind.ObjectMapper; // ❗️ Імпорт ObjectMapper
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate; // ❗️ Імпорт KafkaTemplate
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +25,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductServiceClient productServiceClient;
-    private final KafkaTemplate<String, String> kafkaTemplate; // ❗️ НОВЕ: Інжектуємо KafkaTemplate
-    private final ObjectMapper objectMapper; // ❗️ НОВЕ: Інжектуємо ObjectMapper
+    private final EventPublisherService eventPublisherService;
 
     private static final String ORDERS_TOPIC = "orders_topic";
 
@@ -75,33 +74,10 @@ public class OrderService {
         order.setTotalPrice(totalOrderPrice);
         Order savedOrder = orderRepository.save(order);
 
-        // 6. ❗️ НОВИЙ КРОК: Відправка асинхронної події в Kafka
-        publishOrderCreatedEvent(savedOrder); // Викликаємо новий приватний метод
+        eventPublisherService.publishOrderCreatedEvent(savedOrder);
 
         log.info("Order {} created successfully for user {}", savedOrder.getOrderNumber(), userEmail);
 
         return savedOrder;
-    }
-
-    private void publishOrderCreatedEvent(Order order) {
-        try {
-            // 1. Створюємо DTO з потрібними даними
-            OrderCreatedEvent event = new OrderCreatedEvent(
-                    order.getOrderNumber(),
-                    order.getUserId(),
-                    order.getTotalPrice()
-            );
-
-            // 2. Серіалізуємо Java-об'єкт в JSON рядок
-            String message = objectMapper.writeValueAsString(event);
-
-            // 3. Відправляємо в Kafka
-            kafkaTemplate.send(ORDERS_TOPIC, message);
-            log.info("Order Created event published to Kafka: {}", message);
-        } catch (Exception e) {
-            log.error("Failed to publish OrderCreatedEvent for order {}: {}", order.getOrderNumber(), e.getMessage());
-            // Важливо: Ми логуємо помилку, але не кидаємо її.
-            // Замовлення вже в БД, Notification Service може повторити спробу пізніше.
-        }
     }
 }

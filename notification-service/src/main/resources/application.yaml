@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: notification-service # ❗️ Важливо для Eureka
+  profiles:
+    active: kafka # ❗️ Профіль за замовчуванням
 
   # === Налаштування KAFKA ===
   kafka:

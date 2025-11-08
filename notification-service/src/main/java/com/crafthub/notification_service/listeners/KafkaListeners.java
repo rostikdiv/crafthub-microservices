@@ -1,11 +1,13 @@
-package com.crafthub.notification_service;
+package com.crafthub.notification_service.listeners;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j // Для логування (Lombok)
+@Profile("kafka")
 public class KafkaListeners {
 
     // ❗️ Головна логіка
