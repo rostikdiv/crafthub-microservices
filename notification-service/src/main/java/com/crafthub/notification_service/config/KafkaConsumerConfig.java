@@ -9,7 +9,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
 @Configuration
-@Profile("kafka")
+@Profile("local")
 public class KafkaConsumerConfig {
 
     /**

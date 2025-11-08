@@ -1,37 +1,67 @@
+# ======================================================
+# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# ======================================================
 server:
-  port: 8084 # ❗️ Новий унікальний порт
+  port: 8084
 
 spring:
   application:
-    name: notification-service # ❗️ Важливо для Eureka
+    name: notification-service
   profiles:
-    active: kafka # ❗️ Профіль за замовчуванням
-
-  # === Налаштування KAFKA ===
-  kafka:
-    # Адреса нашого Kafka-сервера (з docker-compose АБО localhost)
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
-
-    # Налаштування "Слухача" (Consumer)
-    consumer:
-      # ID нашої групи. Якщо ми запустимо 3 копії Notification Service,
-      # Kafka буде знати, що вони - одна команда.
-      group-id: "notification-group"
-      # Почати читати з самого початку, якщо немає збережених "закладок"
-      auto-offset-reset: earliest
-      # Назви полів для десеріалізації (ми будемо передавати JSON як String)
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    active: local # ❗️ Профіль за замовчуванням
 
 management:
   tracing:
     sampling:
-      # ❗️ 1.0 = відправляти 100% трасувань.
-      # (Для production тут ставлять 0.1, тобто 10%)
       probability: 1.0
 
-# === Налаштування EUREKA ===
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
+
+---
+# ======================================================
+# === ПРОФІЛЬ "local" (Kafka + Zipkin) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # Налаштування Kafka (тільки для local)
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: "notification-group"
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+aws:
+  xray:
+    enabled: false
+
+---
+# ======================================================
+# === ПРОФІЛЬ "aws" (SQS + X-Ray) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+# (Налаштування SQS тут не потрібні, @SqsListener підхопить їх)
+
+aws:
+  xray:
+    enabled: true
+
+management:
+  tracing:
+    enabled: false

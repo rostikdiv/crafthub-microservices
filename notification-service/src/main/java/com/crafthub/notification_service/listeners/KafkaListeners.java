@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j // Для логування (Lombok)
-@Profile("kafka")
+@Profile("local")
 public class KafkaListeners {
 
     // ❗️ Головна логіка

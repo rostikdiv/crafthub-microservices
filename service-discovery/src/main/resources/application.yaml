@@ -1,21 +1,58 @@
+# ======================================================
+# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# ======================================================
 server:
-  port: 8761 # Стандартний порт для Eureka
+  port: 8761
 
 spring:
   application:
     name: service-discovery
+  profiles:
+    active: local # ❗️ Профіль за замовчуванням
 
 management:
   tracing:
     sampling:
-      # ❗️ 1.0 = відправляти 100% трасувань.
-      # (Для production тут ставлять 0.1, тобто 10%)
       probability: 1.0
 
 eureka:
   client:
-    # Це сервер, він не реєструється сам у собі
     register-with-eureka: false
     fetch-registry: false
   server:
     wait-time-in-ms-when-sync-empty: 0
+
+---
+# ======================================================
+# === ПРОФІЛЬ "local" (Zipkin) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+aws:
+  xray:
+    enabled: false
+
+---
+# ======================================================
+# === ПРОФІЛЬ "aws" (X-Ray) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+aws:
+  xray:
+    enabled: true
+
+management:
+  tracing:
+    enabled: false

@@ -1,51 +1,78 @@
+# ======================================================
+# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# ======================================================
 server:
   port: 8081
 
 spring:
   application:
     name: user-service
+  profiles:
+    active: local # ❗️ Профіль за замовчуванням
 
-  # === Налаштування Бази Даних ===
   datasource:
     driver-class-name: org.postgresql.Driver
-    # ❗️ Використовуємо порт 5431 та назву 'user_service_db'
     url: ${DB_URL:jdbc:postgresql://localhost:5431/user_service_db}
-    # ❗️ Використовуємо 'crafthub' та 'password'
     username: ${DB_USER:crafthub}
     password: ${DB_PASS:password}
-
-  # === Налаштування JPA / Hibernate ===
   jpa:
     hibernate:
-      ddl-auto: update # Автоматично оновлює схему
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true   # Показувати SQL-запити в консолі
-        format_sql: true # Форматувати SQL-запити для читабельності
+        show_sql: true
+        format_sql: true
 
 management:
   tracing:
     sampling:
-      # ❗️ 1.0 = відправляти 100% трасувань.
-      # (Для production тут ставлять 0.1, тобто 10%)
       probability: 1.0
 
-# === Налаштування Eureka Client ===
 eureka:
   client:
     service-url:
-      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
-      # Бере 'EUREKA_SERVER_ADDRESS' з docker-compose, або 'localhost' з IDE
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
-    prefer-ip-address: true # Використовувати IP для реєстрації
+    prefer-ip-address: true
 
-# === Налаштування Безпеки (JWT) ===
 application:
   security:
     jwt:
-      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
       secret-key: ${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}
       expiration: ${JWT_EXPIRATION:86400000}
 
+---
+# ======================================================
+# === ПРОФІЛЬ "local" (Zipkin) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans # Адреса Zipkin
+
+aws:
+  xray:
+    enabled: false # ❗️ Вимикаємо X-Ray
+
+---
+# ======================================================
+# === ПРОФІЛЬ "aws" (X-Ray) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+aws:
+  xray:
+    enabled: true # ❗️ Вмикаємо X-Ray
+
+management:
+  tracing:
+    enabled: false # ❗️ Вимикаємо Micrometer/Zipkin, щоб уникнути конфлікту

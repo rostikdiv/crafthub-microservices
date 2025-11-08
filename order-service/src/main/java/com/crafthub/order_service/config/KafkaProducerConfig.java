@@ -11,7 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 
 @Configuration
-@Profile("kafka")
+@Profile("local")
 public class KafkaProducerConfig {
 
     // (Ми можемо прибрати @Autowired KafkaProperties,

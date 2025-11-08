@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Profile("kafka") // ❗️ Завантажувати, т-ільки якщо активний профіль "kafka"
+@Profile("local") // ❗️ Завантажувати, т-ільки якщо активний профіль "kafka"
 public class KafkaPublisherService implements EventPublisherService {
 
     private final KafkaTemplate<String, String> kafkaTemplate;

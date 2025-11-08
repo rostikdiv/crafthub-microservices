@@ -1,3 +1,6 @@
+# ======================================================
+# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# ======================================================
 server:
   port: 8083
 
@@ -5,16 +8,13 @@ spring:
   application:
     name: order-service
   profiles:
-    active: kafka # ❗️ Профіль за замовчуванням
+    active: local # ❗️ Профіль за замовчуванням
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    # ❗️ Використовуємо порт 5433 та назву 'order_service_db' (з docker-compose)
     url: ${DB_URL:jdbc:postgresql://localhost:5433/order_service_db}
-    # ❗️ Використовуємо 'crafthub' та 'password' (з docker-compose)
     username: ${DB_USER:crafthub}
     password: ${DB_PASS:password}
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,35 +23,65 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     format_sql: true
-  kafka:
-    # Адреса нашого Kafka-сервера (з docker-compose АБО localhost)
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
-    producer:
-      # Налаштування серіалізації (ми будемо відправляти JSON як String)
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 management:
   tracing:
     sampling:
-      # ❗️ 1.0 = відправляти 100% трасувань.
-      # (Для production тут ставлять 0.1, тобто 10%)
       probability: 1.0
 
-# Налаштування реєстрації в Eureka
 eureka:
   client:
     service-url:
-      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
 
-# ❗️ ГНУЧКЕ НАЛАШТУВАННЯ ДЛЯ FEIGN CLIENT:
 feign:
   client:
     config:
-      product-service: # Назва нашого Feign-клієнта (або 'default')
-        # Це значення буде використано, коли ми НЕ в Docker (http://product-service не працює)
-        # АБО якщо ми не використовуємо @LoadBalanced
+      product-service:
         url: ${PRODUCT_SERVICE_URL:http://localhost:8082/api/v1/products}
+
+---
+# ======================================================
+# === ПРОФІЛЬ "local" (Kafka + Zipkin) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  # Налаштування Kafka (тільки для local)
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+aws:
+  xray:
+    enabled: false
+
+---
+# ======================================================
+# === ПРОФІЛЬ "aws" (SQS + X-Ray) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+# (Налаштування SQS тут не потрібні, SqsTemplate підхопить їх)
+
+aws:
+  xray:
+    enabled: true
+
+management:
+  tracing:
+    enabled: false

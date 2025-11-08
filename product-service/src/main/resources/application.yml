@@ -1,24 +1,24 @@
+# ======================================================
+# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# ======================================================
 server:
   port: 8082
 
 spring:
   application:
     name: product-service
+  profiles:
+    active: local # ❗️ Профіль за замовчуванням
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    # ❗️ Використовуємо порт 5434 та назву 'product_service_db'
     url: ${DB_URL:jdbc:postgresql://localhost:5434/product_service_db}
-    # ❗️ Використовуємо 'crafthub' та 'password'
     username: ${DB_USER:crafthub}
     password: ${DB_PASS:password}
-
   data:
     redis:
-      # ${REDIS_HOST:localhost} - localhost для IDE, 'redis' для Docker
       host: ${REDIS_HOST:localhost}
       port: 6379
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -31,15 +31,46 @@ spring:
 management:
   tracing:
     sampling:
-      # ❗️ 1.0 = відправляти 100% трасувань.
-      # (Для production тут ставлять 0.1, тобто 10%)
       probability: 1.0
 
-# Налаштування реєстрації в Eureka
 eureka:
   client:
     service-url:
-      # ❗️ ГНУЧКЕ НАЛАШТУВАННЯ:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+
+---
+# ======================================================
+# === ПРОФІЛЬ "local" (Zipkin) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+aws:
+  xray:
+    enabled: false
+
+---
+# ======================================================
+# === ПРОФІЛЬ "aws" (X-Ray) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+aws:
+  xray:
+    enabled: true
+
+management:
+  tracing:
+    enabled: false

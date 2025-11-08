@@ -1,36 +1,62 @@
+# ======================================================
+# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# ======================================================
 server:
-  port: 8085 # ❗️ Новий унікальний порт для cart-service
+  port: 8085
 
 spring:
   application:
-    name: cart-service # ❗️ Важливо для Eureka
+    name: cart-service
+  profiles:
+    active: local # ❗️ Профіль за замовчуванням
 
-  # === ❗️ НОВИЙ БЛОК: Налаштування MongoDB ===
   data:
     mongodb:
-      # Ми використовуємо повний URI для підключення
-      # ${MONGO_URI: ...} - гнучке налаштування
-      # mongodb://crafthub:password@localhost:27017/cart_db?authSource=admin
-      #
-      # Пояснення:
-      # crafthub:password - логін/пароль з docker-compose.yml
-      # localhost:27017   - адреса для запуску з IDE
-      # cart_db           - назва бази даних, яка буде створена автоматично
-      # ?authSource=admin - ВАЖЛИВО: вказує, що аутентифікація проходить через 'admin' базу
-      #
       uri: ${MONGO_URI:mongodb://localhost:27017/cart_db}
 
 management:
   tracing:
     sampling:
-      # ❗️ 1.0 = відправляти 100% трасувань.
-      # (Для production тут ставлять 0.1, тобто 10%)
       probability: 1.0
 
-# === Налаштування Eureka Client ===
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+
+---
+# ======================================================
+# === ПРОФІЛЬ "local" (Zipkin) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: local
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+aws:
+  xray:
+    enabled: false
+
+---
+# ======================================================
+# === ПРОФІЛЬ "aws" (X-Ray) ===
+# ======================================================
+spring:
+  config:
+    activate:
+      on-profile: aws
+
+aws:
+  xray:
+    enabled: true
+
+management:
+  tracing:
+    enabled: false
