@@ -9,6 +9,8 @@ services:
     container_name: service-discovery
     ports:
       - "8761:8761" # Прокидаємо порт назовні (host:container)
+    environment:
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
 
@@ -23,6 +25,7 @@ services:
     environment:
       # ВАЖЛИВО: Кажемо Gateway, де шукати Eureka
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on: # Запуститися ТІЛЬКИ ПІСЛЯ...
@@ -84,6 +87,7 @@ services:
       - DB_URL=jdbc:postgresql://postgres-user-db:5432/user_service_db
       - DB_USER=crafthub
       - DB_PASS=password
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on:
@@ -101,6 +105,8 @@ services:
       - DB_URL=jdbc:postgresql://postgres-product-db:5432/product_service_db
       - DB_USER=crafthub
       - DB_PASS=password
+      - REDIS_HOST=redis
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on:
@@ -118,8 +124,10 @@ services:
       - DB_URL=jdbc:postgresql://postgres-order-db:5432/order_service_db
       - DB_USER=crafthub
       - DB_PASS=password
-      # Кажемо Order Service, як знайти Product Service
       - PRODUCT_SERVICE_URL=http://product-service/api/v1/products
+      # ❗️❗️❗️ ОСЬ ВИПРАВЛЕННЯ 3 (Додай ці 2 рядки) ❗️❗️❗️
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092 # Передаємо ім'я сервісу Kafka
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans # Передаємо ім'я сервісу Zipkin
     networks:
       - crafthub-net
     depends_on:
@@ -167,6 +175,7 @@ services:
       # Кажемо сервісу, де знайти Eureka і Kafka (внутрішні імена Docker)
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on:
@@ -183,7 +192,13 @@ services:
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
       # ❗️ ВАЖЛИВО: адреса MongoDB всередині Docker
       # Ми використовуємо ім'я сервісу 'mongo', а не 'localhost'
-      - MONGO_URI=mongodb://crafthub:password@mongo:27017/cart_db?authSource=admin
+      - MONGO_HOST=mongo
+      - MONGO_PORT=27017
+      - MONGO_DB=cart_db
+      - MONGO_USER=crafthub
+      - MONGO_PASS=password
+      - SPRING_DATA_MONGODB_HOST=mongo  # База буде створена автоматично
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on:
@@ -214,12 +229,11 @@ services:
       # - MONGO_INITDB_ROOT_USERNAME=crafthub
       # - MONGO_INITDB_ROOT_PASSWORD=password
       # ❗️ НА ЦІ ТРИ РЯДКИ:
-      - MONGO_INITDB_DATABASE=cart_db       # База даних, яку потрібно створити
-      - MONGO_INITDB_USERNAME=crafthub    # Користувач, якого потрібно створити
-      - MONGO_INITDB_PASSWORD=password    # Пароль для цього користувача
+      - MONGO_INITDB_ROOT_USERNAME=crafthub
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=cart_db
     volumes:
       - mongo-data:/data/db # Зберігаємо дані
-    command: ["mongod", "--noauth"]
   # 15. Zipkin (Для Розподіленого Трасування)
   zipkin:
     image: openzipkin/zipkin:3 # Використовуємо офіційний образ Zipkin

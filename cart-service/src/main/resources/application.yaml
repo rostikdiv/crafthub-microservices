@@ -10,9 +10,21 @@ spring:
   profiles:
     active: local # ❗️ Профіль за замовчуванням
 
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
   data:
     mongodb:
-      uri: ${MONGO_URI:mongodb://localhost:27017/cart_db}
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      database: ${MONGO_DB:cart_db}
+      username: ${MONGO_USER:crafthub}
+      password: ${MONGO_PASS:password}
+      authentication-database: admin  # Важливо!
 
 management:
   tracing:
@@ -38,7 +50,7 @@ spring:
 management:
   zipkin:
     tracing:
-      endpoint: http://localhost:9411/api/v2/spans
+      endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
 
 aws:
   xray:
@@ -52,6 +64,10 @@ spring:
   config:
     activate:
       on-profile: aws
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
 
 aws:
   xray:

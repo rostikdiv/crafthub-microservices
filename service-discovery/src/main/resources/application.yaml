@@ -10,6 +10,13 @@ spring:
   profiles:
     active: local # ❗️ Профіль за замовчуванням
 
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
 management:
   tracing:
     sampling:
@@ -31,10 +38,11 @@ spring:
     activate:
       on-profile: local
 
+
 management:
   zipkin:
     tracing:
-      endpoint: http://localhost:9411/api/v2/spans
+      endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
 
 aws:
   xray:
@@ -48,6 +56,9 @@ spring:
   config:
     activate:
       on-profile: aws
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
 
 aws:
   xray:

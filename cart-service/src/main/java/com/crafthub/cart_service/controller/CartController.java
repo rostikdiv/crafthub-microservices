@@ -46,4 +46,9 @@ public class CartController {
     ) {
         return ResponseEntity.ok(cartService.removeItemFromCart(userEmail, productId));
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Test");
+    }
 }

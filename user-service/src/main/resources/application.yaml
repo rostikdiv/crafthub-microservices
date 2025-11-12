@@ -10,6 +10,13 @@ spring:
   profiles:
     active: local # ❗️ Профіль за замовчуванням
 
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5431/user_service_db}
@@ -54,7 +61,7 @@ spring:
 management:
   zipkin:
     tracing:
-      endpoint: http://localhost:9411/api/v2/spans # Адреса Zipkin
+      endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
 
 aws:
   xray:
@@ -68,6 +75,10 @@ spring:
   config:
     activate:
       on-profile: aws
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
 
 aws:
   xray:
