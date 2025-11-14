@@ -10,13 +10,6 @@ spring:
   profiles:
     active: local # ❗️ Профіль за замовчуванням
 
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
-
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5431/user_service_db}
@@ -40,8 +33,6 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
-  instance:
-    prefer-ip-address: true
 
 application:
   security:
@@ -57,6 +48,13 @@ spring:
   config:
     activate:
       on-profile: local
+
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
 management:
   zipkin:

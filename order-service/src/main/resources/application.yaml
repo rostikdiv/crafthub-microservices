@@ -10,18 +10,6 @@ spring:
   profiles:
     active: local # ❗️ Профіль за замовчуванням
 
-#  cloud:
-#    aws:
-#      autoconfigure:
-#        enabled: false
-  # ❗️ ВИМКНУТИ AWS автоконфігурацію глобально
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
-
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5433/order_service_db}
@@ -45,8 +33,6 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
-  instance:
-    prefer-ip-address: true
 
 feign:
   client:
@@ -62,6 +48,18 @@ spring:
   config:
     activate:
       on-profile: local
+
+      #  cloud:
+      #    aws:
+      #      autoconfigure:
+      #        enabled: false
+      # ❗️ ВИМКНУТИ AWS автоконфігурацію глобально
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
   # Налаштування Kafka (тільки для local)
   kafka:

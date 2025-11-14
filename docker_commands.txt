@@ -1,0 +1,49 @@
+# === 1. Service Discovery ===
+docker build --no-cache -t crafthub/service-discovery:latest -f ./service-discovery/Dockerfile .
+
+# === 2. Api Gateway ===
+docker build --no-cache -t crafthub/api-gateway:latest -f ./api-gateway/Dockerfile .
+
+# === 3. User Service ===
+docker build --no-cache -t crafthub/user-service:latest -f ./user-service/Dockerfile .
+
+# === 4. Product Service ===
+docker build --no-cache -t crafthub/product-service:latest -f ./product-service/Dockerfile .
+
+# === 5. Order Service ===
+docker build --no-cache -t crafthub/order-service:latest -f ./order-service/Dockerfile .
+
+# === 6. Notification Service ===
+docker build --no-cache -t crafthub/notification-service:latest -f ./notification-service/Dockerfile .
+
+# === 7. Cart Service ===
+docker build --no-cache -t crafthub/cart-service:latest -f ./cart-service/Dockerfile .
+
+
+# === 1. Service Discovery ===
+docker tag crafthub/service-discovery:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/service-discovery:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/service-discovery:latest
+
+# === 2. Api Gateway ===
+docker tag crafthub/api-gateway:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/api-gateway:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/api-gateway:latest
+
+# === 3. User Service ===
+docker tag crafthub/user-service:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/user-service:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/user-service:latest
+
+# === 4. Product Service ===
+docker tag crafthub/product-service:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/product-service:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/product-service:latest
+
+# === 5. Order Service ===
+docker tag crafthub/order-service:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/order-service:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/order-service:latest
+
+# === 6. Notification Service ===
+docker tag crafthub/notification-service:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/notification-service:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/notification-service:latest
+
+# === 7. Cart Service ===
+docker tag crafthub/cart-service:latest 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/cart-service:latest
+docker push 437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/cart-service:latest

@@ -10,19 +10,6 @@ spring:
   profiles:
     active: local # ❗️ Профіль за замовчуванням
 
-#  cloud:
-#    aws:
-#      autoconfigure:
-#        enabled: false
-
-  # ❗️ ВИМКНУТИ AWS автоконфігурацію глобально
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
-
 management:
   tracing:
     sampling:
@@ -41,6 +28,19 @@ spring:
   config:
     activate:
       on-profile: local
+
+    #  cloud:
+    #    aws:
+    #      autoconfigure:
+    #        enabled: false
+
+    # ❗️ ВИМКНУТИ AWS автоконфігурацію глобально
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
   # Налаштування Kafka (тільки для local)
   kafka:
