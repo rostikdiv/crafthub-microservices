@@ -24,11 +24,6 @@ management:
     sampling:
       probability: 1.0
 
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
-
 ---
 # ======================================================
 # === ПРОФІЛЬ "local" (Zipkin) ===
@@ -44,6 +39,13 @@ spring:
       - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
       - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
       - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: false
 
 management:
   zipkin:
@@ -65,8 +67,13 @@ spring:
 
   autoconfigure:
     exclude:
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - org.springframework.cloud.client.discovery.DiscoveryClientAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
 
+  cloud:
+    discovery:
+      enabled: false # ❗️ Вимикаємо
 aws:
   xray:
     enabled: true

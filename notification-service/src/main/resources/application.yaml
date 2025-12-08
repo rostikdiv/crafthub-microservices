@@ -15,11 +15,6 @@ management:
     sampling:
       probability: 1.0
 
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
-
 ---
 # ======================================================
 # === ПРОФІЛЬ "local" (Kafka + Zipkin) ===
@@ -41,6 +36,13 @@ spring:
       - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
       - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
       - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: false
 
   # Налаштування Kafka (тільки для local)
   kafka:
@@ -73,18 +75,34 @@ spring:
     aws:
       autoconfigure:
         enabled: true
+    discovery:
+      enabled: false # ❗️ Вимикаємо
 
   # ❗️ УВІМКНУТИ AWS автоконфігурацію для AWS профілю
+
   autoconfigure:
     exclude:
+      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
+      - org.springframework.cloud.client.discovery.DiscoveryClientAutoConfiguration
       - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+io:
+  awspring:
+    cloud:
+      sqs:
+        auto-create-queues: false # ЗАБОРОНИТИ СТВОРЮВАТИ ЧЕРГИ
+
+application:
+  sqs:
+    # ❗️ Встав сюди СВІЙ URL з консолі SQS
+    orders-queue-url: https://sqs.eu-north-1.amazonaws.com/437387546814/orders_queue
 
 aws:
   xray:
     enabled: true
   region:
-    static: ${AWS_REGION:us-east-1}
+    static: ${AWS_REGION:eu-north-1}
 
 management:
   tracing:

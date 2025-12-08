@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class SqsListeners {
 
     // ❗️ Анотація SQS замість Kafka
-    @SqsListener("orders_queue")
+    @SqsListener("${application.sqs.orders-queue-url}")
     public // Назва нашої SQS черги
     void handleOrderNotification(String message) {
         // Логіка та сама

@@ -17,7 +17,8 @@ public class SqsPublisherService implements EventPublisherService {
 
     private final SqsTemplate sqsTemplate;
     private final ObjectMapper objectMapper;
-    private static final String ORDERS_QUEUE = "orders_queue"; // Назва нашої SQS черги
+    @org.springframework.beans.factory.annotation.Value("${application.sqs.orders-queue-url}")
+    private String ordersQueueUrl;
 
     @Override
     public void publishOrderCreatedEvent(Order order) {
@@ -29,7 +30,7 @@ public class SqsPublisherService implements EventPublisherService {
             );
             String message = objectMapper.writeValueAsString(event);
             // ❗️ Відправляємо в SQS
-            sqsTemplate.send(ORDERS_QUEUE, message);
+            sqsTemplate.send(ordersQueueUrl, message);
             log.info("Order Created event published to SQS: {}", message);
         } catch (Exception e) {
             log.error("Failed to publish OrderCreatedEvent to SQS: {}", e.getMessage());
