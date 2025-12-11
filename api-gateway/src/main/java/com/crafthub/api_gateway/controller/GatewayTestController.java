@@ -25,6 +25,6 @@ public class GatewayTestController {
     }
     @GetMapping("/test")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Test result");
+        return ResponseEntity.ok("Test result: ");
     }
 }
