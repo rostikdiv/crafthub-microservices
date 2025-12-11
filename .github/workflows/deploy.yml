@@ -4,19 +4,20 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Дозволяє запускати кнопку вручну з сайту GitHub
 
 env:
   AWS_REGION: eu-north-1
-  ECR_REGISTRY: 437387546814.dkr.ecr.eu-north-1.amazonaws.com
   ECS_CLUSTER: crafthub-cluster
+  # Тепер реєстр формується динамічно з секретів
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com
 
 jobs:
   # ------------------------------------------------------------------
-  # ЕТАП 1: ВИЗНАЧЕННЯ ЗМІН (Фільтр)
+  # ЕТАП 1: ВИЗНАЧЕННЯ ЗМІН
   # ------------------------------------------------------------------
   detect-changes:
     runs-on: ubuntu-latest
-    # Оголошуємо outputs, щоб інші джоби могли їх читати
     outputs:
       api-gateway: ${{ steps.filter.outputs.api-gateway }}
       user-service: ${{ steps.filter.outputs.user-service }}
@@ -24,7 +25,7 @@ jobs:
       order-service: ${{ steps.filter.outputs.order-service }}
       cart-service: ${{ steps.filter.outputs.cart-service }}
       notification-service: ${{ steps.filter.outputs.notification-service }}
-      service-discovery: ${{ steps.filter.outputs.service-discovery }}
+      # Service Discovery видалено, бо в AWS ми юзаємо Cloud Map
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -43,16 +44,14 @@ jobs:
               - 'cart-service/**'
             notification-service:
               - 'notification-service/**'
-            service-discovery:
-              - 'service-discovery/**'
 
   # ------------------------------------------------------------------
-  # ЕТАП 2: ДЕПЛОЙ (Залежить від Етапу 1)
+  # ЕТАП 2: ДЕПЛОЙ СЕРВІСІВ
   # ------------------------------------------------------------------
 
   deploy-api-gateway:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.api-gateway == 'true' }}
+    if: ${{ needs.detect-changes.outputs.api-gateway == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,11 +60,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
+
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build JAR
@@ -73,15 +74,18 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/crafthub/api-gateway:latest -f ./api-gateway/Dockerfile .
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/api-gateway:latest -f ./api-gateway/Dockerfile .
           docker push $ECR_REGISTRY/crafthub/api-gateway:latest
 
       - name: Update ECS Service
         run: aws ecs update-service --cluster $ECS_CLUSTER --service api-gateway --force-new-deployment
 
+      - name: Wait for stability
+        run: aws ecs wait services-stable --cluster $ECS_CLUSTER --services api-gateway
+
   deploy-order-service:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.order-service == 'true' }}
+    if: ${{ needs.detect-changes.outputs.order-service == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -94,7 +98,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build JAR
@@ -102,15 +106,18 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/crafthub/order-service:latest -f ./order-service/Dockerfile .
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/order-service:latest -f ./order-service/Dockerfile .
           docker push $ECR_REGISTRY/crafthub/order-service:latest
 
       - name: Update ECS Service
         run: aws ecs update-service --cluster $ECS_CLUSTER --service order-service --force-new-deployment
 
+      - name: Wait for stability
+        run: aws ecs wait services-stable --cluster $ECS_CLUSTER --services order-service
+
   deploy-cart-service:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.cart-service == 'true' }}
+    if: ${{ needs.detect-changes.outputs.cart-service == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -123,7 +130,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build JAR
@@ -131,15 +138,18 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/crafthub/cart-service:latest -f ./cart-service/Dockerfile .
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/cart-service:latest -f ./cart-service/Dockerfile .
           docker push $ECR_REGISTRY/crafthub/cart-service:latest
 
       - name: Update ECS Service
         run: aws ecs update-service --cluster $ECS_CLUSTER --service cart-service --force-new-deployment
 
+      - name: Wait for stability
+        run: aws ecs wait services-stable --cluster $ECS_CLUSTER --services cart-service
+
   deploy-product-service:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.product-service == 'true' }}
+    if: ${{ needs.detect-changes.outputs.product-service == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -152,7 +162,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build JAR
@@ -160,15 +170,18 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/crafthub/product-service:latest -f ./product-service/Dockerfile .
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/product-service:latest -f ./product-service/Dockerfile .
           docker push $ECR_REGISTRY/crafthub/product-service:latest
 
       - name: Update ECS Service
         run: aws ecs update-service --cluster $ECS_CLUSTER --service product-service --force-new-deployment
 
+      - name: Wait for stability
+        run: aws ecs wait services-stable --cluster $ECS_CLUSTER --services product-service
+
   deploy-user-service:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.user-service == 'true' }}
+    if: ${{ needs.detect-changes.outputs.user-service == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -181,7 +194,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build JAR
@@ -189,15 +202,18 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/crafthub/user-service:latest -f ./user-service/Dockerfile .
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/user-service:latest -f ./user-service/Dockerfile .
           docker push $ECR_REGISTRY/crafthub/user-service:latest
 
       - name: Update ECS Service
         run: aws ecs update-service --cluster $ECS_CLUSTER --service user-service --force-new-deployment
 
+      - name: Wait for stability
+        run: aws ecs wait services-stable --cluster $ECS_CLUSTER --services user-service
+
   deploy-notification-service:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.notification-service == 'true' }}
+    if: ${{ needs.detect-changes.outputs.notification-service == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -210,7 +226,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build JAR
@@ -218,37 +234,11 @@ jobs:
 
       - name: Build & Push Docker Image
         run: |
-          docker build -t $ECR_REGISTRY/crafthub/notification-service:latest -f ./notification-service/Dockerfile .
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/notification-service:latest -f ./notification-service/Dockerfile .
           docker push $ECR_REGISTRY/crafthub/notification-service:latest
 
       - name: Update ECS Service
         run: aws ecs update-service --cluster $ECS_CLUSTER --service notification-service --force-new-deployment
 
-  deploy-service-discovery:
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.service-discovery == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-      - uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build JAR
-        run: mvn clean package -pl service-discovery -am -DskipTests
-
-      - name: Build & Push Docker Image
-        run: |
-          docker build -t $ECR_REGISTRY/crafthub/service-discovery:latest -f ./service-discovery/Dockerfile .
-          docker push $ECR_REGISTRY/crafthub/service-discovery:latest
-
-      - name: Update ECS Service
-        run: aws ecs update-service --cluster $ECS_CLUSTER --service service-discovery --force-new-deployment
+      - name: Wait for stability
+        run: aws ecs wait services-stable --cluster $ECS_CLUSTER --services notification-service
