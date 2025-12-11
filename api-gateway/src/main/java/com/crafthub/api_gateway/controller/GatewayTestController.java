@@ -7,10 +7,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/gateway")
-@RequiredArgsConstructor
 public class GatewayTestController {
 
     private final JwtUtil jwtUtil;
+
+    // ❗️ Додай цей конструктор
+    public GatewayTestController(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+        System.out.println("✅✅✅ GATEWAY TEST CONTROLLER LOADED - VERSION 2.0 ✅✅✅");
+    }
 
     @GetMapping("/test-token")
     public ResponseEntity<String> testToken(@RequestHeader("Authorization") String authHeader) {
@@ -23,8 +28,8 @@ public class GatewayTestController {
 
         return ResponseEntity.ok("Token is valid: " + isValid);
     }
-    @GetMapping("/test")
+    @GetMapping("/test-new")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Test result: in container");
+        return ResponseEntity.ok("IT WORKS!");
     }
 }
