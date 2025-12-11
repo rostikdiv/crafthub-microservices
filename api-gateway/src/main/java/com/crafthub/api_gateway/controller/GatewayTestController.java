@@ -27,9 +27,4 @@ public class GatewayTestController {
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("Test result: in container");
     }
-
-    @GetMapping("/test2")
-    public ResponseEntity<String> test2() {
-        return ResponseEntity.ok("Test result:");
-    }
 }
