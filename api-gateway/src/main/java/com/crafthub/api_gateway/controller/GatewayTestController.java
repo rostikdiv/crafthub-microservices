@@ -23,4 +23,8 @@ public class GatewayTestController {
 
         return ResponseEntity.ok("Token is valid: " + isValid);
     }
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Test");
+    }
 }
