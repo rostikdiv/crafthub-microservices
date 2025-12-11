@@ -1,0 +1,229 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: eu-north-1
+  ECR_REGISTRY: 437387546814.dkr.ecr.eu-north-1.amazonaws.com
+  ECS_CLUSTER: crafthub-cluster
+
+jobs:
+  # ==========================================
+  # 1. ORDER SERVICE
+  # ==========================================
+  deploy-order-service:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'order-service/') || contains(github.event.head_commit.added, 'order-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl order-service -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/order-service:latest -f ./order-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/order-service:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service order-service --force-new-deployment
+
+  # ==========================================
+  # 2. CART SERVICE
+  # ==========================================
+  deploy-cart-service:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'cart-service/') || contains(github.event.head_commit.added, 'cart-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl cart-service -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/cart-service:latest -f ./cart-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/cart-service:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service cart-service --force-new-deployment
+
+  # ==========================================
+  # 3. PRODUCT SERVICE
+  # ==========================================
+  deploy-product-service:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'product-service/') || contains(github.event.head_commit.added, 'product-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl product-service -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/product-service:latest -f ./product-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/product-service:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service product-service --force-new-deployment
+
+  # ==========================================
+  # 4. USER SERVICE
+  # ==========================================
+  deploy-user-service:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'user-service/') || contains(github.event.head_commit.added, 'user-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl user-service -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/user-service:latest -f ./user-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/user-service:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service user-service --force-new-deployment
+
+  # ==========================================
+  # 5. NOTIFICATION SERVICE
+  # ==========================================
+  deploy-notification-service:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'notification-service/') || contains(github.event.head_commit.added, 'notification-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl notification-service -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/notification-service:latest -f ./notification-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/notification-service:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service notification-service --force-new-deployment
+
+  # ==========================================
+  # 6. API GATEWAY
+  # ==========================================
+  deploy-api-gateway:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'api-gateway/') || contains(github.event.head_commit.added, 'api-gateway/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl api-gateway -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/api-gateway:latest -f ./api-gateway/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/api-gateway:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service api-gateway --force-new-deployment
+
+  # ==========================================
+  # 7. SERVICE DISCOVERY
+  # ==========================================
+  deploy-service-discovery:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'service-discovery/') || contains(github.event.head_commit.added, 'service-discovery/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build JAR
+        run: mvn clean package -pl service-discovery -am -DskipTests
+
+      - name: Build & Push Docker Image
+        run: |
+          docker build -t $ECR_REGISTRY/crafthub/service-discovery:latest -f ./service-discovery/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/service-discovery:latest
+
+      - name: Update ECS Service
+        run: aws ecs update-service --cluster $ECS_CLUSTER --service service-discovery --force-new-deployment
