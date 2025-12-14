@@ -30,6 +30,6 @@ public class GatewayTestController {
     }
     @GetMapping("/test-new")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("IT WORKS with josn task-def!");
+        return ResponseEntity.ok("IT WORKS with josn task-def try 2");
     }
 }
