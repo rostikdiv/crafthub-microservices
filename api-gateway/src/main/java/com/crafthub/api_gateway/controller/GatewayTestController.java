@@ -30,6 +30,6 @@ public class GatewayTestController {
     }
     @GetMapping("/test")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("api service works");
+        return ResponseEntity.ok("api service works!");
     }
 }

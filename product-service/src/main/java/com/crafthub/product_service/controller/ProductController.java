@@ -51,6 +51,6 @@ public class ProductController {
     }
     @GetMapping("/test")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("product service works");
+        return ResponseEntity.ok("product service works!");
     }
 }

@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Дозволяє запускати кнопку вручну з сайту GitHub
+  workflow_dispatch:
 
 env:
   AWS_REGION: eu-north-1
   ECS_CLUSTER: crafthub-cluster
-  # Тепер реєстр формується динамічно з секретів
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com
 
 jobs:
@@ -25,7 +24,6 @@ jobs:
       order-service: ${{ steps.filter.outputs.order-service }}
       cart-service: ${{ steps.filter.outputs.cart-service }}
       notification-service: ${{ steps.filter.outputs.notification-service }}
-      # Service Discovery видалено, бо в AWS ми юзаємо Cloud Map
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -49,25 +47,23 @@ jobs:
   # ЕТАП 2: ДЕПЛОЙ СЕРВІСІВ
   # ------------------------------------------------------------------
 
+  # === API GATEWAY ===
   deploy-api-gateway:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.api-gateway == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-
       - uses: aws-actions/amazon-ecr-login@v2
         id: login-ecr
 
@@ -98,8 +94,9 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: api-gateway
           cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
 
-
+  # === ORDER SERVICE ===
   deploy-order-service:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.order-service == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -117,18 +114,38 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
 
       - name: Build JAR
         run: mvn clean package -pl order-service -am -DskipTests
 
-      - name: Build & Push Docker Image
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --no-cache -t $ECR_REGISTRY/crafthub/order-service:latest -f ./order-service/Dockerfile .
-          docker push $ECR_REGISTRY/crafthub/order-service:latest
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/order-service:$IMAGE_TAG -f ./order-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/order-service:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/crafthub/order-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Update ECS Service
-        run: aws ecs update-service --cluster $ECS_CLUSTER --service order-service --force-new-deployment
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: order-service/task-definition.json
+          container-name: order-service
+          image: ${{ steps.build-image.outputs.image }}
 
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: order-service
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
+
+  # === CART SERVICE ===
   deploy-cart-service:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.cart-service == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -146,19 +163,38 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
 
       - name: Build JAR
         run: mvn clean package -pl cart-service -am -DskipTests
 
-      - name: Build & Push Docker Image
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --no-cache -t $ECR_REGISTRY/crafthub/cart-service:latest -f ./cart-service/Dockerfile .
-          docker push $ECR_REGISTRY/crafthub/cart-service:latest
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/cart-service:$IMAGE_TAG -f ./cart-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/cart-service:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/crafthub/cart-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Update ECS Service
-        run: aws ecs update-service --cluster $ECS_CLUSTER --service cart-service --force-new-deployment
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: cart-service/task-definition.json
+          container-name: cart-service
+          image: ${{ steps.build-image.outputs.image }}
 
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: cart-service
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
 
+  # === PRODUCT SERVICE ===
   deploy-product-service:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.product-service == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -176,19 +212,38 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
 
       - name: Build JAR
         run: mvn clean package -pl product-service -am -DskipTests
 
-      - name: Build & Push Docker Image
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --no-cache -t $ECR_REGISTRY/crafthub/product-service:latest -f ./product-service/Dockerfile .
-          docker push $ECR_REGISTRY/crafthub/product-service:latest
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/product-service:$IMAGE_TAG -f ./product-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/product-service:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/crafthub/product-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Update ECS Service
-        run: aws ecs update-service --cluster $ECS_CLUSTER --service product-service --force-new-deployment
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: product-service/task-definition.json
+          container-name: product-service
+          image: ${{ steps.build-image.outputs.image }}
 
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: product-service
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
 
+  # === USER SERVICE ===
   deploy-user-service:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.user-service == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -206,19 +261,38 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
 
       - name: Build JAR
         run: mvn clean package -pl user-service -am -DskipTests
 
-      - name: Build & Push Docker Image
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --no-cache -t $ECR_REGISTRY/crafthub/user-service:latest -f ./user-service/Dockerfile .
-          docker push $ECR_REGISTRY/crafthub/user-service:latest
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/user-service:$IMAGE_TAG -f ./user-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/user-service:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/crafthub/user-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Update ECS Service
-        run: aws ecs update-service --cluster $ECS_CLUSTER --service user-service --force-new-deployment
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: user-service/task-definition.json
+          container-name: user-service
+          image: ${{ steps.build-image.outputs.image }}
 
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: user-service
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
 
+  # === NOTIFICATION SERVICE ===
   deploy-notification-service:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.notification-service == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -236,14 +310,33 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
 
       - name: Build JAR
         run: mvn clean package -pl notification-service -am -DskipTests
 
-      - name: Build & Push Docker Image
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --no-cache -t $ECR_REGISTRY/crafthub/notification-service:latest -f ./notification-service/Dockerfile .
-          docker push $ECR_REGISTRY/crafthub/notification-service:latest
+          docker build --no-cache -t $ECR_REGISTRY/crafthub/notification-service:$IMAGE_TAG -f ./notification-service/Dockerfile .
+          docker push $ECR_REGISTRY/crafthub/notification-service:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/crafthub/notification-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Update ECS Service
-        run: aws ecs update-service --cluster $ECS_CLUSTER --service notification-service --force-new-deployment
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: notification-service/task-definition.json
+          container-name: notification-service
+          image: ${{ steps.build-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: notification-service
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: false
