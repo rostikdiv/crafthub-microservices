@@ -49,4 +49,8 @@ public class ProductController {
         Product createdProduct = productService.createProduct(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("product service works");
+    }
 }

@@ -1,0 +1,62 @@
+{
+  "family": "product-service-task-def",
+  "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "containerDefinitions": [
+    {
+      "name": "product-service",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/product-service:latest",
+      "cpu": 0,
+      "essential": true,
+      "portMappings": [
+        {
+          "name": "product-service-8082-tcp",
+          "containerPort": 8082,
+          "hostPort": 8082,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "environment": [
+        {
+          "name": "REDIS_HOST",
+          "value": "crafthub-redis-cache.8af0bh.ng.0001.eun1.cache.amazonaws.com"
+        },
+        {
+          "name": "DB_URL",
+          "value": "jdbc:postgresql://crafthub-product-db.cjuwam6e2uzz.eu-north-1.rds.amazonaws.com:5432/product_service_db"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "aws"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-password-KVFsjZ"
+        },
+        {
+          "name": "DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-username-iluZmg"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/product-service-task-def",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}

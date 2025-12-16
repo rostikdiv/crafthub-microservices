@@ -1,0 +1,124 @@
+{
+  "compatibilities": [
+    "EC2",
+    "MANAGED_INSTANCES",
+    "FARGATE"
+  ],
+  "containerDefinitions": [
+    {
+      "cpu": 0,
+      "environment": [
+        {
+          "name": "MONGO_HOST",
+          "value": "172.31.35.125"
+        },
+        {
+          "name": "MONGO_PORT",
+          "value": "27017"
+        },
+        {
+          "name": "MONGO_DB",
+          "value": "cart_db"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "aws"
+        }
+      ],
+      "environmentFiles": [],
+      "essential": true,
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/cart-service@sha256:62728f7c9a7705a1b11ccc0fd42b283a8d8dc7296f19dbbf400807c0450d7b5c",
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cart-service-task-def",
+          "awslogs-create-group": "true",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "mountPoints": [],
+      "name": "cart-service",
+      "portMappings": [
+        {
+          "appProtocol": "http",
+          "containerPort": 8085,
+          "hostPort": 8085,
+          "name": "cart-service-8085-tcp",
+          "protocol": "tcp"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "MONGO_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/mongo-password-P0pPqM"
+        },
+        {
+          "name": "MONGO_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/mongo-username-Fid2WC"
+        }
+      ],
+      "systemControls": [],
+      "ulimits": [],
+      "volumesFrom": []
+    }
+  ],
+  "cpu": "512",
+  "enableFaultInjection": false,
+  "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
+  "family": "cart-service-task-def",
+  "memory": "1024",
+  "networkMode": "awsvpc",
+  "placementConstraints": [],
+  "registeredAt": "2025-11-16T12:19:22.202Z",
+  "registeredBy": "arn:aws:iam::437387546814:root",
+  "requiresAttributes": [
+    {
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    },
+    {
+      "name": "ecs.capability.secrets.asm.environment-variables"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "revision": 7,
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "status": "ACTIVE",
+  "taskDefinitionArn": "arn:aws:ecs:eu-north-1:437387546814:task-definition/cart-service-task-def:7",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "volumes": [],
+  "tags": []
+}

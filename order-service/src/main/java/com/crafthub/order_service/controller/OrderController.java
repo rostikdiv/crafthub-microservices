@@ -29,6 +29,9 @@ public class OrderController {
         Order createdOrder = orderService.createOrder(orderRequest, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
     }
-
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("order service works");
+    }
     // (Тут ми додамо GET /api/v1/orders/my-orders пізніше)
 }

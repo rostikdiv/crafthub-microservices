@@ -1,0 +1,62 @@
+{
+  "family": "order-service-task-def",
+  "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "containerDefinitions": [
+    {
+      "name": "order-service",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/order-service:latest",
+      "cpu": 0,
+      "essential": true,
+      "portMappings": [
+        {
+          "name": "order-service-8083-tcp",
+          "containerPort": 8083,
+          "hostPort": 8083,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "environment": [
+        {
+          "name": "DB_URL",
+          "value": "jdbc:postgresql://crafthub-order-db.cjuwam6e2uzz.eu-north-1.rds.amazonaws.com:5432/order_service_db"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "aws"
+        },
+        {
+          "name": "SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_PRODUCT-SERVICE_URL",
+          "value": "http://product-service.crafthub.internal:8082"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DB_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-password-KVFsjZ"
+        },
+        {
+          "name": "DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-username-iluZmg"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/order-service-task-def",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}

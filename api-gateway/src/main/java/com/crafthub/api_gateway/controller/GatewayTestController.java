@@ -28,8 +28,8 @@ public class GatewayTestController {
 
         return ResponseEntity.ok("Token is valid: " + isValid);
     }
-    @GetMapping("/test-new")
+    @GetMapping("/test")
     public ResponseEntity<String> test() {
-        return ResponseEntity.ok("IT WORKS with josn task-def try 2");
+        return ResponseEntity.ok("api service works");
     }
 }

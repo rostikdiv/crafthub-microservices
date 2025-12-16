@@ -1,0 +1,52 @@
+{
+  "family": "notification-service-task-def",
+  "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "containerDefinitions": [
+    {
+      "name": "notification-service",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/notification-service:latest",
+      "cpu": 0,
+      "essential": true,
+      "portMappings": [
+        {
+          "name": "notification-service-8084-tcp",
+          "containerPort": 8084,
+          "hostPort": 8084,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "environment": [
+        {
+          "name": "AWS_XRAY_CONTEXT_MISSING",
+          "value": "IGNORE_ERROR"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "eu-north-1"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "aws"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/notification-service-task-def",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}

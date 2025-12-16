@@ -1,0 +1,66 @@
+{
+  "family": "cart-service-task-def",
+  "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "containerDefinitions": [
+    {
+      "name": "cart-service",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/cart-service:latest",
+      "cpu": 0,
+      "essential": true,
+      "portMappings": [
+        {
+          "name": "cart-service-8085-tcp",
+          "containerPort": 8085,
+          "hostPort": 8085,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "environment": [
+        {
+          "name": "MONGO_HOST",
+          "value": "172.31.35.125"
+        },
+        {
+          "name": "MONGO_PORT",
+          "value": "27017"
+        },
+        {
+          "name": "MONGO_DB",
+          "value": "cart_db"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "aws"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "MONGO_PASS",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/mongo-password-P0pPqM"
+        },
+        {
+          "name": "MONGO_USER",
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/mongo-username-Fid2WC"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/cart-service-task-def",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      }
+    }
+  ]
+}
