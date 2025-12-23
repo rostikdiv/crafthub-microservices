@@ -7,11 +7,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID; // Використовуємо UUID замість Long
 
 @Entity
-@Table(name = "users") // Явно вказуємо назву таблиці
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,8 +22,8 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // PostgreSQL добре працює з IDENTITY
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID) // Змінили на UUID
+    private UUID id;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -35,42 +37,59 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String lastName;
 
-    @Enumerated(EnumType.STRING) // Зберігаємо в базі як рядок ("USER", "ADMIN")
+    private String phoneNumber;
+
+    private String avatarUrl;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
 
+    @Column(nullable = false)
+    private Boolean isVerified = false; // Важливо для військових
+
+    @Column(nullable = false, updatable = false)
+    private Timestamp createdAt;
+
+    private Timestamp updatedAt;
+
+    // Зв'язки One-to-One
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private MilitaryProfile militaryProfile;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private SellerProfile sellerProfile;
+
+    // Зв'язок з документами
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<VerificationDoc> documents;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+        if (this.isVerified == null) this.isVerified = false;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = new Timestamp(System.currentTimeMillis());
+    }
+
+    // Security методи
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
-    public String getPassword() {
-        return this.password;
-    }
+    public String getUsername() { return email; }
 
     @Override
-    public String getUsername() {
-        return this.email;
-    }
-
+    public boolean isAccountNonExpired() { return true; }
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
+    public boolean isAccountNonLocked() { return true; }
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
+    public boolean isCredentialsNonExpired() { return true; }
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    public boolean isEnabled() { return true; }
 }

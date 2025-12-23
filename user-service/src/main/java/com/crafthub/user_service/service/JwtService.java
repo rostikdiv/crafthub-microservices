@@ -1,71 +1,59 @@
 package com.crafthub.user_service.service;
 
+import com.crafthub.user_service.entity.User; // 🆕 Імпорт нашого User
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 @Service
-@Slf4j
 public class JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
+    @Value("${application.security.jwt.secret-key:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}")
     private String secretKey;
 
-    @Value("${application.security.jwt.expiration}")
+    @Value("${application.security.jwt.expiration:86400000}")
     private long jwtExpiration;
 
-    // Метод для витягування email (username) з токена
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Універсальний метод для витягування будь-яких даних (claims)
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    // --- Методи генерації токена ---
-
+    // 🆕 ОНОВЛЕНИЙ МЕТОД: Додаємо ID та Role в токен
     public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+        Map<String, Object> extraClaims = new HashMap<>();
+        if (userDetails instanceof User customUser) {
+            extraClaims.put("id", customUser.getId());   // Зашиваємо UUID
+            extraClaims.put("role", customUser.getRole()); // Зашиваємо Роль
+        }
+        return generateToken(extraClaims, userDetails);
     }
 
-    public String generateToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails
-    ) {
-        return buildToken(extraClaims, userDetails, jwtExpiration);
-    }
-
-    private String buildToken(
-            Map<String, Object> extraClaims,
-            UserDetails userDetails,
-            long expiration
-    ) {
+    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
-                .claims(extraClaims)
-                .subject(userDetails.getUsername()) // Наш 'username' - це email
+                .claims(extraClaims) // або .claims().add(extraClaims).and()
+                .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey()) // Підписуємо токен нашим ключем
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), Jwts.SIG.HS256) // ❗️ Явно вказуємо алгоритм з новим синтаксисом
                 .compact();
     }
 
-    // --- Методи валідації токена ---
-
-    // (Ми будемо використовувати ці методи в Gateway, але добре мати їх і тут)
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
@@ -79,22 +67,15 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // --- "Серце" JWT ---
-
-    // Розшифровує наш Base64-ключ для використання в підписі
-    private SecretKey getSignInKey() {
-        log.info("[user-service] Using secret-key: [{}]", secretKey);
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith((javax.crypto.SecretKey) getSignInKey()) // ❗️ verifyWith приймає SecretKey
+                .build()
+                .parseSignedClaims(token) // ❗️ замість parseClaimsJws
+                .getPayload(); // ❗️ замість getBody
+    }
+    private javax.crypto.SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    // Парсер токена
-    private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
     }
 }

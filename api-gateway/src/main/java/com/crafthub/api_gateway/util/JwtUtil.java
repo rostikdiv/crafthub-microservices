@@ -30,6 +30,8 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
+
+
     private Claims extractAllClaims(String token) {
         try {
             return Jwts
@@ -79,5 +81,15 @@ public class JwtUtil {
                 secretKey.substring(0, Math.min(20, secretKey.length())));
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    // Додати цей метод для витягування ID
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
+    }
+
+    // Додати цей метод для витягування Ролі
+    public String extractUserRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 }

@@ -16,51 +16,46 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthenticationService {
 
-    private final UserRepository userRepository;
+    private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        // 1. Створюємо нового юзера (використовуємо Builder, який ми додали)
+        // Якщо роль не вказана, вважаємо, що це звичайний покупець
+        var role = request.getRole() == null ? Role.BUYER : request.getRole();
+
+        // Військові та продавці вимагають верифікації. Покупці - ні.
+        boolean isVerified = role == Role.BUYER;
+
         var user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword())) // ❗️ Хешуємо пароль
-                .role(Role.USER) // ❗️ За замовчуванням - USER
+                .password(passwordEncoder.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber()) // 🆕 Зберігаємо телефон
+                .role(role)
+                .isVerified(isVerified) // 🆕 Логіка верифікації
                 .build();
 
-        // 2. Зберігаємо в базу
-        userRepository.save(user);
+        repository.save(user);
 
-        // 3. Генеруємо JWT токен
         var jwtToken = jwtService.generateToken(user);
-
-        // 4. Повертаємо токен у DTO
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
     }
 
-    public AuthenticationResponse login(LoginRequest request) {
-        // 1. "Менеджер" автентифікації перевіряє email та пароль
-        // Він використовує наш UserDetailsService та PasswordEncoder
+    public AuthenticationResponse authenticate(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-
-        // 2. Якщо помилки немає (пароль вірний), знаходимо юзера
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(); // Ми впевнені, що він є, бо (1) пройшло
-
-        // 3. Генеруємо JWT токен
+        var user = repository.findByEmail(request.getEmail())
+                .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
-
-        // 4. Повертаємо токен
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();

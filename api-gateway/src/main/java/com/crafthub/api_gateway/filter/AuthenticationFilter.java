@@ -23,10 +23,12 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
 
-    // Список "публічних" ендпоінтів, які не потребують токена
+    // ✅ ВИПРАВЛЕННЯ 1: Актуальні шляхи згідно з User Service
     private final List<String> publicEndpoints = List.of(
             "/api/v1/auth/register",
-            "/api/v1/auth/login"
+            "/api/v1/auth/authenticate", // Було /login, стало /authenticate
+            "/eureka",
+            "/api/v1/payments/webhook" // (На майбутнє) Для LiqPay
     );
 
     @Override
@@ -34,59 +36,54 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
+        // 1. Перевірка на публічність
         if (isPublicEndpoint(path)) {
-            log.info("Public endpoint: {} - skipping auth.", path);
             return chain.filter(exchange);
         }
 
+        // 2. Перевірка заголовка
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("Missing or invalid Authorization Header for path: {}", path);
-            return unauthorizedResponse(exchange, "Missing or invalid Authorization Header");
+            return unauthorizedResponse(exchange, "Missing Authorization Header");
         }
 
         String token = authHeader.substring(7);
 
         try {
+            // 3. Валідація токена
             if (!jwtUtil.isTokenValid(token)) {
-                log.warn("Invalid JWT token for path: {}", path);
-                return unauthorizedResponse(exchange, "Invalid JWT token");
+                return unauthorizedResponse(exchange, "Invalid Token");
             }
 
-            // 1. Витягуємо email з токена
+            // 4. Витягуємо дані
             String userEmail = jwtUtil.extractUsername(token);
-            log.debug("User Email from token: {}", userEmail);
+            String userId = jwtUtil.extractUserId(token); // 🆕 Треба додати цей метод в JwtUtil
+            String userRole = jwtUtil.extractUserRole(token); // 🆕 Треба додати цей метод
 
-            // 2. Додаємо email в заголовок для downstream-сервісів
+            // 5. ✅ ВИПРАВЛЕННЯ 2: Прокидаємо ID та Role далі
             ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                     .header("X-User-Email", userEmail)
+                    .header("X-User-Id", userId)      // Критично для Order Service
+                    .header("X-User-Role", userRole)  // Критично для Product Service (RESTRICTED access)
                     .build();
 
-            // 3. Передаємо *модифікований* запит
             return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
-
         } catch (Exception e) {
-            log.error("JWT validation error for path: {}: {}", path, e.getMessage());
-            return unauthorizedResponse(exchange, "JWT validation error: " + e.getMessage());
+            log.error("Authentication error: {}", e.getMessage());
+            return unauthorizedResponse(exchange, "Unauthorized access");
         }
     }
 
     private boolean isPublicEndpoint(String path) {
-        boolean isPublic = publicEndpoints.stream()
+        return publicEndpoints.stream()
                 .anyMatch(publicPath -> path.equals(publicPath) || path.startsWith(publicPath + "/"));
-        log.debug("Path {} is public: {}", path, isPublic);
-        return isPublic;
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        response.getHeaders().add("Content-Type", "application/json");
-
-        String body = String.format("{\"error\": \"Unauthorized\", \"message\": \"%s\"}", message);
-        return response.writeWith(Mono.just(response.bufferFactory().wrap(body.getBytes())));
+        return response.setComplete();
     }
 
     @Override

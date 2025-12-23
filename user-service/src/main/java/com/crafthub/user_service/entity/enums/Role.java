@@ -1,7 +1,8 @@
 package com.crafthub.user_service.entity.enums;
 
 public enum Role {
-    USER,
-    ADMIN,
-    SELLER // Наприклад, для майстрів, що продають товари
+    BUYER,          // Звичайний покупець (волонтер, цивільний)
+    SELLER,         // Продавець (ФОП, магазин)
+    MILITARY_UNIT,  // Військова частина (офіційна закупівля)
+    ADMIN           // Адміністратор платформи
 }

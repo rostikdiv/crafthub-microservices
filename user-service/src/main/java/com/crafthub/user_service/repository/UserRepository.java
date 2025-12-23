@@ -2,14 +2,10 @@ package com.crafthub.user_service.repository;
 
 import com.crafthub.user_service.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import java.util.Optional;
+import java.util.UUID; // ❗️ Імпорт UUID
 
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    // Spring Data JPA автоматично згенерує SQL-запит за назвою методу!
-    // "SELECT * FROM users WHERE email = ?"
+// ❗️ Змінили Long на UUID
+public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 }
