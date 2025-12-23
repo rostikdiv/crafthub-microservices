@@ -75,7 +75,20 @@ services:
       - crafthub-net
     ports:
       - "5433:5432"
-
+  # [NEW] База даних для Delivery Service
+  postgres-delivery-db:
+    image: postgres:16.2-alpine
+    container_name: postgres-delivery-db
+    environment:
+      - POSTGRES_USER=crafthub
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=delivery_service_db
+    volumes:
+      - postgres-delivery-data:/var/lib/postgresql/data
+    networks:
+      - crafthub-net
+    ports:
+      - "5436:5432"
   # 6. User Service
   user-service:
     build:
@@ -204,6 +217,24 @@ services:
     depends_on:
       - service-discovery
       - mongo # ❗️ Запуститися тільки після старту MongoDB
+
+  # [NEW] Delivery Service
+  delivery-service:
+    build:
+      context: .
+      dockerfile: ./delivery-service/Dockerfile
+    container_name: delivery-service
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - DB_URL=jdbc:postgresql://postgres-delivery-db:5432/delivery_service_db
+      - DB_USER=crafthub
+      - DB_PASS=password
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - postgres-delivery-db
   # 13. Redis (In-memory кеш)
   redis:
     image: redis:7.2-alpine # Використовуємо легкий alpine образ
@@ -255,5 +286,6 @@ volumes:
   postgres-user-data:
   postgres-product-data:
   postgres-order-data:
+  postgres-delivery-data:
   redis-data:
   mongo-data:
