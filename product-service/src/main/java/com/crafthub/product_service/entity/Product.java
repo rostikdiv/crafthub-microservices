@@ -1,8 +1,11 @@
 package com.crafthub.product_service.entity;
 
+import com.crafthub.product_service.entity.enums.AccessLevel;
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal; // Використовуємо BigDecimal для грошей!
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "products")
@@ -10,20 +13,50 @@ import java.math.BigDecimal; // Використовуємо BigDecimal для �
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)
-    private BigDecimal price; // 💰 Завжди BigDecimal для фінансів
+    private BigDecimal price;
 
     @Column(nullable = false)
-    private Integer stockQuantity; // Кількість на складі
+    private Integer quantity;
+
+    private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccessLevel accessLevel;
+
+    @Column(nullable = false)
+    private UUID sellerId;
+
+    @ManyToOne(fetch = FetchType.EAGER) // Eager, бо нам завжди треба знати категорію товару
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.accessLevel == null) this.accessLevel = AccessLevel.PUBLIC;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

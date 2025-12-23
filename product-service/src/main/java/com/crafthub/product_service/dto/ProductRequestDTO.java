@@ -1,24 +1,20 @@
 package com.crafthub.product_service.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import com.crafthub.product_service.entity.enums.AccessLevel;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
+import java.util.UUID;
 
-// Використовуємо record для DTO запиту
 public record ProductRequestDTO(
-        @NotEmpty(message = "Product name cannot be empty")
-        String name,
-
+        @NotBlank String name,
         String description,
+        @NotNull @Positive BigDecimal price,
+        @NotNull @Min(0) Integer quantity,
 
-        @NotNull(message = "Price cannot be null")
-        @DecimalMin(value = "0.01", message = "Price must be greater than 0")
-        BigDecimal price,
+        @NotNull(message = "Category ID is required")
+        Long categoryId, // ✅ Long
 
-        @NotNull(message = "Stock quantity cannot be null")
-        @Min(value = 0, message = "Stock quantity cannot be negative")
-        Integer stockQuantity
-) {
-}
+        String imageUrl,
+        AccessLevel accessLevel,
+        @NotNull UUID sellerId
+) {}
