@@ -1,11 +1,10 @@
 # --------- ЕТАП 1: ЗБІРКА (Build) ---------
 FROM maven:3.9.6-eclipse-temurin-17-focal AS builder
+
 WORKDIR /app
 
-# 1. Копіюємо батьківський pom.xml
+# Копіюємо батьківський pom та pom-файли всіх модулів
 COPY pom.xml .
-
-# 2. Копіюємо ВСІ pom.xml модулів (включаючи новий)
 COPY api-gateway/pom.xml ./api-gateway/
 COPY user-service/pom.xml ./user-service/
 COPY product-service/pom.xml ./product-service/
@@ -13,24 +12,27 @@ COPY order-service/pom.xml ./order-service/
 COPY service-discovery/pom.xml ./service-discovery/
 COPY notification-service/pom.xml ./notification-service/
 COPY cart-service/pom.xml ./cart-service/
+# 👇 Додаємо нові сервіси, щоб Maven бачив повну структуру
 COPY payment-service/pom.xml ./payment-service/
 COPY delivery-service/pom.xml ./delivery-service/
 
-# 3. Завантажуємо ВСІ залежності з кешуванням
+# Завантажуємо залежності (кешування)
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
-# 4. Копіюємо вихідний код ТІЛЬКИ для поточного модуля
-COPY notification-service/src ./notification-service/src
+# Копіюємо вихідний код саме цього сервісу
+COPY payment-service/src ./payment-service/src
 
-# 5. Збираємо ТІЛЬКИ наш модуль з кешуванням
-RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl notification-service -am
+# Збираємо тільки цей модуль (-pl payment-service)
+RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl payment-service -am
 
 # --------- ЕТАП 2: ЗАПУСК (Run) ---------
 FROM eclipse-temurin:17-jre-focal
+
 WORKDIR /app
 
-# 6. Копіюємо .jar з правильного місця (використовуємо ...-*.jar)
-COPY --from=builder /app/notification-service/target/notification-service-*.jar app.jar
+# Копіюємо зібраний JAR з папки target відповідного модуля
+COPY --from=builder /app/payment-service/target/payment-service*.jar app.jar
 
-EXPOSE 8084
+EXPOSE 8086
+
 ENTRYPOINT ["java", "-jar", "app.jar"]

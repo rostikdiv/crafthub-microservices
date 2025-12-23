@@ -1,52 +1,51 @@
-version: '3.8' # Версія синтаксису docker-compose
+version: '3.8'
 
 services:
-  # 1. Service Discovery (Телефонна книга)
+  # 1. Service Discovery
   service-discovery:
     build:
       context: .
       dockerfile: ./service-discovery/Dockerfile
     container_name: service-discovery
     ports:
-      - "8761:8761" # Прокидаємо порт назовні (host:container)
+      - "8761:8761"
     environment:
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
 
-  # 2. API Gateway (Єдина точка входу)
+  # 2. API Gateway
   api-gateway:
     build:
       context: .
       dockerfile: ./api-gateway/Dockerfile
     container_name: api-gateway
     ports:
-      - "8080:8080" # Головний порт нашого додатку
+      - "8080:8080"
     environment:
-      # ВАЖЛИВО: Кажемо Gateway, де шукати Eureka
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
-    depends_on: # Запуститися ТІЛЬКИ ПІСЛЯ...
+    depends_on:
       - service-discovery
 
-  # 3. Бази Даних для User Service
+  # 3. User Service DB
   postgres-user-db:
-    image: postgres:16.2-alpine # Використовуємо готовий образ Postgres
+    image: postgres:16.2-alpine
     container_name: postgres-user-db
     environment:
       - POSTGRES_USER=crafthub
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=user_service_db
     volumes:
-      - postgres-user-data:/var/lib/postgresql/data # Зберігаємо дані
+      - postgres-user-data:/var/lib/postgresql/data
     networks:
       - crafthub-net
     ports:
-      - "5431:5432" # Для налагодження (наша машина:контейнер)
+      - "5431:5432"
 
-  # 4. Бази Даних для Product Service
+  # 4. Product Service DB
   postgres-product-db:
     image: postgres:16.2-alpine
     container_name: postgres-product-db
@@ -61,7 +60,7 @@ services:
     ports:
       - "5434:5432"
 
-  # 5. Бази Даних для Order Service
+  # 5. Order Service DB
   postgres-order-db:
     image: postgres:16.2-alpine
     container_name: postgres-order-db
@@ -75,7 +74,23 @@ services:
       - crafthub-net
     ports:
       - "5433:5432"
-  # [NEW] База даних для Delivery Service
+
+  # [NEW] Payment Service DB
+  postgres-payment-db:
+    image: postgres:16.2-alpine
+    container_name: postgres-payment-db
+    environment:
+      - POSTGRES_USER=crafthub
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=payment_service_db
+    volumes:
+      - postgres-payment-data:/var/lib/postgresql/data
+    networks:
+      - crafthub-net
+    ports:
+      - "5435:5432"
+
+  # [NEW] Delivery Service DB
   postgres-delivery-db:
     image: postgres:16.2-alpine
     container_name: postgres-delivery-db
@@ -89,6 +104,7 @@ services:
       - crafthub-net
     ports:
       - "5436:5432"
+
   # 6. User Service
   user-service:
     build:
@@ -105,7 +121,7 @@ services:
       - crafthub-net
     depends_on:
       - service-discovery
-      - postgres-user-db # Сервіс не запуститься, поки не стартане його БД
+      - postgres-user-db
 
   # 7. Product Service
   product-service:
@@ -138,18 +154,18 @@ services:
       - DB_USER=crafthub
       - DB_PASS=password
       - PRODUCT_SERVICE_URL=http://product-service/api/v1/products
-      # ❗️❗️❗️ ОСЬ ВИПРАВЛЕННЯ 3 (Додай ці 2 рядки) ❗️❗️❗️
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092 # Передаємо ім'я сервісу Kafka
-      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans # Передаємо ім'я сервісу Zipkin
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on:
       - service-discovery
       - postgres-order-db
-      - product-service # Залежить і від Eureka, і від БД, і від Product
-  # 9. Zookeeper (Бригадир для Kafka)
+      - product-service
+
+  # 9. Zookeeper
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.6.1 # Використовуємо надійний образ від Confluent
+    image: confluentinc/cp-zookeeper:7.6.1
     container_name: zookeeper
     networks:
       - crafthub-net
@@ -157,35 +173,33 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  # 10. Kafka (Брокер повідомлень)
+  # 10. Kafka
   kafka:
     image: confluentinc/cp-kafka:7.6.1
     container_name: kafka
     networks:
       - crafthub-net
     ports:
-      # ❗️ 9092 - це порт для ВНУТРІШНЬОГО зв'язку (сервіс -> kafka)
-      # ❗️ 29092 - це порт для ЗОВНІШНЬОГО зв'язку (наш IDE -> kafka)
       - "29092:29092"
     depends_on:
-      - zookeeper # Kafka НЕ запуститься, поки не запуститься Zookeeper
+      - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181' # Кажемо Kafka, де знайти бригадира
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-  # 11. Notification Service (Новий!)
+
+  # 11. Notification Service
   notification-service:
     build:
       context: .
       dockerfile: ./notification-service/Dockerfile
     container_name: notification-service
     environment:
-      # Кажемо сервісу, де знайти Eureka і Kafka (внутрішні імена Docker)
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
@@ -193,30 +207,48 @@ services:
       - crafthub-net
     depends_on:
       - service-discovery
-      - kafka # ❗️ Не запускатися, поки не запуститься Kafka
-  # 12. Cart Service (Новий!)
+      - kafka
+
+  # 12. Cart Service
   cart-service:
     build:
       context: .
       dockerfile: ./cart-service/Dockerfile
     container_name: cart-service
     environment:
-      # Вказуємо адресу Eureka
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
-      # ❗️ ВАЖЛИВО: адреса MongoDB всередині Docker
-      # Ми використовуємо ім'я сервісу 'mongo', а не 'localhost'
       - MONGO_HOST=mongo
       - MONGO_PORT=27017
       - MONGO_DB=cart_db
       - MONGO_USER=crafthub
       - MONGO_PASS=password
-      - SPRING_DATA_MONGODB_HOST=mongo  # База буде створена автоматично
+      - SPRING_DATA_MONGODB_HOST=mongo
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
     networks:
       - crafthub-net
     depends_on:
       - service-discovery
-      - mongo # ❗️ Запуститися тільки після старту MongoDB
+      - mongo
+
+  # [NEW] Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./payment-service/Dockerfile
+    container_name: payment-service
+    ports:
+      - "8086:8086" # Зовнішній порт для тестування
+    environment:
+      - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
+      - DB_URL=jdbc:postgresql://postgres-payment-db:5432/payment_service_db
+      - DB_USER=crafthub
+      - DB_PASS=password
+      - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+    networks:
+      - crafthub-net
+    depends_on:
+      - service-discovery
+      - postgres-payment-db
 
   # [NEW] Delivery Service
   delivery-service:
@@ -224,6 +256,8 @@ services:
       context: .
       dockerfile: ./delivery-service/Dockerfile
     container_name: delivery-service
+    ports:
+      - "8087:8087" # Зовнішній порт для тестування
     environment:
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
       - DB_URL=jdbc:postgresql://postgres-delivery-db:5432/delivery_service_db
@@ -235,57 +269,51 @@ services:
     depends_on:
       - service-discovery
       - postgres-delivery-db
-  # 13. Redis (In-memory кеш)
+
+  # 13. Redis
   redis:
-    image: redis:7.2-alpine # Використовуємо легкий alpine образ
+    image: redis:7.2-alpine
     container_name: redis
     ports:
-      - "6379:6379" # Стандартний порт Redis
+      - "6379:6379"
     networks:
       - crafthub-net
     volumes:
-      - redis-data:/data # Зберігаємо дані кешу між перезапусками
+      - redis-data:/data
 
-  # 14. MongoDB (NoSQL база для Кошика)
+  # 14. MongoDB
   mongo:
-    image: mongo:7.0 # Використовуємо офіційний образ Mongo
+    image: mongo:7.0
     container_name: mongo
     ports:
-      - "27017:27017" # Стандартний порт MongoDB
+      - "27017:27017"
     networks:
       - crafthub-net
     environment:
-      # Встановлюємо логін/пароль для бази
-      # ❗️ ЗАМІНИ ЦІ ДВА РЯДКИ:
-      # - MONGO_INITDB_ROOT_USERNAME=crafthub
-      # - MONGO_INITDB_ROOT_PASSWORD=password
-      # ❗️ НА ЦІ ТРИ РЯДКИ:
       - MONGO_INITDB_ROOT_USERNAME=crafthub
       - MONGO_INITDB_ROOT_PASSWORD=password
       - MONGO_INITDB_DATABASE=cart_db
     volumes:
-      - mongo-data:/data/db # Зберігаємо дані
-  # 15. Zipkin (Для Розподіленого Трасування)
+      - mongo-data:/data/db
+
+  # 15. Zipkin
   zipkin:
-    image: openzipkin/zipkin:3 # Використовуємо офіційний образ Zipkin
+    image: openzipkin/zipkin:3
     container_name: zipkin
     ports:
-      - "9411:9411" # Прокидаємо порт Zipkin UI
+      - "9411:9411"
     networks:
       - crafthub-net
-    # Zipkin не потребує 'depends_on',
-    # він може приймати дані від сервісів, які запускаються пізніше.
 
-# Створюємо єдину віртуальну мережу для всіх контейнерів
 networks:
   crafthub-net:
     driver: bridge
 
-# Створюємо "томи" для постійного зберігання даних БД
 volumes:
   postgres-user-data:
   postgres-product-data:
   postgres-order-data:
-  postgres-delivery-data:
+  postgres-payment-data: # [NEW]
+  postgres-delivery-data: # [NEW]
   redis-data:
   mongo-data:

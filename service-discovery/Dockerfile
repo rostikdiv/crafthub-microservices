@@ -17,6 +17,8 @@ COPY order-service/pom.xml ./order-service/
 COPY service-discovery/pom.xml ./service-discovery/
 COPY notification-service/pom.xml ./notification-service/
 COPY cart-service/pom.xml ./cart-service/
+COPY payment-service/pom.xml ./payment-service/
+COPY delivery-service/pom.xml ./delivery-service/
 
 # Використовуємо кеш Docker BuildKit для папки .m2
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline

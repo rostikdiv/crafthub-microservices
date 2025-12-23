@@ -33,6 +33,15 @@ spring:
           uri: lb://cart-service
           predicates:
             - Path=/api/v1/cart/**
+        - id: payment_service_route
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/v1/payments/**
+        - id: delivery_service_route
+          uri: lb://delivery-service
+          predicates:
+            - Path=/api/v1/delivery/**
+
 
 management:
   tracing:
