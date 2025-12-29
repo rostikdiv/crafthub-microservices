@@ -24,12 +24,7 @@ spring:
     activate:
       on-profile: local
 
-    #  cloud:
-    #    aws:
-    #      autoconfigure:
-    #        enabled: false
-
-    # ❗️ ВИМКНУТИ AWS автоконфігурацію глобально
+  # Виключення AWS (правильно)
   autoconfigure:
     exclude:
       - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
@@ -37,21 +32,24 @@ spring:
       - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
       - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
+  # 👇 ВИПРАВЛЕНО: kafka тепер підпорядкована spring (відступ 2 пробіли)
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    consumer:
+      group-id: "notification-group"
+      auto-offset-reset: earliest
+      # Ці два рядки можна навіть прибрати, бо ми налаштували це в Java Config
+      # але якщо лишаєш - хай будуть
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+# Eureka залишається на верхньому рівні (без відступу під spring)
 eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: false
-
-  # Налаштування Kafka (тільки для local)
-  kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
-    consumer:
-      group-id: "notification-group"
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 management:
   zipkin:
@@ -61,7 +59,6 @@ management:
 aws:
   xray:
     enabled: false
-
 ---
 # ======================================================
 # === ПРОФІЛЬ "aws" (SQS + X-Ray) ===

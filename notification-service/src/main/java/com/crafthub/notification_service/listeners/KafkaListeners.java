@@ -1,34 +1,34 @@
 package com.crafthub.notification_service.listeners;
 
+import com.crafthub.notification_service.dto.OrderPlacedEventDTO; // ✅
+import com.crafthub.notification_service.service.EmailService; // ✅
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
-@Slf4j // Для логування (Lombok)
+@Slf4j
 @Profile("local")
+@RequiredArgsConstructor // ✅ Додаємо конструктор для ін'єкції сервісу
 public class KafkaListeners {
 
-    // ❗️ Головна логіка
-    // Цей метод буде АВТОМАТИЧНО викликаний,
-    // коли з'явиться нове повідомлення у топіку "orders_topic"
+    private final EmailService emailService; // ✅ Інжектимо сервіс
+
     @KafkaListener(
-            topics = "orders_topic", // Назва "поштової скриньки"
-            groupId = "notification-group" // Назва "команди" (з application.yml)
+            topics = "order-placed-topic", // Перевір, чи тут правильний топік
+            groupId = "notification-group",
+            containerFactory = "kafkaListenerContainerFactory"
     )
-    void handleOrderNotification(String message) {
-        // У майбутньому ми б десеріалізували JSON з "message"
-        // і отримали email та деталі замовлення.
+    public void handleOrderNotification(OrderPlacedEventDTO event) { // ✅ Приймаємо DTO
+        log.info("📨 Received Kafka event for Order ID: {}", event.orderId());
 
-        // Зараз ми просто симулюємо відправку email
-        log.info("Отримано нове сповіщення про замовлення: {}", message);
-        log.info("...симуляція відправки email...");
-
-        // Тут могла б бути логіка для @Retryable,
-        // якщо сервіс email недоступний
+        // Викликаємо сервіс відправки
+        emailService.sendOrderConfirmation(
+                event.userEmail(),
+                event.productName(),
+                event.orderId().toString()
+        );
     }
-
-    // Ти можеш додати більше методів @KafkaListener
-    // для інших топіків (наприклад, "password_reset_topic")
 }
