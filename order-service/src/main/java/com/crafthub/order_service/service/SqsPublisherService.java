@@ -1,39 +1,36 @@
 package com.crafthub.order_service.service;
 
-import com.crafthub.order_service.event.OrderCreatedEvent;
-import com.crafthub.order_service.model.Order;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.awspring.cloud.sqs.operations.SqsTemplate;
+import com.crafthub.order_service.dto.event.OrderPlacedEventDTO;
+import io.awspring.cloud.sqs.operations.SqsTemplate; // Залежність spring-cloud-aws-starter-sqs
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Profile("aws") // ❗️ Завантажувати, тільки якщо активний профіль "aws"
-public class SqsPublisherService implements EventPublisherService {
+@Profile("aws")
+public class SqsPublisherService {
 
     private final SqsTemplate sqsTemplate;
-    private final ObjectMapper objectMapper;
-    @org.springframework.beans.factory.annotation.Value("${application.sqs.orders-queue-url}")
-    private String ordersQueueUrl;
 
-    @Override
-    public void publishOrderCreatedEvent(Order order) {
+    // URL черги береться з application.yaml
+    @Value("${application.sqs.queue-url:order-queue}")
+    private String queueUrl;
+
+    public void sendOrderToQueue(OrderPlacedEventDTO event) {
+        log.info("📤 Sending order event to SQS queue '{}': {}", queueUrl, event.orderId());
+
         try {
-            OrderCreatedEvent event = new OrderCreatedEvent(
-                    order.getOrderNumber(),
-                    order.getUserId(),
-                    order.getTotalPrice()
+            sqsTemplate.send(to -> to
+                    .queue(queueUrl)
+                    .payload(event)
             );
-            String message = objectMapper.writeValueAsString(event);
-            // ❗️ Відправляємо в SQS
-            sqsTemplate.send(ordersQueueUrl, message);
-            log.info("Order Created event published to SQS: {}", message);
+            log.info("✅ SQS message sent");
         } catch (Exception e) {
-            log.error("Failed to publish OrderCreatedEvent to SQS: {}", e.getMessage());
+            log.error("❌ Failed to send SQS message: {}", e.getMessage());
         }
     }
 }

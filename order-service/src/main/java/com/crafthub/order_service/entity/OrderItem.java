@@ -1,4 +1,4 @@
-package com.crafthub.order_service.model;
+package com.crafthub.order_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,8 +1,6 @@
 package com.crafthub.order_service.service;
 
-import com.crafthub.order_service.event.OrderCreatedEvent;
-import com.crafthub.order_service.model.Order;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.crafthub.order_service.dto.event.OrderPlacedEventDTO; // ✅
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -10,28 +8,26 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile("local")
 @RequiredArgsConstructor
 @Slf4j
-@Profile("local") // ❗️ Завантажувати, т-ільки якщо активний профіль "kafka"
-public class KafkaPublisherService implements EventPublisherService {
+public class KafkaPublisherService {
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
-    private static final String ORDERS_TOPIC = "orders_topic";
+    private final KafkaTemplate<String, OrderPlacedEventDTO> kafkaTemplate;
 
-    @Override
-    public void publishOrderCreatedEvent(Order order) {
+    // Назва топіку має співпадати з тією, яку слухає Notification Service
+    private static final String TOPIC_NAME = "order-placed-topic";
+
+    public void sendOrderPlacedEvent(OrderPlacedEventDTO event) {
+        log.info("📤 Sending order event to Kafka topic '{}': {}", TOPIC_NAME, event.orderId());
+
         try {
-            OrderCreatedEvent event = new OrderCreatedEvent(
-                    order.getOrderNumber(),
-                    order.getUserId(),
-                    order.getTotalPrice()
-            );
-            String message = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(ORDERS_TOPIC, message);
-            log.info("Order Created event published to KAFKA: {}", message);
+            // Відправляємо повідомлення, де ключ - це orderId (для гарантії порядку)
+            kafkaTemplate.send(TOPIC_NAME, event.orderId().toString(), event);
+            log.info("✅ Event sent successfully");
         } catch (Exception e) {
-            log.error("Failed to publish OrderCreatedEvent to KAFKA: {}", e.getMessage());
+            log.error("❌ Failed to send Kafka event: {}", e.getMessage());
+            // Тут можна додати логіку збереження в Outbox таблицю, якщо Kafka лежить
         }
     }
 }

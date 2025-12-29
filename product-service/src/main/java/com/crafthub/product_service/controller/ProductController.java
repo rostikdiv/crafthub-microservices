@@ -18,12 +18,12 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping
+    @GetMapping("/")
     public List<ProductResponseDTO> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    @PostMapping
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponseDTO createProduct(@RequestBody ProductRequestDTO productRequest) {
         return productService.createProduct(productRequest);

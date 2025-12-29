@@ -1,4 +1,4 @@
-package com.crafthub.order_service.model;
+package com.crafthub.order_service.entity;
 
 public enum OrderStatus {
     PENDING,        // Очікує

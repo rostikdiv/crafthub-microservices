@@ -1,12 +1,13 @@
 package com.crafthub.order_service.dto;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import java.util.UUID;
 
 public record OrderRequestDTO(
-        @NotEmpty(message = "Order must contain at least one item")
-        @Valid // ❗️ Вказує Spring валідувати об'єкти всередині списку
-        List<OrderItemRequestDTO> items
-) {
-}
+        @NotNull(message = "Product ID is required")
+        UUID productId,
+
+        @Positive(message = "Quantity must be greater than 0")
+        Integer quantity
+) {}

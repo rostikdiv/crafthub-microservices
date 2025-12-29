@@ -1,4 +1,4 @@
-package com.crafthub.order_service.event;
+package com.crafthub.order_service.dto.event;
 
 import java.math.BigDecimal;
 

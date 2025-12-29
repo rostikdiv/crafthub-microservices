@@ -1,30 +1,31 @@
 package com.crafthub.order_service.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.awspring.cloud.sqs.operations.SqsTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 @Configuration
-@Profile("aws") // ❗️ Конфігурація тільки для AWS
+@Profile("aws") // ❗️ Завантажувати тільки якщо активний профіль AWS
 public class SqsConfig {
 
-    // Створюємо Template для відправки
+    // 1. Створюємо клієнт AWS SDK
+    @Bean
+    public SqsAsyncClient sqsAsyncClient() {
+        return SqsAsyncClient.builder()
+                .region(Region.EU_NORTH_1) // Твій регіон (зміни, якщо інший)
+                .credentialsProvider(DefaultCredentialsProvider.create())
+                .build();
+    }
+
+    // 2. Створюємо SqsTemplate (аналог KafkaTemplate)
     @Bean
     public SqsTemplate sqsTemplate(SqsAsyncClient sqsAsyncClient) {
         return SqsTemplate.builder()
                 .sqsAsyncClient(sqsAsyncClient)
                 .build();
-    }
-
-    // ObjectMapper для серіалізації повідомлень
-    @Bean
-    public ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        return mapper;
     }
 }

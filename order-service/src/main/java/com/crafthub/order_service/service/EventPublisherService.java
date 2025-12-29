@@ -1,7 +1,6 @@
 package com.crafthub.order_service.service;
 
-import com.crafthub.order_service.event.OrderCreatedEvent;
-import com.crafthub.order_service.model.Order;
+import com.crafthub.order_service.entity.Order;
 
 // Наш абстрактний "відправник"
 public interface EventPublisherService {

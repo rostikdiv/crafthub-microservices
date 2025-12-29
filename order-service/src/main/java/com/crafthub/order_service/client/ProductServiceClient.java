@@ -1,19 +1,17 @@
 package com.crafthub.order_service.client;
 
-import com.crafthub.order_service.dto.ProductResponseDTO;
+import com.crafthub.order_service.dto.external.ProductResponseDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-// ❗️ name = "product-service"
-// Це SERVICE_ID (spring.application.name) з Eureka,
-// а не hostname!
-@FeignClient(name = "product-service")
+import java.util.UUID;
+
+// name: назва сервісу в Eureka
+// path: базовий шлях API продуктів
+@FeignClient(name = "product-service", path = "/api/v1/products")
 public interface ProductServiceClient {
 
-    // ❗️ Цей шлях (@GetMapping) має *точно* // відповідати ендпоінту в ProductController
-    @GetMapping("/api/v1/products/{id}")
-    ProductResponseDTO getProductById(@PathVariable("id") String id);
-
-    // (Пізніше ми додамо сюди метод для оновлення залишків на складі)
+    @GetMapping("/{id}")
+    ProductResponseDTO getProductById(@PathVariable("id") UUID id);
 }

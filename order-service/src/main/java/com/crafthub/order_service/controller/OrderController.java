@@ -1,12 +1,9 @@
 package com.crafthub.order_service.controller;
 
 import com.crafthub.order_service.dto.OrderRequestDTO;
-import com.crafthub.order_service.model.Order;
 import com.crafthub.order_service.service.OrderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,20 +15,15 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Order> createOrder(
-            // ❗️ Вмикаємо валідацію DTO
-            @Valid @RequestBody OrderRequestDTO orderRequest,
-
-            // ❗️ Отримуємо email користувача з заголовка,
-            // який додав наш api-gateway
-            @RequestHeader("X-User-Email") String userEmail
+    public String createOrder(
+            @RequestBody OrderRequestDTO request,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-User-Role") String userRole,
+            @RequestHeader(value = "X-User-Email", required = false) String userEmail // ✅ Читаємо Email
     ) {
-        Order createdOrder = orderService.createOrder(orderRequest, userEmail);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+        // Якщо email не прийшов (наприклад, прямий запит без Gateway), ставимо заглушку, щоб не впало
+        String email = (userEmail != null) ? userEmail : "unknown@mil.ua";
+
+        return orderService.createOrder(request, userId, userRole, email);
     }
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("order service works!");
-    }
-    // (Тут ми додамо GET /api/v1/orders/my-orders пізніше)
 }

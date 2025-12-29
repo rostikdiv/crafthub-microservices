@@ -1,6 +1,6 @@
 package com.crafthub.order_service.repository;
 
-import com.crafthub.order_service.model.OrderItem;
+import com.crafthub.order_service.entity.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
