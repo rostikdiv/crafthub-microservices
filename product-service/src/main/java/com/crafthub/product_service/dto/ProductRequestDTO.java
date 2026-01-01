@@ -1,20 +1,47 @@
 package com.crafthub.product_service.dto;
 
-import com.crafthub.product_service.entity.enums.AccessLevel;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.math.BigDecimal;
-import java.util.UUID;
+import java.util.List;
 
 public record ProductRequestDTO(
-        @NotBlank String name,
+        @NotBlank(message = "Name is required")
+        String name,
+
         String description,
-        @NotNull @Positive BigDecimal price,
-        @NotNull @Min(0) Integer quantity,
+
+        @NotNull(message = "Price is required")
+        @Positive(message = "Price must be greater than 0")
+        BigDecimal price,
+
+        @NotNull(message = "Quantity is required")
+        @PositiveOrZero(message = "Quantity cannot be negative")
+        Integer quantity,
 
         @NotNull(message = "Category ID is required")
-        Long categoryId, // ✅ Long
+        Long categoryId,
 
-        String imageUrl,
-        AccessLevel accessLevel,
-        @NotNull UUID sellerId
+        @NotBlank(message = "Access level is required")
+        String accessLevel,
+
+        @NotNull(message = "Weight is required")
+        @Positive Double weight,
+
+        @NotNull(message = "Length is required")
+        @Positive Double length,
+
+        @NotNull(message = "Width is required")
+        @Positive Double width,
+
+        @NotNull(message = "Height is required")
+        @Positive Double height,
+
+        @NotBlank(message = "Preview image is required")
+        String previewImageUrl,
+
+        List<String> imageUrls
 ) {}

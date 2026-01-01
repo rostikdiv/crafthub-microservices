@@ -3,6 +3,7 @@ package com.crafthub.product_service.controller;
 import com.crafthub.product_service.dto.ProductRequestDTO;
 import com.crafthub.product_service.dto.ProductResponseDTO;
 import com.crafthub.product_service.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ProductController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponseDTO createProduct(@RequestBody ProductRequestDTO productRequest) {
+    public ProductResponseDTO createProduct(@RequestBody @Valid ProductRequestDTO productRequest) {
         return productService.createProduct(productRequest);
     }
 

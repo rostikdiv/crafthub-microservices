@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -32,7 +33,25 @@ public class Product {
     @Column(nullable = false)
     private Integer quantity;
 
-    private String imageUrl;
+    @Column(nullable = false)
+    private Double weight;
+
+    @Column(nullable = false)
+    private Double length;
+
+    @Column(nullable = false)
+    private Double width;
+
+    @Column(nullable = false)
+    private Double height;
+
+    @Column(nullable = false)
+    private String previewImageUrl;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url")
+    private List<String> imageUrls;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
