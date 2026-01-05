@@ -30,6 +30,11 @@ public class ProductController {
         return productService.createProduct(productRequest);
     }
 
+    @PostMapping("/batch")
+    public ResponseEntity<List<ProductResponseDTO>> getProductsBatch(@RequestBody List<UUID> ids) {
+        return ResponseEntity.ok(productService.getProductsByIds(ids));
+    }
+
     @GetMapping("/{id}")
     public ProductResponseDTO getProductById(@PathVariable UUID id) {
         return productService.getProductById(id);

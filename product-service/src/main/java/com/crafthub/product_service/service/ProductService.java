@@ -90,6 +90,12 @@ public class ProductService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
     }
 
+    public List<ProductResponseDTO> getProductsByIds(List<UUID> ids) {
+        return productRepository.findAllById(ids).stream()
+                .map(this::mapToProductResponse)
+                .toList();
+    }
+
     private ProductResponseDTO mapToProductResponse(Product product) {
         return new ProductResponseDTO(
                 product.getId(),
