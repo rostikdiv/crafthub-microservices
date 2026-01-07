@@ -4,6 +4,7 @@ import com.crafthub.order_service.dto.OrderRequestDTO;
 import com.crafthub.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,16 +15,11 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public String createOrder(
-            @RequestBody OrderRequestDTO request,
-            @RequestHeader("X-User-Id") String userId,
-            @RequestHeader("X-User-Role") String userRole,
-            @RequestHeader(value = "X-User-Email", required = false) String userEmail // ✅ Читаємо Email
-    ) {
-        // Якщо email не прийшов (наприклад, прямий запит без Gateway), ставимо заглушку, щоб не впало
-        String email = (userEmail != null) ? userEmail : "unknown@mil.ua";
+    public ResponseEntity<String> createOrder(@RequestBody OrderRequestDTO request) {
+        // Ми просто передаємо DTO.
+        // Вся магія з токеном (User ID, Role) тепер відбувається всередині сервісу.
+        String orderId = orderService.createOrder(request);
 
-        return orderService.createOrder(request, userId, userRole, email);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderId);
     }
 }

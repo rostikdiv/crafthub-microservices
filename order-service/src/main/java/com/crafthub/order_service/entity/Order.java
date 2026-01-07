@@ -5,6 +5,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -21,24 +23,24 @@ public class Order {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID userId; // ID покупця
-
-    @Column(nullable = false)
-    private UUID productId;
-
-    @Column(nullable = false)
-    private Integer quantity;
+    private UUID userId;
 
     @Column(nullable = false)
     private BigDecimal totalPrice;
 
-    private String status; // CREATED, PAID, SHIPPED
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     private LocalDateTime createdAt;
+
+    // ✅ Зв'язок Один-до-Багатьох
+    // cascade = ALL означає, що коли ми зберігаємо Order, всі OrderItem зберігаються автоматично
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        if (this.status == null) this.status = "CREATED";
+        if (this.status == null) this.status = OrderStatus.PENDING;
     }
 }
