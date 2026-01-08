@@ -4,11 +4,14 @@ server:
 spring:
   application:
     name: payment-service
+
   datasource:
+    # Ваші налаштування бази
     url: ${DB_URL:jdbc:postgresql://localhost:5435/payment_service_db}
     username: ${DB_USER:crafthub}
     password: ${DB_PASS:password}
     driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,6 +19,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # ✅ KAFKA CONFIGURATION
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false # Щоб уникнути проблем з десеріалізацією в інших сервісах
 
 eureka:
   client:

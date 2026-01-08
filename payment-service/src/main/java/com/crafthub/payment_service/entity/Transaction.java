@@ -2,6 +2,9 @@ package com.crafthub.payment_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -14,7 +17,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Transaction {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -23,28 +25,18 @@ public class Transaction {
     private UUID orderId;
 
     @Column(nullable = false)
+    private UUID userId;
+
+    @Column(nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false)
-    private String currency;
-
-    private String providerTransactionId;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TransactionStatus status;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionType type;
+    private String provider; // "MOCK_PAY"
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }
-
-enum TransactionStatus { PENDING, SUCCESS, FAILED, REFUNDED }
-enum TransactionType { PAYMENT, REFUND, PAYOUT }

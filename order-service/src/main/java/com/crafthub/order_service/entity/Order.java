@@ -41,6 +41,6 @@ public class Order {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        if (this.status == null) this.status = OrderStatus.PENDING;
+        if (this.status == null) this.status = OrderStatus.PENDING_PAYMENT;
     }
 }
