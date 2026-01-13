@@ -25,6 +25,11 @@ public class JwtParserService {
         });
     }
 
+    public String extractUserEmail(String token) {
+        token = cleanToken(token);
+        return extractClaim(token, Claims::getSubject);
+    }
+
     public String extractUserRole(String token) {
         token = cleanToken(token);
         return extractClaim(token, claims -> claims.get("role", String.class));

@@ -52,9 +52,10 @@ public class OrderService {
         String token = getTokenFromRequest();
         UUID userId = jwtParserService.extractUserId(token);
         String userRole = jwtParserService.extractUserRole(token);
+        String userEmail = jwtParserService.extractUserEmail(token);
         boolean isVerified = jwtParserService.extractIsVerified(token);
 
-        log.info("Creating order. User: {}, Role: {}, Verified: {}", userId, userRole, isVerified);
+        log.info("Creating order. User: {}, Email: {}, Role: {}", userId, userEmail, userRole);
 
         // 2. Базова перевірка прав
         if (!"BUYER".equals(userRole) && !"MILITARY_UNIT".equals(userRole)) {
@@ -121,7 +122,7 @@ public class OrderService {
         log.info("✅ Order created with ID: {}", order.getId());
 
         // 5. Відправка повідомлення "Замовлення створено" (Як було раніше)
-        sendNotification(order, productNames, "user@email.placeholder"); // Email можна спробувати дістати з токена, якщо там є
+        sendNotification(order, productNames, userEmail);
 
         // 6. 🚀 НОВА ЛОГІКА: Ініціація оплати
         log.info("Initiating payment for Order ID: {}", order.getId());
