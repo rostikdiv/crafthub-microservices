@@ -30,6 +30,13 @@ public class JwtParserService {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
+    public boolean extractIsVerified(String token) {
+        token = cleanToken(token);
+        // Якщо поле null (наприклад, старий токен), вважаємо false
+        Boolean isVerified = extractClaim(token, claims -> claims.get("isVerified", Boolean.class));
+        return isVerified != null && isVerified;
+    }
+
     private String cleanToken(String token) {
         if (token != null && token.startsWith("Bearer ")) {
             return token.substring(7);

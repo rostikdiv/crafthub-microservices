@@ -40,6 +40,7 @@ public class JwtService {
         if (userDetails instanceof User customUser) {
             extraClaims.put("id", customUser.getId());   // Зашиваємо UUID
             extraClaims.put("role", customUser.getRole()); // Зашиваємо Роль
+            extraClaims.put("isVerified", customUser.getIsVerified());
         }
         return generateToken(extraClaims, userDetails);
     }

@@ -52,8 +52,9 @@ public class OrderService {
         String token = getTokenFromRequest();
         UUID userId = jwtParserService.extractUserId(token);
         String userRole = jwtParserService.extractUserRole(token);
+        boolean isVerified = jwtParserService.extractIsVerified(token);
 
-        log.info("Creating order for User: {}, Role: {}", userId, userRole);
+        log.info("Creating order. User: {}, Role: {}, Verified: {}", userId, userRole, isVerified);
 
         // 2. Базова перевірка прав
         if (!"BUYER".equals(userRole) && !"MILITARY_UNIT".equals(userRole)) {
@@ -81,8 +82,15 @@ public class OrderService {
             ProductResponseDTO product = productServiceClient.getProductById(itemRequest.productId());
 
             // Б. Перевірка доступу (RESTRICTED)
-            if ("RESTRICTED".equals(product.accessLevel()) && !"MILITARY_UNIT".equals(userRole)) {
-                throw new AccessDeniedException("Access Denied: Product " + product.name() + " requires Military verification.");
+            if ("RESTRICTED".equals(product.accessLevel())) {
+                // Має бути військовим
+                if (!"MILITARY_UNIT".equals(userRole)) {
+                    throw new AccessDeniedException("Only Military Units can buy restricted products.");
+                }
+                // ✅ МАЄ БУТИ ВЕРИФІКОВАНИМ
+                if (!isVerified) {
+                    throw new AccessDeniedException("Your Military Unit account is not verified yet. Please upload documents.");
+                }
             }
 
             // В. Перевірка залишків

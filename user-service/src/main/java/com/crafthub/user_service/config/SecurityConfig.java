@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/users/**").authenticated()
+                        .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN") // Або поки прибрати цей рядок для тестів
                         .anyRequest().authenticated()
                 )
                 // --- ❗️ ВКАЗУЄМО, ЩО СЕСІЇ НЕ СТВОРЮЮТЬСЯ ---
