@@ -33,4 +33,8 @@ public class SellerProfile {
     private String taxId; // ІПН або ЄДРПОУ
 
     private Float rating; // Рейтинг продавця
+
+    // ... всередині класу SellerProfile додайте:
+    @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<SellerPoint> pickupPoints;
 }

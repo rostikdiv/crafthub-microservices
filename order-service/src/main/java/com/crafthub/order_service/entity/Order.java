@@ -1,7 +1,10 @@
 package com.crafthub.order_service.entity;
 
+import com.crafthub.order_service.dto.delivery.DeliveryDetailsDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -33,8 +36,10 @@ public class Order {
 
     private LocalDateTime createdAt;
 
-    // ✅ Зв'язок Один-до-Багатьох
-    // cascade = ALL означає, що коли ми зберігаємо Order, всі OrderItem зберігаються автоматично
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private DeliveryDetailsDTO deliveryInfo;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 

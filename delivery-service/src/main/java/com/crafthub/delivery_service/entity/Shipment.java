@@ -1,7 +1,11 @@
 package com.crafthub.delivery_service.entity;
 
+import com.crafthub.delivery_service.dto.external.DeliveryDetailsDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -18,41 +22,26 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID subOrderId; // Прив'язка до конкретного продавця в замовленні
+    @Column(nullable = false, unique = true)
+    private UUID orderId; // Зв'язок з Order Service
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DeliveryProvider provider; // NOVA_POSHTA, UKRPOSHTA
+    private DeliveryStatus status; // PREPARING, SHIPPED...
 
-    private String trackingNumber; // ТТН
+    private String trackingNumber; // ТТН (згенеруємо пізніше)
 
-    @Column(columnDefinition = "TEXT")
-    private String senderInfo; // JSON з даними відправника (спрощено для MVP)
-
-    @Column(columnDefinition = "TEXT")
-    private String recipientInfo; // JSON з даними отримувача
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private DeliveryStatus status;
-
-    private String labelUrl; // Посилання на PDF накладну
+    // Зберігаємо копію адреси, щоб Delivery Service був автономним
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private DeliveryDetailsDTO deliveryDetails;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private LocalDateTime shippedAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        if (this.status == null) this.status = DeliveryStatus.PREPARING;
     }
 }
-
-enum DeliveryProvider { NOVA_POSHTA, UKRPOSHTA }
-enum DeliveryStatus { CREATED, IN_TRANSIT, ARRIVED, RECEIVED, RETURNED }

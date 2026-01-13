@@ -1,0 +1,34 @@
+package com.crafthub.delivery_service.listener;
+
+import com.crafthub.delivery_service.service.ShipmentService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class PaymentEventListener {
+
+    private final ShipmentService shipmentService;
+    private final ObjectMapper objectMapper;
+
+    @KafkaListener(topics = "payment-success-topic", groupId = "delivery-service-group")
+    public void handlePaymentSuccess(String message) {
+        try {
+            log.info("📨 Received payment success event: {}", message);
+
+            // Нам треба тільки orderId. Парсимо JSON.
+            JsonNode jsonNode = objectMapper.readTree(message);
+            String orderIdStr = jsonNode.get("orderId").asText();
+
+            shipmentService.createShipment(java.util.UUID.fromString(orderIdStr));
+
+        } catch (Exception e) {
+            log.error("❌ Error processing payment event in Delivery Service", e);
+        }
+    }
+}

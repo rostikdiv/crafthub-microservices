@@ -2,10 +2,11 @@ package com.crafthub.order_service.service;
 
 import com.crafthub.order_service.client.PaymentServiceClient;
 import com.crafthub.order_service.client.ProductServiceClient;
-import com.crafthub.order_service.dto.OrderItemRequestDTO;
-import com.crafthub.order_service.dto.OrderItemResponseDTO;
-import com.crafthub.order_service.dto.OrderRequestDTO;
-import com.crafthub.order_service.dto.OrderResponseDTO;
+import com.crafthub.order_service.dto.delivery.DeliveryDetailsDTO;
+import com.crafthub.order_service.dto.order.OrderItemRequestDTO;
+import com.crafthub.order_service.dto.order.OrderItemResponseDTO;
+import com.crafthub.order_service.dto.order.OrderRequestDTO;
+import com.crafthub.order_service.dto.order.OrderResponseDTO;
 import com.crafthub.order_service.dto.event.OrderPlacedEventDTO;
 import com.crafthub.order_service.dto.external.ProductResponseDTO;
 import com.crafthub.order_service.dto.payment.PaymentRequestDTO;
@@ -13,10 +14,10 @@ import com.crafthub.order_service.dto.payment.PaymentResponseDTO;
 import com.crafthub.order_service.entity.Order;
 import com.crafthub.order_service.entity.OrderItem;
 import com.crafthub.order_service.entity.OrderStatus;
+import com.crafthub.order_service.entity.enums.DeliveryType;
 import com.crafthub.order_service.exception.AccessDeniedException;
 import com.crafthub.order_service.repository.OrderRepository;
 import com.crafthub.order_service.security.JwtParserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,10 +40,9 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductServiceClient productServiceClient;
-    private final PaymentServiceClient paymentServiceClient; // ✅ Новий клієнт
+    private final PaymentServiceClient paymentServiceClient;
     private final JwtParserService jwtParserService;
 
-    // Паблішери подій (Kafka/SQS)
     @Autowired(required = false) private KafkaPublisherService kafkaPublisherService;
     @Autowired(required = false) private SqsPublisherService sqsPublisherService;
 
@@ -61,10 +61,14 @@ public class OrderService {
         }
 
         // Створюємо заготовку замовлення (спочатку CREATED)
+        validateDeliveryDetails(request.deliveryDetails());
+
+        // Створюємо замовлення
         Order order = Order.builder()
                 .userId(userId)
                 .status(OrderStatus.CREATED)
                 .items(new ArrayList<>())
+                .deliveryInfo(request.deliveryDetails()) // ✅ Зберігаємо JSON Snapshot
                 .build();
 
         BigDecimal totalOrderPrice = BigDecimal.ZERO;
@@ -149,6 +153,11 @@ public class OrderService {
 
         log.info("✅ Order {} status updated to PAID", orderId);
     }
+    public OrderResponseDTO getOrderById(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return mapToOrderResponseDTO(order);
+    }
 
     public List<OrderResponseDTO> getAllOrders() {
         return orderRepository.findAll().stream()
@@ -171,8 +180,54 @@ public class OrderService {
                 order.getTotalPrice(),
                 order.getStatus(),
                 order.getCreatedAt(),
-                itemsDto
+                itemsDto,
+                order.getDeliveryInfo() // ✅ Передаємо адресу
         );
+    }
+    @Transactional
+    public void updateOrderStatusFromDelivery(UUID orderId, String deliveryStatusStr) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus newStatus = currentStatus; // За замовчуванням не змінюємо
+
+        // Логіка мапінгу (згідно нашої таблиці)
+        switch (deliveryStatusStr) {
+            case "PREPARING":
+                newStatus = OrderStatus.PREPARING;
+                break;
+
+            case "READY_TO_SHIP":
+                // ⚡️ РОЗГАЛУЖЕННЯ: Якщо це самовивіз - то це "Готово до видачі"
+                // Якщо пошта - то клієнту це знати рано, залишаємо PREPARING
+                if (order.getDeliveryInfo().type() == DeliveryType.SELF_PICKUP) {
+                    newStatus = OrderStatus.READY_FOR_PICKUP;
+                } else {
+                    newStatus = OrderStatus.PREPARING;
+                }
+                break;
+
+            case "SHIPPED":
+                newStatus = OrderStatus.SHIPPED;
+                break;
+
+            case "DELIVERED":
+                newStatus = OrderStatus.DELIVERED;
+                break;
+
+            case "CANCELLED":
+                newStatus = OrderStatus.CANCELLED;
+                break;
+        }
+
+        // Оновлюємо тільки якщо статус реально змінився
+        if (newStatus != currentStatus) {
+            log.info("🔄 Updating Order {} status: {} -> {} (Delivery: {})",
+                    orderId, currentStatus, newStatus, deliveryStatusStr);
+            order.setStatus(newStatus);
+            orderRepository.save(order);
+        }
     }
 
     private void sendNotification(Order order, List<String> productNames, String userEmail) {
@@ -192,6 +247,28 @@ public class OrderService {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         return authHeader;
     }
+    private void validateDeliveryDetails(DeliveryDetailsDTO details) {
+        if (details == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery details are required");
+        }
+        if (details.provider() == null || details.type() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery provider and type are required");
+        }
 
-
+        // Перевірка залежно від типу
+        if (details.type() == DeliveryType.BRANCH) {
+            if (details.cityRef() == null || details.branchRef() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City and Branch are required for BRANCH delivery");
+            }
+        } else if (details.type() == DeliveryType.COURIER) {
+            if (details.cityRef() == null || details.street() == null || details.building() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address details are required for COURIER delivery");
+            }
+        } else if (details.type() == DeliveryType.SELF_PICKUP) {
+            // Для самовивозу бажано мати хоча б адресу точки текстом (snapshot)
+            if (details.pickupAddress() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pickup address is required");
+            }
+        }
+    }
 }
