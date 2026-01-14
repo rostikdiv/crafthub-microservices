@@ -43,6 +43,17 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 54baf4bfea8233  # 👈 Взято з вашого скріншоту
+    password: 70ea0c846bc5da # 👈 Скопіюйте повний пароль з сайту
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 # Eureka залишається на верхньому рівні (без відступу під spring)
 eureka:
   client:
