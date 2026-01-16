@@ -29,6 +29,9 @@ public class Order {
     private UUID userId;
 
     @Column(nullable = false)
+    private UUID sellerId;
+
+    @Column(nullable = false)
     private BigDecimal totalPrice;
 
     @Enumerated(EnumType.STRING)

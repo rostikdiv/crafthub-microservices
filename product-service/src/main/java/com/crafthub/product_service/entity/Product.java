@@ -67,6 +67,9 @@ public class Product {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private String sellerName;
+    private String sellerLogoUrl;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

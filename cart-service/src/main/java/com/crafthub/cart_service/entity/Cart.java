@@ -21,9 +21,8 @@ public class Cart {
     private UUID userId;
 
     @Builder.Default
-    private List<CartItem> items = new ArrayList<>();
+    private List<CartSection> sections = new ArrayList<>();
 
-    // ✅ ДОДАНО: Поле для загальної суми кошика
     @Builder.Default
     private BigDecimal totalPrice = BigDecimal.ZERO;
 }

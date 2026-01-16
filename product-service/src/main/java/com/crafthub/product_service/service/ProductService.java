@@ -1,5 +1,6 @@
 package com.crafthub.product_service.service;
 
+import com.crafthub.product_service.client.UserServiceClient;
 import com.crafthub.product_service.dto.ProductRequestDTO;
 import com.crafthub.product_service.dto.ProductResponseDTO;
 import com.crafthub.product_service.entity.enums.AccessLevel;
@@ -7,15 +8,15 @@ import com.crafthub.product_service.entity.Category;
 import com.crafthub.product_service.entity.Product;
 import com.crafthub.product_service.repository.CategoryRepository;
 import com.crafthub.product_service.repository.ProductRepository;
-import com.crafthub.product_service.security.JwtParserService; // ✅ Наш новий сервіс
+import com.crafthub.product_service.security.JwtParserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import jakarta.servlet.http.HttpServletRequest; // ✅
-import org.springframework.web.context.request.RequestContextHolder; // ✅
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
@@ -28,13 +29,14 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final JwtParserService jwtParserService; // Використовуємо JWT парсер
+    private final JwtParserService jwtParserService;
+    private final UserServiceClient userServiceClient;
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         String token = getTokenFromRequest();
 
-        // 1. Дістаємо ID та Роль прямо з токена (без запиту до User Service)
+        // 1. Дістаємо ID та Роль з токена
         UUID userId;
         String userRole;
         try {
@@ -48,10 +50,24 @@ public class ProductService {
         log.info("Creating product by User ID: {}, Role: {}", userId, userRole);
 
         // 2. Валідація ролі
-        // У User Service роль зберігається як "BUYER", "SELLER" тощо.
-        // Перевір, чи це не "BUYER"
         if ("BUYER".equalsIgnoreCase(userRole)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyers cannot create products");
+        }
+
+        // 3. ✅ Отримуємо дані про продавця з User Service (Денормалізація)
+        String sellerName = "Unknown Seller";
+        String sellerLogo = null;
+
+        try {
+            // Робимо синхронний запит через Feign Client
+            var sellerInfo = userServiceClient.getSellerInfo(userId);
+            if (sellerInfo != null) {
+                sellerName = sellerInfo.companyName();
+                sellerLogo = sellerInfo.logoUrl();
+            }
+        } catch (Exception e) {
+            // Якщо User Service недоступний або сталася помилка - логуємо, але не блокуємо створення товару
+            log.warn("Could not fetch seller info for user {}: {}", userId, e.getMessage());
         }
 
         Category category = categoryRepository.findById(request.categoryId())
@@ -59,6 +75,7 @@ public class ProductService {
 
         AccessLevel accessLevel = AccessLevel.valueOf(request.accessLevel().toUpperCase());
 
+        // 4. Створення товару з новими полями
         Product product = Product.builder()
                 .name(request.name())
                 .description(request.description())
@@ -67,6 +84,8 @@ public class ProductService {
                 .category(category)
                 .accessLevel(accessLevel)
                 .sellerId(userId)
+                .sellerName(sellerName)        // ✅ Зберігаємо ім'я
+                .sellerLogoUrl(sellerLogo)     // ✅ Зберігаємо лого
                 .weight(request.weight())
                 .length(request.length())
                 .width(request.width())
@@ -79,7 +98,6 @@ public class ProductService {
         return mapToProductResponse(savedProduct);
     }
 
-    // ... інші методи без змін
     public List<ProductResponseDTO> getAllProducts() {
         return productRepository.findAll().stream().map(this::mapToProductResponse).toList();
     }
@@ -96,6 +114,31 @@ public class ProductService {
                 .toList();
     }
 
+    @Transactional
+    public void reduceStock(UUID productId, Integer quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        if (product.getQuantity() < quantity) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.getName());
+        }
+
+        product.setQuantity(product.getQuantity() - quantity);
+        productRepository.save(product);
+        log.info("📉 Stock reduced for product {}: -{} (New balance: {})", product.getName(), quantity, product.getQuantity());
+    }
+
+    @Transactional
+    public void restoreStock(UUID productId, Integer quantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+
+        product.setQuantity(product.getQuantity() + quantity);
+        productRepository.save(product);
+        log.info("📈 Stock restored for product {}: +{} (New balance: {})", product.getName(), quantity, product.getQuantity());
+    }
+
+    // ✅ Оновлений маппер
     private ProductResponseDTO mapToProductResponse(Product product) {
         return new ProductResponseDTO(
                 product.getId(),
@@ -105,7 +148,11 @@ public class ProductService {
                 product.getQuantity(),
                 product.getCategory() != null ? product.getCategory().getName() : "No Category",
                 product.getAccessLevel().name(),
+
                 product.getSellerId(),
+                product.getSellerName(),    // ✅ Передаємо в DTO
+                product.getSellerLogoUrl(), // ✅ Передаємо в DTO
+
                 product.getWeight(),
                 product.getLength(),
                 product.getWidth(),
@@ -116,7 +163,6 @@ public class ProductService {
     }
 
     private String getTokenFromRequest() {
-        // RequestContextHolder зберігає дані поточного потоку (ThreadLocal)
         var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
         if (requestAttributes == null) {
@@ -130,6 +176,6 @@ public class ProductService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header");
         }
 
-        return authHeader; // Повертає рядок "Bearer eyJhbGci..."
+        return authHeader;
     }
 }

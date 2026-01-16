@@ -39,6 +39,20 @@ public class ProductController {
     public ProductResponseDTO getProductById(@PathVariable UUID id) {
         return productService.getProductById(id);
     }
+
+
+    @PostMapping("/{id}/reduce-stock")
+    public ResponseEntity<Void> reduceStock(@PathVariable UUID id, @RequestParam Integer quantity) {
+        productService.reduceStock(id, quantity);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{id}/restore-stock")
+    public ResponseEntity<Void> restoreStock(@PathVariable UUID id, @RequestParam Integer quantity) {
+        productService.restoreStock(id, quantity);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("product service works!");

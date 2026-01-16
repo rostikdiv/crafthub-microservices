@@ -43,107 +43,163 @@ public class OrderService {
     private final PaymentServiceClient paymentServiceClient;
     private final JwtParserService jwtParserService;
 
+    // Опціональні бін для Kafka/SQS (залежно від того, що підключено)
     @Autowired(required = false) private KafkaPublisherService kafkaPublisherService;
     @Autowired(required = false) private SqsPublisherService sqsPublisherService;
 
     @Transactional
     public PaymentResponseDTO createOrder(OrderRequestDTO request) {
-        // 1. Отримуємо токен та дані користувача
+        // 1. Отримуємо дані користувача
         String token = getTokenFromRequest();
         UUID userId = jwtParserService.extractUserId(token);
         String userRole = jwtParserService.extractUserRole(token);
         String userEmail = jwtParserService.extractUserEmail(token);
         boolean isVerified = jwtParserService.extractIsVerified(token);
 
-        log.info("Creating order. User: {}, Email: {}, Role: {}", userId, userEmail, userRole);
+        log.info("Creating order. User: {}, Role: {}", userId, userRole);
 
-        // 2. Базова перевірка прав
+        // 2. Валідація прав доступу
         if (!"BUYER".equals(userRole) && !"MILITARY_UNIT".equals(userRole)) {
             throw new AccessDeniedException("Only buyers or Military Units can place orders.");
         }
-
-        // Створюємо заготовку замовлення (спочатку CREATED)
         validateDeliveryDetails(request.deliveryDetails());
 
-        // Створюємо замовлення
-        Order order = Order.builder()
-                .userId(userId)
-                .status(OrderStatus.CREATED)
-                .items(new ArrayList<>())
-                .deliveryInfo(request.deliveryDetails()) // ✅ Зберігаємо JSON Snapshot
-                .build();
-
+        // Підготовка змінних
         BigDecimal totalOrderPrice = BigDecimal.ZERO;
         List<String> productNames = new ArrayList<>();
+        List<UUID> purchasedProductIds = new ArrayList<>();
+        List<OrderItem> reservedItems = new ArrayList<>(); // Для відкату транзакції
+        List<OrderItem> orderItemsEntityList = new ArrayList<>();
 
-        // 3. Перевірка цін та наявності (ЗБЕРЕЖЕНА СТАРА ЛОГІКА)
-        for (OrderItemRequestDTO itemRequest : request.items()) {
+        UUID commonSellerId = null;
 
-            // А. Робимо запит до Product Service
-            ProductResponseDTO product = productServiceClient.getProductById(itemRequest.productId());
+        try {
+            // 3. 🔥 ЦИКЛ ОБРОБКИ ТОВАРІВ (Спочатку все перевіряємо і готуємо)
+            for (OrderItemRequestDTO itemRequest : request.items()) {
 
-            // Б. Перевірка доступу (RESTRICTED)
-            if ("RESTRICTED".equals(product.accessLevel())) {
-                // Має бути військовим
-                if (!"MILITARY_UNIT".equals(userRole)) {
-                    throw new AccessDeniedException("Only Military Units can buy restricted products.");
+                // А. Отримуємо інфо про товар (Тепер DTO містить sellerId!)
+                ProductResponseDTO product = productServiceClient.getProductById(itemRequest.productId());
+
+                // --- 🛑 ВАЛІДАЦІЯ ПРОДАВЦЯ ---
+                if (commonSellerId == null) {
+                    if (product.sellerId() == null) {
+                        // Фолбек для старих товарів, де немає продавця (щоб не падало з NPE)
+                        log.warn("Product {} has no sellerId!", product.id());
+                        // Можна кинути помилку, або призначити "системного" продавця
+                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Product data integrity error: missing sellerId");
+                    }
+                    commonSellerId = product.sellerId();
+                } else {
+                    if (!commonSellerId.equals(product.sellerId())) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                "Multi-vendor orders are not allowed. Please split your order.");
+                    }
                 }
-                // ✅ МАЄ БУТИ ВЕРИФІКОВАНИМ
-                if (!isVerified) {
-                    throw new AccessDeniedException("Your Military Unit account is not verified yet. Please upload documents.");
+
+                // Б. Перевірка доступу (RESTRICTED)
+                if ("RESTRICTED".equals(product.accessLevel())) {
+                    if (!"MILITARY_UNIT".equals(userRole)) {
+                        throw new AccessDeniedException("Only Military Units can buy restricted products.");
+                    }
+                    if (!isVerified) {
+                        throw new AccessDeniedException("Account not verified.");
+                    }
                 }
+
+                // В. ⚡️ СПИСАННЯ ЗІ СКЛАДУ
+                productServiceClient.reduceStock(product.id(), itemRequest.quantity());
+
+                // Г. Створюємо OrderItem (але поки без Order, бо Order ще не створений)
+                OrderItem orderItem = OrderItem.builder()
+                        .productId(itemRequest.productId())
+                        .quantity(itemRequest.quantity())
+                        .pricePerUnit(product.price())
+                        .build();
+
+                reservedItems.add(orderItem); // Зберігаємо для потенційного rollback
+
+                // Д. Розрахунки
+                BigDecimal itemTotal = product.price().multiply(BigDecimal.valueOf(itemRequest.quantity()));
+                totalOrderPrice = totalOrderPrice.add(itemTotal);
+
+                productNames.add(product.name());
+                purchasedProductIds.add(product.id());
+
+                orderItemsEntityList.add(orderItem);
             }
 
-            // В. Перевірка залишків
-            if (product.quantity() < itemRequest.quantity()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.name());
-            }
-
-            // Г. Розрахунок ціни
-            BigDecimal itemTotal = product.price().multiply(BigDecimal.valueOf(itemRequest.quantity()));
-            totalOrderPrice = totalOrderPrice.add(itemTotal);
-            productNames.add(product.name());
-
-            // Д. Створюємо OrderItem
-            OrderItem orderItem = OrderItem.builder()
-                    .productId(itemRequest.productId())
-                    .quantity(itemRequest.quantity())
-                    .pricePerUnit(product.price())
-                    .order(order)
+            // 4. ✅ СТВОРЕННЯ ТА ЗБЕРЕЖЕННЯ ЗАМОВЛЕННЯ
+            // Тепер ми маємо sellerId і можемо створити валідний Order
+            Order order = Order.builder()
+                    .userId(userId)
+                    .sellerId(commonSellerId) // Обов'язкове поле!
+                    .status(OrderStatus.PENDING_PAYMENT) // Або CREATED, залежно від логіки
+                    .totalPrice(totalOrderPrice)
+                    .deliveryInfo(request.deliveryDetails()) // JSONB поле
+                    .items(new ArrayList<>())
                     .build();
 
-            order.getItems().add(orderItem);
+            // Прив'язуємо Items до Order (JPA зв'язок)
+            for (OrderItem item : orderItemsEntityList) {
+                item.setOrder(order);
+                order.getItems().add(item);
+            }
+
+            // Зберігаємо (CascadeType.ALL збереже і айтеми)
+            orderRepository.save(order);
+            log.info("✅ Order created with ID: {}", order.getId());
+
+            // 5. Сповіщення та Оплата
+            sendNotification(order, productNames, userEmail, purchasedProductIds);
+
+            PaymentRequestDTO paymentRequest = new PaymentRequestDTO(
+                    order.getId(),
+                    userId,
+                    totalOrderPrice
+            );
+
+            PaymentResponseDTO paymentResponse = paymentServiceClient.initPayment(paymentRequest);
+
+            // Оновлюємо статус, якщо ініціація успішна
+            // (Хоча PENDING_PAYMENT ми вже поставили вище, це ок)
+
+            return paymentResponse;
+
+        } catch (Exception e) {
+            log.error("❌ Error creating order: {}. Rolling back stock...", e.getMessage());
+
+            // 🔄 КОМПЕНСАЦІЯ (ROLLBACK)
+            for (OrderItem item : reservedItems) {
+                try {
+                    productServiceClient.restoreStock(item.getProductId(), item.getQuantity());
+                } catch (Exception ex) {
+                    log.error("CRITICAL: Failed to rollback stock for product {}", item.getProductId(), ex);
+                }
+            }
+            throw e;
         }
-
-        order.setTotalPrice(totalOrderPrice);
-
-        // 4. Зберігаємо замовлення
-        orderRepository.save(order);
-        log.info("✅ Order created with ID: {}", order.getId());
-
-        // 5. Відправка повідомлення "Замовлення створено" (Як було раніше)
-        sendNotification(order, productNames, userEmail);
-
-        // 6. 🚀 НОВА ЛОГІКА: Ініціація оплати
-        log.info("Initiating payment for Order ID: {}", order.getId());
-
-        PaymentRequestDTO paymentRequest = new PaymentRequestDTO(
-                order.getId(),
-                userId,
-                totalOrderPrice
-        );
-
-        PaymentResponseDTO paymentResponse = paymentServiceClient.initPayment(paymentRequest);
-
-        // Оновлюємо статус на PENDING_PAYMENT, бо ми отримали посилання
-        order.setStatus(OrderStatus.PENDING_PAYMENT);
-        orderRepository.save(order);
-
-        // Повертаємо DTO з URL для оплати
-        return paymentResponse;
     }
 
-    // ✅ Метод для Kafka Listener (Коли оплата пройшла успішно)
+    private void sendNotification(Order order, List<String> productNames, String userEmail, List<UUID> productIds) {
+        String summary = String.join(", ", productNames);
+        OrderPlacedEventDTO event = new OrderPlacedEventDTO(
+                order.getId(),
+                order.getUserId(),
+                userEmail,
+                order.getTotalPrice(),
+                summary,
+                productIds
+        );
+
+        if (kafkaPublisherService != null) {
+            kafkaPublisherService.sendOrderPlacedEvent(event);
+        } else if (sqsPublisherService != null) {
+            sqsPublisherService.sendOrderToQueue(event);
+        }
+    }
+
+    // --- Інші методи залишаються без змін ---
+
     @Transactional
     public void confirmOrderPayment(UUID orderId) {
         log.info("💰 Payment confirmation received for Order: {}", orderId);
@@ -157,11 +213,10 @@ public class OrderService {
         }
 
         order.setStatus(OrderStatus.PAID);
-        // Тут можна змінити статус на PREPARING, якщо оплата пройшла
         orderRepository.save(order);
-
         log.info("✅ Order {} status updated to PAID", orderId);
     }
+
     public OrderResponseDTO getOrderById(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -190,63 +245,46 @@ public class OrderService {
                 order.getStatus(),
                 order.getCreatedAt(),
                 itemsDto,
-                order.getDeliveryInfo() // ✅ Передаємо адресу
+                order.getDeliveryInfo()
         );
     }
+
     @Transactional
     public void updateOrderStatusFromDelivery(UUID orderId, String deliveryStatusStr) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
         OrderStatus currentStatus = order.getStatus();
-        OrderStatus newStatus = currentStatus; // За замовчуванням не змінюємо
+        OrderStatus newStatus = currentStatus;
 
-        // Логіка мапінгу (згідно нашої таблиці)
         switch (deliveryStatusStr) {
             case "PREPARING":
                 newStatus = OrderStatus.PREPARING;
                 break;
-
             case "READY_TO_SHIP":
-                // ⚡️ РОЗГАЛУЖЕННЯ: Якщо це самовивіз - то це "Готово до видачі"
-                // Якщо пошта - то клієнту це знати рано, залишаємо PREPARING
                 if (order.getDeliveryInfo().type() == DeliveryType.SELF_PICKUP) {
                     newStatus = OrderStatus.READY_FOR_PICKUP;
                 } else {
                     newStatus = OrderStatus.PREPARING;
                 }
                 break;
-
             case "SHIPPED":
                 newStatus = OrderStatus.SHIPPED;
                 break;
-
             case "DELIVERED":
                 newStatus = OrderStatus.DELIVERED;
                 break;
-
             case "CANCELLED":
                 newStatus = OrderStatus.CANCELLED;
                 break;
         }
 
-        // Оновлюємо тільки якщо статус реально змінився
         if (newStatus != currentStatus) {
             log.info("🔄 Updating Order {} status: {} -> {} (Delivery: {})",
                     orderId, currentStatus, newStatus, deliveryStatusStr);
             order.setStatus(newStatus);
             orderRepository.save(order);
         }
-    }
-
-    private void sendNotification(Order order, List<String> productNames, String userEmail) {
-        String summary = String.join(", ", productNames);
-        OrderPlacedEventDTO event = new OrderPlacedEventDTO(
-                order.getId(), order.getUserId(), userEmail, summary, order.getTotalPrice()
-        );
-
-        if (kafkaPublisherService != null) kafkaPublisherService.sendOrderPlacedEvent(event);
-        else if (sqsPublisherService != null) sqsPublisherService.sendOrderToQueue(event);
     }
 
     private String getTokenFromRequest() {
@@ -256,6 +294,7 @@ public class OrderService {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         return authHeader;
     }
+
     private void validateDeliveryDetails(DeliveryDetailsDTO details) {
         if (details == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery details are required");
@@ -264,7 +303,6 @@ public class OrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery provider and type are required");
         }
 
-        // Перевірка залежно від типу
         if (details.type() == DeliveryType.BRANCH) {
             if (details.cityRef() == null || details.branchRef() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City and Branch are required for BRANCH delivery");
@@ -274,7 +312,6 @@ public class OrderService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address details are required for COURIER delivery");
             }
         } else if (details.type() == DeliveryType.SELF_PICKUP) {
-            // Для самовивозу бажано мати хоча б адресу точки текстом (snapshot)
             if (details.pickupAddress() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pickup address is required");
             }

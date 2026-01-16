@@ -12,13 +12,15 @@ public record ProductResponseDTO(
         Integer quantity,
         String categoryName,
         String accessLevel,
+
         UUID sellerId,
+        String sellerName,
+        String sellerLogoUrl,
 
         Double weight,
         Double length,
         Double width,
         Double height,
-
         String previewImageUrl,
         List<String> imageUrls
 ) {}
