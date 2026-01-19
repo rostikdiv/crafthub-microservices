@@ -23,12 +23,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtUtil jwtUtil;
 
-    // ✅ ВИПРАВЛЕННЯ 1: Актуальні шляхи згідно з User Service
     private final List<String> publicEndpoints = List.of(
             "/api/v1/auth/register",
-            "/api/v1/auth/authenticate", // Було /login, стало /authenticate
+            "/api/v1/auth/authenticate",
             "/eureka",
-            "/api/v1/payments/webhook" // (На майбутнє) Для LiqPay
+            "/api/v1/payments/webhook"
     );
 
     @Override
@@ -36,12 +35,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
-        // 1. Перевірка на публічність
         if (isPublicEndpoint(path)) {
             return chain.filter(exchange);
         }
 
-        // 2. Перевірка заголовка
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return unauthorizedResponse(exchange, "Missing Authorization Header");
@@ -50,21 +47,22 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String token = authHeader.substring(7);
 
         try {
-            // 3. Валідація токена
             if (!jwtUtil.isTokenValid(token)) {
                 return unauthorizedResponse(exchange, "Invalid Token");
             }
 
-            // 4. Витягуємо дані
+            // Витягуємо дані
             String userEmail = jwtUtil.extractUsername(token);
-            String userId = jwtUtil.extractUserId(token); // 🆕 Треба додати цей метод в JwtUtil
-            String userRole = jwtUtil.extractUserRole(token); // 🆕 Треба додати цей метод
+            String userId = jwtUtil.extractUserId(token);
+            String userRole = jwtUtil.extractUserRole(token);
+            boolean isVerified = jwtUtil.extractIsVerified(token); // ✅ Отримуємо статус верифікації
 
-            // 5. ✅ ВИПРАВЛЕННЯ 2: Прокидаємо ID та Role далі
+            // Прокидаємо в заголовки
             ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                     .header("X-User-Email", userEmail)
-                    .header("X-User-Id", userId)      // Критично для Order Service
-                    .header("X-User-Role", userRole)  // Критично для Product Service (RESTRICTED access)
+                    .header("X-User-Id", userId)
+                    .header("X-User-Role", userRole)
+                    .header("X-User-Is-Verified", String.valueOf(isVerified)) // ✅ Додаємо заголовок (true/false)
                     .build();
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());

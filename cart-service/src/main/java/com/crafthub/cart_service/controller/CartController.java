@@ -2,49 +2,49 @@ package com.crafthub.cart_service.controller;
 
 import com.crafthub.cart_service.dto.CartItemRequestDTO;
 import com.crafthub.cart_service.entity.Cart;
-import com.crafthub.cart_service.security.JwtParserService;
 import com.crafthub.cart_service.service.CartService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
-@RequestMapping("/api/v1/cart") // ❗️ Наш базовий URL
+@RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
 public class CartController {
 
     private final CartService cartService;
-    private final JwtParserService jwtService;
-
     /**
-     * Отримує кошик поточного користувача (або створює новий).
+     * Отримує кошик поточного користувача.
+     * ID береться автоматично всередині cartService.getMyCart()
      */
     @GetMapping
-    public ResponseEntity<Cart> getCart(@RequestHeader("Authorization") String token) {
-        UUID userId = jwtService.extractUserId(token); // ✅ ID з токена
-        return ResponseEntity.ok(cartService.getCart(userId));
-    }
-    /**
-     * Додає/оновлює товар у кошику.
-     */
-    @PostMapping("/items")
-    public ResponseEntity<Cart> addItem(@RequestHeader("Authorization") String token,
-                                        @RequestBody CartItemRequestDTO itemDto) {
-        UUID userId = jwtService.extractUserId(token); // ✅ ID з токена
-        return ResponseEntity.ok(cartService.addItemToCart(userId, itemDto));
+    public ResponseEntity<Cart> getCart() {
+        return ResponseEntity.ok(cartService.getMyCart());
     }
 
     /**
-     * Видаляє товар з кошика.
+     * Додає товар у кошик поточного користувача.
+     */
+    @PostMapping("/items")
+    public ResponseEntity<Cart> addItem(@RequestBody CartItemRequestDTO itemDto) {
+        return ResponseEntity.ok(cartService.addItemToMyCart(itemDto));
+    }
+
+    /**
+     * Видаляє товар з кошика поточного користувача.
      */
     @DeleteMapping("/items/{productId}")
-    public ResponseEntity<Cart> removeItem(@RequestHeader("Authorization") String token,
-                                           @PathVariable String productId) {
-        UUID userId = jwtService.extractUserId(token); // ✅ ID з токена
-        return ResponseEntity.ok(cartService.removeItemFromCart(userId, productId));
+    public ResponseEntity<Cart> removeItem(@PathVariable String productId) {
+        return ResponseEntity.ok(cartService.removeItemFromMyCart(productId));
+    }
+
+    /**
+     * Очищає весь кошик поточного користувача.
+     */
+    @DeleteMapping
+    public ResponseEntity<Void> clearCart() {
+        cartService.clearMyCart();
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/test")

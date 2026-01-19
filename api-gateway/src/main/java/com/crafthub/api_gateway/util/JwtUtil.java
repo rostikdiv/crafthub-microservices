@@ -19,18 +19,33 @@ public class JwtUtil {
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
-    // ❗️ --- НОВИЙ МЕТОД --- ❗️
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // ❗️ --- НОВИЙ УНІВЕРСАЛЬНИЙ МЕТОД --- ❗️
+    public String extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", String.class));
+    }
+
+    public String extractUserRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    // ✅ НОВИЙ МЕТОД: isVerified
+    public boolean extractIsVerified(String token) {
+        // Якщо токен прийшов з "Bearer ", чистимо його (хоча Filter зазвичай передає чистий)
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        // Використовуємо Boolean.class і перевіряємо на null
+        Boolean isVerified = extractClaim(token, claims -> claims.get("isVerified", Boolean.class));
+        return isVerified != null && isVerified;
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
-
 
     private Claims extractAllClaims(String token) {
         try {
@@ -48,48 +63,18 @@ public class JwtUtil {
 
     public boolean isTokenValid(String token) {
         try {
-            Claims claims = extractAllClaims(token);
-            String username = claims.getSubject();
-            Date expiration = claims.getExpiration();
-
-            log.debug("Token details - Username: {}, Expiration: {}", username, expiration);
-
-            boolean isNotExpired = !isTokenExpired(token);
-            log.debug("Token expired: {}", !isNotExpired);
-
-            return isNotExpired;
+            return !isTokenExpired(token);
         } catch (Exception e) {
-            log.error("Token validation failed: {}", e.getMessage());
             return false;
         }
     }
 
     private boolean isTokenExpired(String token) {
-        try {
-            Date expiration = extractAllClaims(token).getExpiration();
-            boolean expired = expiration.before(new Date());
-            log.debug("Checking expiration - Expiration date: {}, Is expired: {}", expiration, expired);
-            return expired;
-        } catch (Exception e) {
-            log.error("Failed to check token expiration: {}", e.getMessage());
-            return true;
-        }
+        return extractAllClaims(token).getExpiration().before(new Date());
     }
 
     private SecretKey getSignInKey() {
-        log.debug("Using secret key (first 20 chars): {}...",
-                secretKey.substring(0, Math.min(20, secretKey.length())));
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    // Додати цей метод для витягування ID
-    public String extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("id", String.class));
-    }
-
-    // Додати цей метод для витягування Ролі
-    public String extractUserRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
     }
 }

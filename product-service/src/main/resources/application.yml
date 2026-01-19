@@ -4,12 +4,6 @@
 server:
   port: 8082
 
-application:
-  security:
-    jwt:
-      # Це той самий ключ, що ти надіслав. Тепер він доступний як ${application.security.jwt.secret-key}
-      secret-key: bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==
-
 spring:
   application:
     name: product-service

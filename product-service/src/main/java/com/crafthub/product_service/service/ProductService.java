@@ -8,7 +8,7 @@ import com.crafthub.product_service.entity.Category;
 import com.crafthub.product_service.entity.Product;
 import com.crafthub.product_service.repository.CategoryRepository;
 import com.crafthub.product_service.repository.ProductRepository;
-import com.crafthub.product_service.security.JwtParserService;
+import com.crafthub.product_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final JwtParserService jwtParserService;
+    private final UserContextService userContext;
     private final UserServiceClient userServiceClient;
 
     @Transactional
@@ -40,8 +40,8 @@ public class ProductService {
         UUID userId;
         String userRole;
         try {
-            userId = jwtParserService.extractUserId(token);
-            userRole = jwtParserService.extractUserRole(token);
+            userId = userContext.getUserId();
+            userRole = userContext.getUserRole();
         } catch (Exception e) {
             log.error("Invalid Token", e);
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid JWT Token");

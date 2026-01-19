@@ -17,7 +17,7 @@ import com.crafthub.order_service.entity.OrderStatus;
 import com.crafthub.order_service.entity.enums.DeliveryType;
 import com.crafthub.order_service.exception.AccessDeniedException;
 import com.crafthub.order_service.repository.OrderRepository;
-import com.crafthub.order_service.security.JwtParserService;
+import com.crafthub.order_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductServiceClient productServiceClient;
     private final PaymentServiceClient paymentServiceClient;
-    private final JwtParserService jwtParserService;
+    private final UserContextService userContext;
 
     // Опціональні бін для Kafka/SQS (залежно від того, що підключено)
     @Autowired(required = false) private KafkaPublisherService kafkaPublisherService;
@@ -50,11 +50,10 @@ public class OrderService {
     @Transactional
     public PaymentResponseDTO createOrder(OrderRequestDTO request) {
         // 1. Отримуємо дані користувача
-        String token = getTokenFromRequest();
-        UUID userId = jwtParserService.extractUserId(token);
-        String userRole = jwtParserService.extractUserRole(token);
-        String userEmail = jwtParserService.extractUserEmail(token);
-        boolean isVerified = jwtParserService.extractIsVerified(token);
+        UUID userId = userContext.getUserId();
+        String userRole = userContext.getUserRole();
+        String userEmail = userContext.getUserEmail();
+        boolean isVerified = userContext.isVerified();
 
         log.info("Creating order. User: {}, Role: {}", userId, userRole);
 
@@ -285,14 +284,6 @@ public class OrderService {
             order.setStatus(newStatus);
             orderRepository.save(order);
         }
-    }
-
-    private String getTokenFromRequest() {
-        var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (requestAttributes == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        String authHeader = requestAttributes.getRequest().getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        return authHeader;
     }
 
     private void validateDeliveryDetails(DeliveryDetailsDTO details) {

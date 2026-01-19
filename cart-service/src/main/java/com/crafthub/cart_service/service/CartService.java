@@ -7,6 +7,7 @@ import com.crafthub.cart_service.entity.Cart;
 import com.crafthub.cart_service.entity.CartItem;
 import com.crafthub.cart_service.entity.CartSection;
 import com.crafthub.cart_service.repository.CartRepository;
+import com.crafthub.cart_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,33 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final ProductServiceClient productServiceClient;
+    private final UserContextService userContext; // ✅ Інжектимо контекст
+
+    // =========================================================================
+    // 🟢 PUBLIC FACADE METHODS (Для Контролера)
+    // Ці методи не приймають userId, а беруть його з контексту
+    // =========================================================================
+
+    public Cart getMyCart() {
+        return getCart(userContext.getUserId());
+    }
+
+    public Cart addItemToMyCart(CartItemRequestDTO itemDto) {
+        return addItemToCart(userContext.getUserId(), itemDto);
+    }
+
+    public Cart removeItemFromMyCart(String productIdStr) {
+        return removeItemFromCart(userContext.getUserId(), productIdStr);
+    }
+
+    public void clearMyCart() {
+        clearCart(userContext.getUserId());
+    }
+
+    // =========================================================================
+    // 🟡 INTERNAL LOGIC METHODS (Твій код + Kafka)
+    // Ці методи приймають userId явно.
+    // =========================================================================
 
     // --- ОТРИМАННЯ КОШИКА (З оновленням даних) ---
     public Cart getCart(UUID userId) {
@@ -78,8 +106,7 @@ public class CartService {
                     cartChanged = true;
                 }
 
-                // Оновлюємо дані секції (назва магазину/лого), якщо змінились
-                // Беремо дані з першого доступного товару секції
+                // Оновлюємо дані секції (назва магазину/лого)
                 if (section.getSellerName() == null || !section.getSellerName().equals(freshData.sellerName())) {
                     section.setSellerName(freshData.sellerName());
                     section.setSellerLogoUrl(freshData.sellerLogoUrl());
@@ -111,7 +138,7 @@ public class CartService {
 
     // --- ДОДАВАННЯ ТОВАРУ ---
     public Cart addItemToCart(UUID userId, CartItemRequestDTO itemDto) {
-        // 1. Отримуємо товар (тут вже будуть sellerName і logo!)
+        // 1. Отримуємо товар
         ProductResponseDTO product;
         try {
             product = productServiceClient.getProductById(itemDto.productId());
@@ -132,7 +159,6 @@ public class CartService {
 
         UUID sellerId = product.sellerId();
         if (sellerId == null) {
-            // Фолбек, якщо старий товар без продавця
             sellerId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         }
 
@@ -142,11 +168,10 @@ public class CartService {
                 .filter(s -> s.getSellerId().equals(finalSellerId))
                 .findFirst()
                 .orElseGet(() -> {
-                    // ✅ Створюємо секцію з Гарною назвою та Лого
                     CartSection newSection = new CartSection(
                             finalSellerId,
-                            product.sellerName(),     // Беремо з товару
-                            product.sellerLogoUrl(),  // Беремо з товару
+                            product.sellerName(),
+                            product.sellerLogoUrl(),
                             new ArrayList<>()
                     );
                     cart.getSections().add(newSection);
@@ -193,7 +218,7 @@ public class CartService {
             if (removed) {
                 cartChanged = true;
                 if (section.getItems().isEmpty()) {
-                    sectionIterator.remove(); // Видаляємо секцію, якщо порожня
+                    sectionIterator.remove();
                 }
                 break;
             }
