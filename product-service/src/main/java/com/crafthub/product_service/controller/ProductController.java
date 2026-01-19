@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,8 @@ public class ProductController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
+    // ✅ Тільки той, хто має право створювати товари (SELLER, ADMIN)
+    @PreAuthorize("hasAuthority('product:create')")
     public ProductResponseDTO createProduct(@RequestBody @Valid ProductRequestDTO productRequest) {
         return productService.createProduct(productRequest);
     }
@@ -42,6 +45,8 @@ public class ProductController {
 
 
     @PostMapping("/{id}/reduce-stock")
+    // ✅ Наприклад, це може робити система замовлень (або адмін)
+    @PreAuthorize("hasAuthority('product:update')")
     public ResponseEntity<Void> reduceStock(@PathVariable UUID id, @RequestParam Integer quantity) {
         productService.reduceStock(id, quantity);
         return ResponseEntity.ok().build();

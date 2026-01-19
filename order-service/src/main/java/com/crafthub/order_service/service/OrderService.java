@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -57,10 +58,10 @@ public class OrderService {
 
         log.info("Creating order. User: {}, Role: {}", userId, userRole);
 
-        // 2. Валідація прав доступу
-        if (!"BUYER".equals(userRole) && !"MILITARY_UNIT".equals(userRole)) {
-            throw new AccessDeniedException("Only buyers or Military Units can place orders.");
-        }
+//        // 2. Валідація прав доступу
+//        if (!"BUYER".equals(userRole) && !"MILITARY_UNIT".equals(userRole)) {
+//            throw new AccessDeniedException("Only buyers or Military Units can place orders.");
+//        }
         validateDeliveryDetails(request.deliveryDetails());
 
         // Підготовка змінних
@@ -97,11 +98,19 @@ public class OrderService {
 
                 // Б. Перевірка доступу (RESTRICTED)
                 if ("RESTRICTED".equals(product.accessLevel())) {
-                    if (!"MILITARY_UNIT".equals(userRole)) {
-                        throw new AccessDeniedException("Only Military Units can buy restricted products.");
+
+                    // ❌ БУЛО (Hardcoded Role):
+                    // if (!"MILITARY_UNIT".equals(userRole)) { ... }
+
+                    // ✅ СТАЛО (Permission check):
+                    // Перевіряємо, чи є у користувача дозвіл "product:buy:restricted"
+                    if (!hasPermission("product:buy:restricted")) {
+                        throw new AccessDeniedException("Purchasing this restricted product requires military authorization.");
                     }
+
+                    // Додаткова перевірка верифікації (якщо треба)
                     if (!isVerified) {
-                        throw new AccessDeniedException("Account not verified.");
+                        throw new AccessDeniedException("Account must be verified to purchase restricted items.");
                     }
                 }
 
@@ -228,6 +237,7 @@ public class OrderService {
                 .toList();
     }
 
+
     private OrderResponseDTO mapToOrderResponseDTO(Order order) {
         List<OrderItemResponseDTO> itemsDto = order.getItems().stream()
                 .map(item -> new OrderItemResponseDTO(
@@ -284,6 +294,11 @@ public class OrderService {
             order.setStatus(newStatus);
             orderRepository.save(order);
         }
+    }
+
+    private boolean hasPermission(String permission) {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(permission));
     }
 
     private void validateDeliveryDetails(DeliveryDetailsDTO details) {

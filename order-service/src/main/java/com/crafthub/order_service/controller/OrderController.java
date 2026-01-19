@@ -6,6 +6,7 @@ import com.crafthub.order_service.dto.payment.PaymentResponseDTO;
 import com.crafthub.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,8 +20,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
+    // ✅ Тільки той, хто має право купувати (BUYER, MILITARY)
+    @PreAuthorize("hasAuthority('order:create')")
     public ResponseEntity<PaymentResponseDTO> createOrder(@RequestBody OrderRequestDTO request) {
-        // Тепер ми повертаємо об'єкт з URL для оплати
         return ResponseEntity.ok(orderService.createOrder(request));
     }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
 
 @Component
@@ -76,5 +77,9 @@ public class JwtUtil {
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public List<String> extractPermissions(String token) {
+        return extractClaim(token, claims -> claims.get("permissions", List.class));
     }
 }

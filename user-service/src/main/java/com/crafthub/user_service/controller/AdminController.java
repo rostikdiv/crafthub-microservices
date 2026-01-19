@@ -1,11 +1,13 @@
 package com.crafthub.user_service.controller;
 
+import com.crafthub.user_service.dto.admin.VerificationResponseDTO;
 import com.crafthub.user_service.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize; // Якщо налаштуєте ролі
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,5 +33,15 @@ public class AdminController {
     ) {
         adminService.verifyDocument(id, isApproved, reason);
         return ResponseEntity.ok("Document status updated");
+    }
+
+    /**
+     * Отримати всі документи користувача для перевірки.
+     * Доступ: Тільки користувачі з правом 'user:verify' (тобто ADMIN).
+     */
+    @GetMapping("/users/{userId}/documents")
+    @PreAuthorize("hasAuthority('user:verify')") // 🔐 Перевірка права (Permission)
+    public ResponseEntity<List<VerificationResponseDTO>> getUserDocuments(@PathVariable UUID userId) {
+        return ResponseEntity.ok(adminService.getUserDocuments(userId));
     }
 }

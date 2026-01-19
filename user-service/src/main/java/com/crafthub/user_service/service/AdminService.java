@@ -1,5 +1,6 @@
 package com.crafthub.user_service.service;
 
+import com.crafthub.user_service.dto.admin.VerificationResponseDTO;
 import com.crafthub.user_service.entity.User;
 import com.crafthub.user_service.entity.VerificationDoc;
 import com.crafthub.user_service.entity.enums.Role;
@@ -13,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +71,32 @@ public class AdminService {
             doc.setRejectionReason(rejectionReason);
         }
         docRepository.save(doc);
+    }
+
+    @Transactional(readOnly = true)
+    public List<VerificationResponseDTO> getUserDocuments(UUID userId) {
+        // Перевіряємо, чи існує такий юзер (опціонально, але бажано)
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        // Використовуємо метод репозиторію, який вже є у файлі
+        return docRepository.findAllByUserId(userId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private VerificationResponseDTO mapToDTO(VerificationDoc doc) {
+        // У VerificationDoc немає поля createdAt, тому поки передаємо null або додайте це поле в сутність
+        // Якщо ви використовуєте @CreationTimestamp у сутності, то getter буде доступний.
+        return new VerificationResponseDTO(
+                doc.getId(),
+                doc.getUser().getId(),
+                doc.getDocumentType(),
+                doc.getDocUrl(),
+                doc.getStatus(),
+                doc.getRejectionReason(),
+                null // або doc.getCreatedAt(), якщо додасте це поле в Entity
+        );
     }
 }

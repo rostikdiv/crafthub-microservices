@@ -49,10 +49,10 @@ public class ProductService {
 
         log.info("Creating product by User ID: {}, Role: {}", userId, userRole);
 
-        // 2. Валідація ролі
-        if ("BUYER".equalsIgnoreCase(userRole)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyers cannot create products");
-        }
+//        // 2. Валідація ролі
+//        if ("BUYER".equalsIgnoreCase(userRole)) {
+//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyers cannot create products");
+//        }
 
         // 3. ✅ Отримуємо дані про продавця з User Service (Денормалізація)
         String sellerName = "Unknown Seller";

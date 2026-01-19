@@ -81,7 +81,9 @@ public class User implements UserDetails {
     // Security методи
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        // ✅ БУЛО: return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        // ✅ СТАЛО: Беремо повний список прав з ролі
+        return role.getAuthorities();
     }
 
     @Override

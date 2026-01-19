@@ -57,12 +57,17 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             String userRole = jwtUtil.extractUserRole(token);
             boolean isVerified = jwtUtil.extractIsVerified(token); // ✅ Отримуємо статус верифікації
 
-            // Прокидаємо в заголовки
+            // ✅ Витягуємо список прав
+            List<String> permissions = jwtUtil.extractPermissions(token);
+            String permissionsHeader = permissions != null ? String.join(",", permissions) : "";
+
+            // 5. Прокидаємо в заголовки
             ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                     .header("X-User-Email", userEmail)
                     .header("X-User-Id", userId)
                     .header("X-User-Role", userRole)
-                    .header("X-User-Is-Verified", String.valueOf(isVerified)) // ✅ Додаємо заголовок (true/false)
+                    .header("X-User-Is-Verified", String.valueOf(isVerified))
+                    .header("X-User-Permissions", permissionsHeader) // ✅ НОВИЙ ЗАГОЛОВОК
                     .build();
 
             return chain.filter(exchange.mutate().request(modifiedRequest).build());

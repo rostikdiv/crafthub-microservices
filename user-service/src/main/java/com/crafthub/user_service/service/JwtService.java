@@ -1,6 +1,7 @@
 package com.crafthub.user_service.service;
 
 import com.crafthub.user_service.entity.User; // 🆕 Імпорт нашого User
+import com.crafthub.user_service.entity.enums.Permission;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,7 +15,9 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -41,17 +44,22 @@ public class JwtService {
             extraClaims.put("id", customUser.getId());   // Зашиваємо UUID
             extraClaims.put("role", customUser.getRole()); // Зашиваємо Роль
             extraClaims.put("isVerified", customUser.getIsVerified());
+
+            Set<String> permissions = customUser.getRole().getPermissions().stream()
+                    .map(Permission::getPermission)
+                    .collect(Collectors.toSet());
+            extraClaims.put("permissions", permissions);
         }
         return generateToken(extraClaims, userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
-                .claims(extraClaims) // або .claims().add(extraClaims).and()
+                .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), Jwts.SIG.HS256) // ❗️ Явно вказуємо алгоритм з новим синтаксисом
+                .signWith(getSignInKey(), Jwts.SIG.HS256)
                 .compact();
     }
 
