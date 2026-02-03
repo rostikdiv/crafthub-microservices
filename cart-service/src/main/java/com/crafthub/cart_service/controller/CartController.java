@@ -5,6 +5,7 @@ import com.crafthub.cart_service.entity.Cart;
 import com.crafthub.cart_service.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class CartController {
      * ID береться автоматично всередині cartService.getMyCart()
      */
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Cart> getCart() {
         return ResponseEntity.ok(cartService.getMyCart());
     }
@@ -26,6 +28,7 @@ public class CartController {
      * Додає товар у кошик поточного користувача.
      */
     @PostMapping("/items")
+    @PreAuthorize("hasAuthority('order:create')")
     public ResponseEntity<Cart> addItem(@RequestBody CartItemRequestDTO itemDto) {
         return ResponseEntity.ok(cartService.addItemToMyCart(itemDto));
     }
@@ -34,6 +37,7 @@ public class CartController {
      * Видаляє товар з кошика поточного користувача.
      */
     @DeleteMapping("/items/{productId}")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Cart> removeItem(@PathVariable String productId) {
         return ResponseEntity.ok(cartService.removeItemFromMyCart(productId));
     }
@@ -42,6 +46,7 @@ public class CartController {
      * Очищає весь кошик поточного користувача.
      */
     @DeleteMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> clearCart() {
         cartService.clearMyCart();
         return ResponseEntity.noContent().build();

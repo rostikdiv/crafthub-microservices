@@ -2,46 +2,64 @@
 # === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
 # ======================================================
 server:
-  port: 8080 # (Я залишив 8080, як у твоєму файлі)
+  port: 8080
 
 spring:
   application:
     name: api-gateway
   profiles:
-    active: local # ❗️ Профіль за замовчуванням
+    active: local
 
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-      routes:
-        - id: user_service_route
-          uri: lb://user-service
-          predicates:
-            - Path=/api/v1/users/**, Path=/api/v1/admin/**, /api/v1/auth/**
-        - id: product_service_route
-          uri: lb://product-service
-          predicates:
-            - Path=/api/v1/products/**, /api/v1/categories/**
-        - id: order_service_route
-          uri: lb://order-service
-          predicates:
-            - Path=/api/v1/orders/**
-        - id: cart_service_route
-          uri: lb://cart-service
-          predicates:
-            - Path=/api/v1/cart/**
-        - id: payment_service_route
-          uri: lb://payment-service
-          predicates:
-            - Path=/api/v1/payments/**
-        - id: delivery_service_route
-          uri: lb://delivery-service
-          predicates:
-            - Path=/api/v1/delivery/**
+      server: # ✅ Новий рівень вкладеності
+        webflux: # ✅ Новий рівень вкладеності (для реактивного стеку)
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: user_service_route
+              uri: lb://user-service
+              predicates:
+                - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**
+              filters:
+                - AuthenticationFilter
 
+            - id: product_service_route
+              uri: lb://product-service
+              predicates:
+                - Path=/api/v1/products/**, /api/v1/categories/**
+              filters:
+                - AuthenticationFilter
+
+            - id: order_service_route
+              uri: lb://order-service
+              predicates:
+                - Path=/api/v1/orders/**
+              filters:
+                - AuthenticationFilter
+
+            - id: cart_service_route
+              uri: lb://cart-service
+              predicates:
+                - Path=/api/v1/cart/**
+              filters:
+                - AuthenticationFilter
+
+            - id: payment_service_route
+              uri: lb://payment-service
+              predicates:
+                - Path=/api/v1/payments/**
+              filters:
+                - AuthenticationFilter
+
+            - id: delivery_service_route
+              uri: lb://delivery-service
+              predicates:
+                - Path=/api/v1/delivery/**
+              filters:
+                - AuthenticationFilter
 
 management:
   tracing:
@@ -108,30 +126,41 @@ spring:
       - org.springframework.cloud.client.discovery.DiscoveryClientAutoConfiguration
   cloud:
     discovery:
-      enabled: false # Вимикаємо будь-яке discovery
+      enabled: false
     gateway:
-      discovery:
-        locator:
-          enabled: false # ❗️ НЕ шукати сервіси в Eureka
-      routes:
-        # ❗️ ПЕРЕВИЗНАЧАЄМО МАРШРУТИ ДЛЯ AWS
-        - id: user_service_route
-          # ❗️ Вказуємо DNS-ім'я з Cloud Map (заміни 'crafthub.internal' на свій namespace)
-          uri: http://user-service.crafthub.internal:8081
-          predicates:
-            - Path=/api/v1/users/**, /api/v1/auth/**
-        - id: product_service_route
-          uri: http://product-service.crafthub.internal:8082
-          predicates:
-            - Path=/api/v1/products/**
-        - id: order_service_route
-          uri: http://order-service.crafthub.internal:8083
-          predicates:
-            - Path=/api/v1/orders/**
-        - id: cart_service_route
-          uri: http://cart-service.crafthub.internal:8085
-          predicates:
-            - Path=/api/v1/cart/**
+      server: # ✅ Тут теж оновлюємо для AWS профілю
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+          routes:
+            - id: user_service_route
+              uri: http://user-service.crafthub.internal:8081
+              predicates:
+                - Path=/api/v1/users/**, /api/v1/auth/**
+              filters:
+                - AuthenticationFilter
+
+            - id: product_service_route
+              uri: http://product-service.crafthub.internal:8082
+              predicates:
+                - Path=/api/v1/products/**
+              filters:
+                - AuthenticationFilter
+
+            - id: order_service_route
+              uri: http://order-service.crafthub.internal:8083
+              predicates:
+                - Path=/api/v1/orders/**
+              filters:
+                - AuthenticationFilter
+
+            - id: cart_service_route
+              uri: http://cart-service.crafthub.internal:8085
+              predicates:
+                - Path=/api/v1/cart/**
+              filters:
+                - AuthenticationFilter
 aws:
   xray:
     enabled: true

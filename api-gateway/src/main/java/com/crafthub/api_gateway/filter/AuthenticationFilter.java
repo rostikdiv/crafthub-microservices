@@ -1,96 +1,91 @@
 package com.crafthub.api_gateway.filter;
 
 import com.crafthub.api_gateway.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.Ordered;
+import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
-public class AuthenticationFilter implements GlobalFilter, Ordered {
+public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-    private final JwtUtil jwtUtil;
+    @Autowired
+    private RouteValidator validator;
 
-    private final List<String> publicEndpoints = List.of(
-            "/api/v1/auth/register",
-            "/api/v1/auth/authenticate",
-            "/eureka",
-            "/api/v1/payments/webhook"
-    );
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    public AuthenticationFilter() {
+        super(Config.class);
+    }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        ServerHttpRequest request = exchange.getRequest();
-        String path = request.getURI().getPath();
+    public GatewayFilter apply(Config config) {
+        return ((exchange, chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
 
-        if (isPublicEndpoint(path)) {
-            return chain.filter(exchange);
-        }
+            // Логуємо вхідний запит
+            if (validator.isSecured.test(request)) {
+                System.out.println("🔒 SECURED REQUEST: " + request.getURI());
 
-        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return unauthorizedResponse(exchange, "Missing Authorization Header");
-        }
+                if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                    System.out.println("❌ MISSING AUTH HEADER");
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing authorization header");
+                }
 
-        String token = authHeader.substring(7);
+                String authHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    authHeader = authHeader.substring(7);
+                } else {
+                    System.out.println("❌ INVALID AUTH HEADER FORMAT");
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Authorization header format");
+                }
 
-        try {
-            if (!jwtUtil.isTokenValid(token)) {
-                return unauthorizedResponse(exchange, "Invalid Token");
+                try {
+                    jwtUtil.validateToken(authHeader);
+
+                    Claims claims = jwtUtil.getAllClaimsFromToken(authHeader);
+                    String userId = claims.get("id", String.class);
+                    String role = claims.get("role", String.class);
+                    String email = claims.getSubject();
+                    List<String> permissions = claims.get("permissions", List.class);
+                    String permissionsStr = permissions != null ? String.join(",", permissions) : "";
+                    String isVerified = String.valueOf(claims.get("isVerified"));
+
+                    System.out.println("✅ TOKEN VALID. User: " + email + ", Role: " + role);
+                    System.out.println("👉 ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions=[" + permissionsStr.length() + " chars]");
+
+                    // 🔥 МУТАЦІЯ ЗАПИТУ
+                    ServerHttpRequest modifiedRequest = request.mutate()
+                            .header("X-User-Id", userId)
+                            .header("X-User-Role", role)
+                            .header("X-User-Email", email)
+                            .header("X-User-Permissions", permissionsStr)
+                            .header("X-User-Is-Verified", isVerified)
+                            .build();
+
+                    // Передаємо далі
+                    return chain.filter(exchange.mutate().request(modifiedRequest).build());
+
+                } catch (Exception e) {
+                    System.out.println("❌ UNAUTHORIZED: " + e.getMessage());
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+                }
+            } else {
+                System.out.println("🔓 OPEN REQUEST: " + request.getURI());
             }
 
-            // Витягуємо дані
-            String userEmail = jwtUtil.extractUsername(token);
-            String userId = jwtUtil.extractUserId(token);
-            String userRole = jwtUtil.extractUserRole(token);
-            boolean isVerified = jwtUtil.extractIsVerified(token); // ✅ Отримуємо статус верифікації
-
-            // ✅ Витягуємо список прав
-            List<String> permissions = jwtUtil.extractPermissions(token);
-            String permissionsHeader = permissions != null ? String.join(",", permissions) : "";
-
-            // 5. Прокидаємо в заголовки
-            ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
-                    .header("X-User-Email", userEmail)
-                    .header("X-User-Id", userId)
-                    .header("X-User-Role", userRole)
-                    .header("X-User-Is-Verified", String.valueOf(isVerified))
-                    .header("X-User-Permissions", permissionsHeader) // ✅ НОВИЙ ЗАГОЛОВОК
-                    .build();
-
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());
-
-        } catch (Exception e) {
-            log.error("Authentication error: {}", e.getMessage());
-            return unauthorizedResponse(exchange, "Unauthorized access");
-        }
+            return chain.filter(exchange);
+        });
     }
 
-    private boolean isPublicEndpoint(String path) {
-        return publicEndpoints.stream()
-                .anyMatch(publicPath -> path.equals(publicPath) || path.startsWith(publicPath + "/"));
-    }
-
-    private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
-        ServerHttpResponse response = exchange.getResponse();
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        return response.setComplete();
-    }
-
-    @Override
-    public int getOrder() {
-        return -1;
+    public static class Config {
     }
 }

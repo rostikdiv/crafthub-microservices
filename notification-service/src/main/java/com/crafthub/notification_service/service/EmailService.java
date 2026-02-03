@@ -18,53 +18,64 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
-    /**
-     * Відправляє лист асинхронно, щоб не блокувати Kafka Listener.
-     */
     @Async
-    public void sendOrderConfirmation(String toEmail, String orderId, BigDecimal amount, String products) {
+    public void sendEmail(String to, String subject, String htmlContent) {
         try {
-            log.info("📨 Sending email to: {}", toEmail);
-
+            log.info("📨 Sending email to: {}", to);
             MimeMessage message = mailSender.createMimeMessage();
-            // true означає multipart (можливість вкладень) і підтримку UTF-8
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("no-reply@crafthub.com"); // Mailtrap дозволяє будь-якого відправника
-            helper.setTo(toEmail);
-            helper.setSubject("CraftHub: Замовлення #" + orderId + " створено!");
-
-            // Формуємо красивий HTML
-            String htmlContent = buildHtmlTemplate(orderId, amount, products);
-            helper.setText(htmlContent, true); // true = це HTML
+            helper.setFrom("no-reply@crafthub.com");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
-            log.info("✅ Email sent successfully to {}", toEmail);
-
+            log.info("✅ Email sent successfully to {}", to);
         } catch (MessagingException e) {
-            log.error("❌ Failed to send email to {}", toEmail, e);
+            log.error("❌ Failed to send email to {}", to, e);
         }
     }
 
-    private String buildHtmlTemplate(String orderId, BigDecimal amount, String products) {
-        return """
-            <div style="font-family: Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-                <h2 style="color: #2c3e50; text-align: center;">Дякуємо за покупку! 🛡️</h2>
-                <p>Ваше замовлення <strong>#%s</strong> успішно прийнято.</p>
-                
-                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                    <p style="margin: 5px 0;"><strong>Товари:</strong> %s</p>
-                    <p style="margin: 5px 0; font-size: 18px;"><strong>Сума:</strong> <span style="color: #27ae60;">%s UAH</span></p>
-                </div>
+    // 1. Замовлення створено
+    public void sendOrderConfirmation(String toEmail, String orderId, BigDecimal amount, String products) {
+        String html = """
+            <h2>Замовлення #%s створено!</h2>
+            <p>Дякуємо за покупку.</p>
+            <p><strong>Товари:</strong> %s</p>
+            <p><strong>Сума:</strong> %s UAH</p>
+            <p>Будь ласка, перейдіть до оплати, якщо ви цього ще не зробили.</p>
+            """.formatted(orderId, products, amount);
+        sendEmail(toEmail, "CraftHub: Замовлення #" + orderId, html);
+    }
 
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="http://localhost:8080/payment/%s" style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Перейти до оплати</a>
-                </div>
-                
-                <hr style="margin-top: 30px; border: 0; border-top: 1px solid #eee;">
-                <p style="font-size: 12px; color: #999; text-align: center;">Це автоматичне повідомлення від системи CraftHub.</p>
-            </div>
-            """.formatted(orderId, products, amount, orderId);
-        // Примітка: в останньому параметрі (посилання) ми поки що використовуємо orderId як заглушку
+    // 2. Оплата успішна
+    public void sendPaymentSuccess(String toEmail, String orderId, BigDecimal amount) {
+        String html = """
+            <h2 style="color: green;">Оплата успішна! ✅</h2>
+            <p>Ваше замовлення #%s на суму <strong>%s UAH</strong> успішно оплачено.</p>
+            <p>Ми починаємо комплектацію.</p>
+            """.formatted(orderId, amount);
+        sendEmail(toEmail, "CraftHub: Оплата зарахована #" + orderId, html);
+    }
+
+    // 3. Зміна статусу доставки
+    public void sendDeliveryUpdate(String toEmail, String orderId, String status) {
+        String statusText = translateStatus(status);
+        String html = """
+            <h2>Оновлення статусу доставки 🚚</h2>
+            <p>Статус вашого замовлення #%s змінився на: <strong>%s</strong></p>
+            """.formatted(orderId, statusText);
+        sendEmail(toEmail, "CraftHub: Оновлення замовлення #" + orderId, html);
+    }
+
+    private String translateStatus(String status) {
+        return switch (status) {
+            case "SHIPPED" -> "Відправлено";
+            case "DELIVERED" -> "Доставлено";
+            case "READY_FOR_PICKUP" -> "Чекає у точці видачі";
+            case "CANCELLED" -> "Скасовано";
+            default -> status;
+        };
     }
 }

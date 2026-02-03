@@ -7,6 +7,7 @@ import com.crafthub.product_service.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,6 +21,7 @@ public class CategoryController {
 
     private final CategoryRepository categoryRepository;
 
+    @PreAuthorize("hasAuthority('product:create')")
     @PostMapping("/")
     public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO request) {
         // 1. Перевірка на дублікат

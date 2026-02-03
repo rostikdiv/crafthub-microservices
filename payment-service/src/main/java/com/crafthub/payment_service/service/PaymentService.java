@@ -3,8 +3,11 @@ package com.crafthub.payment_service.service;
 import com.crafthub.payment_service.dto.PaymentRequestDTO;
 import com.crafthub.payment_service.dto.PaymentResponseDTO;
 import com.crafthub.payment_service.dto.PaymentSuccessEventDTO;
+import com.crafthub.payment_service.dto.TransactionDTO; // ✅ Додано імпорт
 import com.crafthub.payment_service.entity.Transaction;
 import com.crafthub.payment_service.entity.TransactionStatus;
+import com.crafthub.payment_service.exception.BusinessException; // ✅
+import com.crafthub.payment_service.exception.ResourceNotFoundException; // ✅
 import com.crafthub.payment_service.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,6 +26,13 @@ public class PaymentService {
     private final KafkaProducerService kafkaProducerService;
 
     public PaymentResponseDTO initPayment(PaymentRequestDTO request) {
+        // Перевірка на дублікат (опціонально)
+        if (repository.findByOrderId(request.orderId()).isPresent()) {
+            // Можна повернути існуючу транзакцію, якщо вона PENDING
+            // Або кинути помилку
+            log.warn("Transaction for order {} already exists", request.orderId());
+        }
+
         log.info("Creating payment transaction for Order: {}", request.orderId());
 
         Transaction transaction = Transaction.builder()
@@ -36,7 +45,6 @@ public class PaymentService {
 
         repository.save(transaction);
 
-        // Генеруємо посилання на наш власний Webhook для тесту
         String mockUrl = "http://localhost:8086/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
 
         return new PaymentResponseDTO(transaction.getId(), "PENDING", mockUrl);
@@ -47,11 +55,11 @@ public class PaymentService {
         log.info("Processing webhook: Transaction={}, Status={}", transactionId, status);
 
         Transaction transaction = repository.findById(transactionId)
-                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + transactionId));
 
         if (transaction.getStatus() != TransactionStatus.PENDING) {
             log.warn("Transaction already processed");
-            return;
+            return; // Або кинути BusinessException, якщо це критично
         }
 
         if ("SUCCESS".equalsIgnoreCase(status)) {
@@ -60,7 +68,7 @@ public class PaymentService {
 
             PaymentSuccessEventDTO event = new PaymentSuccessEventDTO(
                     transaction.getOrderId(),
-                    "user@placeholder.com",
+                    "user@placeholder.com", // В реальності треба брати з User Service
                     transaction.getAmount()
             );
             kafkaProducerService.sendPaymentSuccessEvent(event);
@@ -69,10 +77,10 @@ public class PaymentService {
             repository.save(transaction);
         }
     }
-    // Метод для отримання історії
-    public java.util.List<com.crafthub.payment_service.dto.TransactionDTO> getAllTransactions() {
+
+    public List<TransactionDTO> getAllTransactions() {
         return repository.findAll().stream()
-                .map(tx -> new com.crafthub.payment_service.dto.TransactionDTO(
+                .map(tx -> new TransactionDTO(
                         tx.getId(),
                         tx.getOrderId(),
                         tx.getUserId(),

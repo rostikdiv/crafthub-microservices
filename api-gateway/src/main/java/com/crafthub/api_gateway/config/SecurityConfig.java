@@ -13,17 +13,10 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
-                // Вимикаємо CSRF
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-
-                // Вимикаємо форму логіну
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-
-                // Вимикаємо HTTP Basic
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-
-                // ❗️ КРИТИЧНО: Дозволяємо ВСІ запити без автентифікації Spring Security
-                // Наш AuthenticationFilter сам перевірятиме JWT
+                // Дозволяємо всі запити, бо AuthenticationFilter сам вирішує, кого пускати
                 .authorizeExchange(exchanges -> exchanges
                         .anyExchange().permitAll()
                 );

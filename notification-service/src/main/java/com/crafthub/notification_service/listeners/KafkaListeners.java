@@ -1,7 +1,10 @@
 package com.crafthub.notification_service.listeners;
 
+import com.crafthub.notification_service.dto.DeliveryStatusChangedEvent;
 import com.crafthub.notification_service.dto.OrderPlacedEventDTO;
+import com.crafthub.notification_service.dto.PaymentSuccessEventDTO;
 import com.crafthub.notification_service.service.EmailService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -13,23 +16,49 @@ import org.springframework.stereotype.Component;
 public class KafkaListeners {
 
     private final EmailService emailService;
+    private final ObjectMapper objectMapper; // Spring Boot сам його створить
 
-    @KafkaListener(
-            topics = "order-placed-topic",
-            groupId = "notification-group",
-            containerFactory = "kafkaListenerContainerFactory"
-    )
-    public void handleOrderNotification(OrderPlacedEventDTO event) {
-        log.info("🔔 Kafka received: Order #{}", event.orderId());
+    // 1. Нове замовлення
+    @KafkaListener(topics = "order-placed-topic", groupId = "notification-group")
+    public void handleOrderPlaced(String message) {
+        try {
+            OrderPlacedEventDTO event = objectMapper.readValue(message, OrderPlacedEventDTO.class);
+            log.info("🔔 Notification: Order placed #{}", event.orderId());
 
-        // Перевірка на всяк випадок, щоб не впало з NullPointerException
-        String email = event.userEmail() != null ? event.userEmail() : "unknown@user.com";
+            String email = event.userEmail() != null ? event.userEmail() : "unknown@user.com";
+            emailService.sendOrderConfirmation(email, event.orderId().toString(), event.totalPrice(), event.productName());
+        } catch (Exception e) {
+            log.error("Error processing order-placed event", e);
+        }
+    }
 
-        emailService.sendOrderConfirmation(
-                email,
-                event.orderId().toString(),
-                event.totalPrice(),
-                event.productName()
-        );
+    // 2. Успішна оплата
+    @KafkaListener(topics = "payment-success-topic", groupId = "notification-group")
+    public void handlePaymentSuccess(String message) {
+        try {
+            PaymentSuccessEventDTO event = objectMapper.readValue(message, PaymentSuccessEventDTO.class);
+            log.info("💰 Notification: Payment success for order #{}", event.orderId());
+
+            // В реальності тут ми б брали email з User Service по ID, але поки хардкод або з івенту
+            String email = event.userEmail() != null ? event.userEmail() : "user@example.com";
+
+            emailService.sendPaymentSuccess(email, event.orderId().toString(), event.amount());
+        } catch (Exception e) {
+            log.error("Error processing payment-success event", e);
+        }
+    }
+
+    // 3. Зміна статусу доставки
+    @KafkaListener(topics = "delivery-status-topic", groupId = "notification-group")
+    public void handleDeliveryUpdate(String message) {
+        try {
+            DeliveryStatusChangedEvent event = objectMapper.readValue(message, DeliveryStatusChangedEvent.class);
+            log.info("🚚 Notification: Delivery update for order #{} -> {}", event.orderId(), event.status());
+
+            // Тут теж треба email, поки заглушка
+            emailService.sendDeliveryUpdate("user@example.com", event.orderId().toString(), event.status());
+        } catch (Exception e) {
+            log.error("Error processing delivery-status event", e);
+        }
     }
 }

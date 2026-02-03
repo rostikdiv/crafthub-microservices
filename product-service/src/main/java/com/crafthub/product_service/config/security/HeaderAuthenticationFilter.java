@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Цей фільтр бере заголовок X-User-Permissions і створює SecurityContext
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
@@ -25,18 +24,26 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         String userId = request.getHeader("X-User-Id");
         String permissionsHeader = request.getHeader("X-User-Permissions");
 
+        // Для налагодження (можна видалити потім)
+        if (userId != null) {
+            System.out.println("🛡️ [ProductService] User: " + userId);
+            System.out.println("🛡️ [ProductService] Raw Permissions: " + permissionsHeader);
+        }
+
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Перетворюємо рядок "product:create,order:read" у список Authority
             List<SimpleGrantedAuthority> authorities = Collections.emptyList();
 
             if (permissionsHeader != null && !permissionsHeader.isEmpty()) {
                 authorities = Arrays.stream(permissionsHeader.split(","))
+                        .map(String::trim) // 🔥🔥🔥 ОСЬ ЦЬОГО НЕ ВИСТАЧАЛО!
+                        .filter(s -> !s.isEmpty()) // Пропускаємо порожні, якщо є ,,
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
             }
 
-            // Створюємо аутентифікацію (пароль null, бо ми довіряємо Gateway)
+            System.out.println("✅ [ProductService] Authorities: " + authorities);
+
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,

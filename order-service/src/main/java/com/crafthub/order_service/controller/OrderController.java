@@ -26,10 +26,19 @@ public class OrderController {
         return ResponseEntity.ok(orderService.createOrder(request));
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("hasAuthority('order:read:my')") // Переконайтесь, що це право є в Role.java
+    public ResponseEntity<List<OrderResponseDTO>> getMyOrders() {
+        return ResponseEntity.ok(orderService.getMyOrders());
+    }
+
+    // 🔒 Тільки для адмінів (змінюємо доступ)
     @GetMapping
+    @PreAuthorize("hasAuthority('order:read:all')")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
+
     // ✅ Додаємо GET метод для конкретного замовлення
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable UUID id) {

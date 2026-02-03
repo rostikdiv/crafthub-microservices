@@ -3,9 +3,10 @@ package com.crafthub.product_service.service;
 import com.crafthub.product_service.client.UserServiceClient;
 import com.crafthub.product_service.dto.ProductRequestDTO;
 import com.crafthub.product_service.dto.ProductResponseDTO;
-import com.crafthub.product_service.entity.enums.AccessLevel;
 import com.crafthub.product_service.entity.Category;
 import com.crafthub.product_service.entity.Product;
+import com.crafthub.product_service.entity.enums.AccessLevel;
+import com.crafthub.product_service.exception.ResourceNotFoundException; // ✅ Використовуємо наш новий Exception
 import com.crafthub.product_service.repository.CategoryRepository;
 import com.crafthub.product_service.repository.ProductRepository;
 import com.crafthub.product_service.security.UserContextService;
@@ -15,9 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,53 +27,36 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final UserContextService userContext;
+    private final UserContextService userContext; // ✅ Наше джерело даних про юзера
     private final UserServiceClient userServiceClient;
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
-        String token = getTokenFromRequest();
-
-        // 1. Дістаємо ID та Роль з токена
-        UUID userId;
-        String userRole;
-        try {
-            userId = userContext.getUserId();
-            userRole = userContext.getUserRole();
-        } catch (Exception e) {
-            log.error("Invalid Token", e);
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid JWT Token");
-        }
+        // 1. Беремо ID з заголовків (через UserContextService)
+        UUID userId = userContext.getUserId();
+        String userRole = userContext.getUserRole();
 
         log.info("Creating product by User ID: {}, Role: {}", userId, userRole);
 
-//        // 2. Валідація ролі
-//        if ("BUYER".equalsIgnoreCase(userRole)) {
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Buyers cannot create products");
-//        }
-
-        // 3. ✅ Отримуємо дані про продавця з User Service (Денормалізація)
+        // 2. Отримуємо дані про продавця
         String sellerName = "Unknown Seller";
         String sellerLogo = null;
-
         try {
-            // Робимо синхронний запит через Feign Client
             var sellerInfo = userServiceClient.getSellerInfo(userId);
             if (sellerInfo != null) {
                 sellerName = sellerInfo.companyName();
                 sellerLogo = sellerInfo.logoUrl();
             }
         } catch (Exception e) {
-            // Якщо User Service недоступний або сталася помилка - логуємо, але не блокуємо створення товару
             log.warn("Could not fetch seller info for user {}: {}", userId, e.getMessage());
         }
 
+        // 3. Пошук категорії (використовуємо наш новий Exception)
         Category category = categoryRepository.findById(request.categoryId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.categoryId()));
 
         AccessLevel accessLevel = AccessLevel.valueOf(request.accessLevel().toUpperCase());
 
-        // 4. Створення товару з новими полями
         Product product = Product.builder()
                 .name(request.name())
                 .description(request.description())
@@ -84,8 +65,8 @@ public class ProductService {
                 .category(category)
                 .accessLevel(accessLevel)
                 .sellerId(userId)
-                .sellerName(sellerName)        // ✅ Зберігаємо ім'я
-                .sellerLogoUrl(sellerLogo)     // ✅ Зберігаємо лого
+                .sellerName(sellerName)
+                .sellerLogoUrl(sellerLogo)
                 .weight(request.weight())
                 .length(request.length())
                 .width(request.width())
@@ -105,7 +86,7 @@ public class ProductService {
     public ProductResponseDTO getProductById(UUID id) {
         return productRepository.findById(id)
                 .map(this::mapToProductResponse)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
     }
 
     public List<ProductResponseDTO> getProductsByIds(List<UUID> ids) {
@@ -117,28 +98,26 @@ public class ProductService {
     @Transactional
     public void reduceStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
 
         if (product.getQuantity() < quantity) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock for product: " + product.getName());
+            // Тут можна створити окремий InsufficientStockException
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock");
         }
 
         product.setQuantity(product.getQuantity() - quantity);
         productRepository.save(product);
-        log.info("📉 Stock reduced for product {}: -{} (New balance: {})", product.getName(), quantity, product.getQuantity());
     }
 
     @Transactional
     public void restoreStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         product.setQuantity(product.getQuantity() + quantity);
         productRepository.save(product);
-        log.info("📈 Stock restored for product {}: +{} (New balance: {})", product.getName(), quantity, product.getQuantity());
     }
 
-    // ✅ Оновлений маппер
     private ProductResponseDTO mapToProductResponse(Product product) {
         return new ProductResponseDTO(
                 product.getId(),
@@ -148,11 +127,9 @@ public class ProductService {
                 product.getQuantity(),
                 product.getCategory() != null ? product.getCategory().getName() : "No Category",
                 product.getAccessLevel().name(),
-
                 product.getSellerId(),
-                product.getSellerName(),    // ✅ Передаємо в DTO
-                product.getSellerLogoUrl(), // ✅ Передаємо в DTO
-
+                product.getSellerName(),
+                product.getSellerLogoUrl(),
                 product.getWeight(),
                 product.getLength(),
                 product.getWidth(),
@@ -160,22 +137,5 @@ public class ProductService {
                 product.getPreviewImageUrl(),
                 product.getImageUrls()
         );
-    }
-
-    private String getTokenFromRequest() {
-        var requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-        if (requestAttributes == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No request context");
-        }
-
-        HttpServletRequest request = requestAttributes.getRequest();
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header");
-        }
-
-        return authHeader;
     }
 }

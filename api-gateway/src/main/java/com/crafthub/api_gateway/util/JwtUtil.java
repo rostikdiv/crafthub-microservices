@@ -4,82 +4,76 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
 
 @Component
-@Slf4j
 public class JwtUtil {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public String extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("id", String.class));
-    }
-
-    public String extractUserRole(String token) {
-        return extractClaim(token, claims -> claims.get("role", String.class));
-    }
-
-    // ✅ НОВИЙ МЕТОД: isVerified
-    public boolean extractIsVerified(String token) {
-        // Якщо токен прийшов з "Bearer ", чистимо його (хоча Filter зазвичай передає чистий)
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-        // Використовуємо Boolean.class і перевіряємо на null
-        Boolean isVerified = extractClaim(token, claims -> claims.get("isVerified", Boolean.class));
-        return isVerified != null && isVerified;
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        try {
-            return Jwts
-                    .parser()
-                    .verifyWith(getSignInKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (Exception e) {
-            log.error("Failed to parse JWT token: {}", e.getMessage());
-            throw e;
-        }
-    }
-
+    /**
+     * ✅ Метод, який використовується в GatewayTestController.
+     * Повертає true, якщо токен валідний, і false, якщо ні.
+     */
     public boolean isTokenValid(String token) {
         try {
-            return !isTokenExpired(token);
+            validateToken(token);
+            return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractAllClaims(token).getExpiration().before(new Date());
+    /**
+     * Валідує токен. Якщо токен невалідний (минув час дії або підпис невірний),
+     * бібліотека jjwt кине виняток (JwtException).
+     */
+    public void validateToken(final String token) {
+        Jwts.parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token);
     }
 
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public Claims getAllClaimsFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSignKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+    }
+
+    // --- Допоміжні методи для AuthenticationFilter ---
+    // Вони знадобляться, щоб витягувати ID та ролі для передачі далі в мікросервіси
+
+    public String extractUserId(String token) {
+        return getAllClaimsFromToken(token).get("id", String.class);
+    }
+
+    public String extractUsername(String token) {
+        return getAllClaimsFromToken(token).getSubject();
+    }
+
+    public String extractUserRole(String token) {
+        return getAllClaimsFromToken(token).get("role", String.class);
     }
 
     public List<String> extractPermissions(String token) {
-        return extractClaim(token, claims -> claims.get("permissions", List.class));
+        return getAllClaimsFromToken(token).get("permissions", List.class);
+    }
+
+    public boolean extractIsVerified(String token) {
+        Object isVerified = getAllClaimsFromToken(token).get("isVerified");
+        return isVerified != null && Boolean.parseBoolean(isVerified.toString());
+    }
+
+    private SecretKey getSignKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

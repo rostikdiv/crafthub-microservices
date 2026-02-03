@@ -6,6 +6,8 @@ import com.crafthub.user_service.dto.profile.VerificationDocRequestDTO;
 import com.crafthub.user_service.entity.*;
 import com.crafthub.user_service.entity.enums.Role;
 import com.crafthub.user_service.entity.enums.VerificationStatus;
+import com.crafthub.user_service.exception.BusinessException;
+import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,10 +29,12 @@ public class ProfileService {
     private final VerificationDocRepository verificationDocRepository;
 
     private User getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        // Оскільки в SecurityContext тепер лежить ID (String), а не UserDetails
+        String userIdStr = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID userId = UUID.fromString(userIdStr);
+
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
     // --- 1. Створення профілю Продавця ---
     @Transactional
@@ -38,7 +42,7 @@ public class ProfileService {
         User user = getCurrentUser();
 
         if (sellerProfileRepository.findByUserId(user.getId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Seller profile already created. Please wait for verification.");
+            throw new BusinessException("Seller profile already created. Please wait for verification.");
         }
 
         SellerProfile profile = SellerProfile.builder()
@@ -59,7 +63,7 @@ public class ProfileService {
         User user = getCurrentUser();
 
         if (militaryProfileRepository.findByUserId(user.getId()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Military profile already created. Please wait for verification.");
+            throw new BusinessException("Military profile already created. Please wait for verification.");
         }
 
         MilitaryProfile profile = MilitaryProfile.builder()

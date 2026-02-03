@@ -16,6 +16,8 @@ import com.crafthub.order_service.entity.OrderItem;
 import com.crafthub.order_service.entity.OrderStatus;
 import com.crafthub.order_service.entity.enums.DeliveryType;
 import com.crafthub.order_service.exception.AccessDeniedException;
+import com.crafthub.order_service.exception.BusinessException;
+import com.crafthub.order_service.exception.ResourceNotFoundException;
 import com.crafthub.order_service.repository.OrderRepository;
 import com.crafthub.order_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
@@ -50,110 +52,89 @@ public class OrderService {
 
     @Transactional
     public PaymentResponseDTO createOrder(OrderRequestDTO request) {
-        // 1. Отримуємо дані користувача
         UUID userId = userContext.getUserId();
-        String userRole = userContext.getUserRole();
         String userEmail = userContext.getUserEmail();
         boolean isVerified = userContext.isVerified();
 
-        log.info("Creating order. User: {}, Role: {}", userId, userRole);
+        log.info("Creating order for User: {}", userId);
 
-//        // 2. Валідація прав доступу
-//        if (!"BUYER".equals(userRole) && !"MILITARY_UNIT".equals(userRole)) {
-//            throw new AccessDeniedException("Only buyers or Military Units can place orders.");
-//        }
         validateDeliveryDetails(request.deliveryDetails());
 
-        // Підготовка змінних
         BigDecimal totalOrderPrice = BigDecimal.ZERO;
         List<String> productNames = new ArrayList<>();
         List<UUID> purchasedProductIds = new ArrayList<>();
-        List<OrderItem> reservedItems = new ArrayList<>(); // Для відкату транзакції
+        List<OrderItem> reservedItems = new ArrayList<>();
         List<OrderItem> orderItemsEntityList = new ArrayList<>();
 
         UUID commonSellerId = null;
 
         try {
-            // 3. 🔥 ЦИКЛ ОБРОБКИ ТОВАРІВ (Спочатку все перевіряємо і готуємо)
             for (OrderItemRequestDTO itemRequest : request.items()) {
 
-                // А. Отримуємо інфо про товар (Тепер DTO містить sellerId!)
+                // А. Отримуємо інфо про товар
                 ProductResponseDTO product = productServiceClient.getProductById(itemRequest.productId());
+                if (product == null) {
+                    throw new ResourceNotFoundException("Product not found with ID: " + itemRequest.productId());
+                }
 
-                // --- 🛑 ВАЛІДАЦІЯ ПРОДАВЦЯ ---
+                // --- ВАЛІДАЦІЯ ПРОДАВЦЯ ---
                 if (commonSellerId == null) {
                     if (product.sellerId() == null) {
-                        // Фолбек для старих товарів, де немає продавця (щоб не падало з NPE)
                         log.warn("Product {} has no sellerId!", product.id());
-                        // Можна кинути помилку, або призначити "системного" продавця
-                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Product data integrity error: missing sellerId");
+                        throw new BusinessException("Product data integrity error: missing sellerId");
                     }
                     commonSellerId = product.sellerId();
                 } else {
                     if (!commonSellerId.equals(product.sellerId())) {
-                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Multi-vendor orders are not allowed. Please split your order.");
+                        throw new BusinessException("Multi-vendor orders are not allowed. Please split your order.");
                     }
                 }
 
                 // Б. Перевірка доступу (RESTRICTED)
                 if ("RESTRICTED".equals(product.accessLevel())) {
-
-                    // ❌ БУЛО (Hardcoded Role):
-                    // if (!"MILITARY_UNIT".equals(userRole)) { ... }
-
-                    // ✅ СТАЛО (Permission check):
-                    // Перевіряємо, чи є у користувача дозвіл "product:buy:restricted"
                     if (!hasPermission("product:buy:restricted")) {
-                        throw new AccessDeniedException("Purchasing this restricted product requires military authorization.");
+                        throw new AccessDeniedException("Purchasing restricted product requires military authorization.");
                     }
-
-                    // Додаткова перевірка верифікації (якщо треба)
                     if (!isVerified) {
                         throw new AccessDeniedException("Account must be verified to purchase restricted items.");
                     }
                 }
 
-                // В. ⚡️ СПИСАННЯ ЗІ СКЛАДУ
+                // В. СПИСАННЯ ЗІ СКЛАДУ
                 productServiceClient.reduceStock(product.id(), itemRequest.quantity());
 
-                // Г. Створюємо OrderItem (але поки без Order, бо Order ще не створений)
+                // Г. Створюємо OrderItem
                 OrderItem orderItem = OrderItem.builder()
                         .productId(itemRequest.productId())
                         .quantity(itemRequest.quantity())
                         .pricePerUnit(product.price())
                         .build();
 
-                reservedItems.add(orderItem); // Зберігаємо для потенційного rollback
+                reservedItems.add(orderItem);
 
-                // Д. Розрахунки
                 BigDecimal itemTotal = product.price().multiply(BigDecimal.valueOf(itemRequest.quantity()));
                 totalOrderPrice = totalOrderPrice.add(itemTotal);
 
                 productNames.add(product.name());
                 purchasedProductIds.add(product.id());
-
                 orderItemsEntityList.add(orderItem);
             }
 
-            // 4. ✅ СТВОРЕННЯ ТА ЗБЕРЕЖЕННЯ ЗАМОВЛЕННЯ
-            // Тепер ми маємо sellerId і можемо створити валідний Order
+            // 4. СТВОРЕННЯ ЗАМОВЛЕННЯ
             Order order = Order.builder()
                     .userId(userId)
-                    .sellerId(commonSellerId) // Обов'язкове поле!
-                    .status(OrderStatus.PENDING_PAYMENT) // Або CREATED, залежно від логіки
+                    .sellerId(commonSellerId)
+                    .status(OrderStatus.PENDING_PAYMENT)
                     .totalPrice(totalOrderPrice)
-                    .deliveryInfo(request.deliveryDetails()) // JSONB поле
+                    .deliveryInfo(request.deliveryDetails())
                     .items(new ArrayList<>())
                     .build();
 
-            // Прив'язуємо Items до Order (JPA зв'язок)
             for (OrderItem item : orderItemsEntityList) {
                 item.setOrder(order);
                 order.getItems().add(item);
             }
 
-            // Зберігаємо (CascadeType.ALL збереже і айтеми)
             orderRepository.save(order);
             log.info("✅ Order created with ID: {}", order.getId());
 
@@ -166,17 +147,11 @@ public class OrderService {
                     totalOrderPrice
             );
 
-            PaymentResponseDTO paymentResponse = paymentServiceClient.initPayment(paymentRequest);
-
-            // Оновлюємо статус, якщо ініціація успішна
-            // (Хоча PENDING_PAYMENT ми вже поставили вище, це ок)
-
-            return paymentResponse;
+            return paymentServiceClient.initPayment(paymentRequest);
 
         } catch (Exception e) {
             log.error("❌ Error creating order: {}. Rolling back stock...", e.getMessage());
-
-            // 🔄 КОМПЕНСАЦІЯ (ROLLBACK)
+            // Компенсація
             for (OrderItem item : reservedItems) {
                 try {
                     productServiceClient.restoreStock(item.getProductId(), item.getQuantity());
@@ -188,6 +163,26 @@ public class OrderService {
         }
     }
 
+
+    public OrderResponseDTO getOrderById(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        return mapToOrderResponseDTO(order);
+    }
+    public List<OrderResponseDTO> getMyOrders() {
+        UUID userId = userContext.getUserId(); // Беремо ID з токена
+
+        return orderRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
+                .map(this::mapToOrderResponseDTO)
+                .toList();
+    }
+
+    public List<OrderResponseDTO> getAllOrders() {
+        return orderRepository.findAll().stream()
+                .map(this::mapToOrderResponseDTO)
+                .toList();
+    }
+    
     private void sendNotification(Order order, List<String> productNames, String userEmail, List<UUID> productIds) {
         String summary = String.join(", ", productNames);
         OrderPlacedEventDTO event = new OrderPlacedEventDTO(
@@ -225,18 +220,6 @@ public class OrderService {
         log.info("✅ Order {} status updated to PAID", orderId);
     }
 
-    public OrderResponseDTO getOrderById(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-        return mapToOrderResponseDTO(order);
-    }
-
-    public List<OrderResponseDTO> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(this::mapToOrderResponseDTO)
-                .toList();
-    }
-
 
     private OrderResponseDTO mapToOrderResponseDTO(Order order) {
         List<OrderItemResponseDTO> itemsDto = order.getItems().stream()
@@ -261,7 +244,7 @@ public class OrderService {
     @Transactional
     public void updateOrderStatusFromDelivery(UUID orderId, String deliveryStatusStr) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
 
         OrderStatus currentStatus = order.getStatus();
         OrderStatus newStatus = currentStatus;
@@ -303,23 +286,23 @@ public class OrderService {
 
     private void validateDeliveryDetails(DeliveryDetailsDTO details) {
         if (details == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery details are required");
+            throw new BusinessException("Delivery details are required");
         }
         if (details.provider() == null || details.type() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Delivery provider and type are required");
+            throw new BusinessException("Delivery provider and type are required");
         }
 
         if (details.type() == DeliveryType.BRANCH) {
             if (details.cityRef() == null || details.branchRef() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "City and Branch are required for BRANCH delivery");
+                throw new BusinessException("City and Branch are required for BRANCH delivery");
             }
         } else if (details.type() == DeliveryType.COURIER) {
             if (details.cityRef() == null || details.street() == null || details.building() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address details are required for COURIER delivery");
+                throw new BusinessException("Address details are required for COURIER delivery");
             }
         } else if (details.type() == DeliveryType.SELF_PICKUP) {
             if (details.pickupAddress() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pickup address is required");
+                throw new BusinessException("Pickup address is required");
             }
         }
     }

@@ -6,6 +6,8 @@ import com.crafthub.user_service.entity.SavedAddress;
 import com.crafthub.user_service.entity.SellerPoint;
 import com.crafthub.user_service.entity.User;
 import com.crafthub.user_service.entity.SellerProfile;
+import com.crafthub.user_service.exception.BusinessException;
+import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.SavedAddressRepository;
 import com.crafthub.user_service.repository.SellerPointRepository;
 import com.crafthub.user_service.repository.UserRepository; // Якщо потрібно
@@ -23,18 +25,18 @@ public class AddressService {
 
     private final SavedAddressRepository addressRepository;
     private final SellerPointRepository sellerPointRepository;
+    private final UserRepository userRepository;
 
-    // ✅ Метод, який дістає Юзера з токена (з контексту безпеки)
     private User getCurrentUser() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() ||
-                "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new RuntimeException("Unauthorized: User not found in context");
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new BusinessException("Unauthorized: User not found in context");
         }
-        // Оскільки у нас User імплементує UserDetails, ми можемо його скастити
-        return (User) authentication.getPrincipal();
-    }
 
+        String userIdStr = (String) auth.getPrincipal();
+        return userRepository.findById(UUID.fromString(userIdStr))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
     // --- Методи для ПОКУПЦЯ (Мої адреси) ---
 
     @Transactional
