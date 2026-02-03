@@ -3,22 +3,30 @@ package com.crafthub.product_service.service;
 import com.crafthub.product_service.client.UserServiceClient;
 import com.crafthub.product_service.dto.ProductRequestDTO;
 import com.crafthub.product_service.dto.ProductResponseDTO;
+import com.crafthub.product_service.dto.SellerInfoDTO; // Переконайтесь, що цей імпорт є
 import com.crafthub.product_service.entity.Category;
 import com.crafthub.product_service.entity.Product;
 import com.crafthub.product_service.entity.enums.AccessLevel;
-import com.crafthub.product_service.exception.ResourceNotFoundException; // ✅ Використовуємо наш новий Exception
+import com.crafthub.product_service.exception.ResourceNotFoundException;
 import com.crafthub.product_service.repository.CategoryRepository;
 import com.crafthub.product_service.repository.ProductRepository;
+import com.crafthub.product_service.repository.specification.ProductSpecification; // Ваш новий імпорт
 import com.crafthub.product_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,35 +35,58 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final UserContextService userContext; // ✅ Наше джерело даних про юзера
+    private final UserContextService userContext;
     private final UserServiceClient userServiceClient;
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
-        // 1. Беремо ID з заголовків (через UserContextService)
         UUID userId = userContext.getUserId();
-        String userRole = userContext.getUserRole();
+        SellerInfoDTO sellerInfo = fetchSellerInfoSafe(userId);
+        return saveProductInternal(request, userId, sellerInfo);
+    }
 
-        log.info("Creating product by User ID: {}, Role: {}", userId, userRole);
+    // ✅ НОВИЙ МЕТОД: Масове створення
+    @Transactional
+    public List<ProductResponseDTO> createProducts(List<ProductRequestDTO> requests) {
+        UUID userId = userContext.getUserId();
 
-        // 2. Отримуємо дані про продавця
-        String sellerName = "Unknown Seller";
-        String sellerLogo = null;
+        // 1. Оптимізація: Отримуємо дані про продавця ОДИН РАЗ для всієї пачки
+        SellerInfoDTO sellerInfo = fetchSellerInfoSafe(userId);
+
+        log.info("Batch creating {} products for User ID: {}", requests.size(), userId);
+
+        // 2. Зберігаємо всі товари
+        return requests.stream()
+                .map(req -> saveProductInternal(req, userId, sellerInfo))
+                .collect(Collectors.toList());
+    }
+
+    // --- Приватні допоміжні методи ---
+
+    private SellerInfoDTO fetchSellerInfoSafe(UUID userId) {
         try {
-            var sellerInfo = userServiceClient.getSellerInfo(userId);
-            if (sellerInfo != null) {
-                sellerName = sellerInfo.companyName();
-                sellerLogo = sellerInfo.logoUrl();
-            }
+            return userServiceClient.getSellerInfo(userId);
         } catch (Exception e) {
             log.warn("Could not fetch seller info for user {}: {}", userId, e.getMessage());
+            return null;
         }
+    }
 
-        // 3. Пошук категорії (використовуємо наш новий Exception)
+    private ProductResponseDTO saveProductInternal(ProductRequestDTO request, UUID userId, SellerInfoDTO sellerInfo) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.categoryId()));
 
-        AccessLevel accessLevel = AccessLevel.valueOf(request.accessLevel().toUpperCase());
+        AccessLevel accessLevel = AccessLevel.PUBLIC;
+        if (request.accessLevel() != null) {
+            try {
+                accessLevel = AccessLevel.valueOf(request.accessLevel().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid access level: {}. Defaulting to PUBLIC", request.accessLevel());
+            }
+        }
+
+        String sellerName = (sellerInfo != null) ? sellerInfo.companyName() : "Unknown Seller";
+        String sellerLogo = (sellerInfo != null) ? sellerInfo.logoUrl() : null;
 
         Product product = Product.builder()
                 .name(request.name())
@@ -79,8 +110,33 @@ public class ProductService {
         return mapToProductResponse(savedProduct);
     }
 
-    public List<ProductResponseDTO> getAllProducts() {
-        return productRepository.findAll().stream().map(this::mapToProductResponse).toList();
+    // ... (getAllProducts, reduceStock, mapToProductResponse та інші методи залишаються без змін) ...
+    // Не забудьте додати оновлений getAllProducts з пагінацією, який ми обговорювали раніше.
+    public Page<ProductResponseDTO> getAllProducts(Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, String search, Boolean isAvailable, Pageable pageable) {
+        Specification<Product> spec = ProductSpecification.filterProducts(categoryId, minPrice, maxPrice, search, isAvailable);
+        return productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+    }
+
+    // ... решта існуючих методів ...
+    private ProductResponseDTO mapToProductResponse(Product product) {
+        return new ProductResponseDTO(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getQuantity(),
+                product.getCategory() != null ? product.getCategory().getName() : "No Category",
+                product.getAccessLevel().name(),
+                product.getSellerId(),
+                product.getSellerName(),
+                product.getSellerLogoUrl(),
+                product.getWeight(),
+                product.getLength(),
+                product.getWidth(),
+                product.getHeight(),
+                product.getPreviewImageUrl(),
+                product.getImageUrls()
+        );
     }
 
     public ProductResponseDTO getProductById(UUID id) {
@@ -101,7 +157,6 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
 
         if (product.getQuantity() < quantity) {
-            // Тут можна створити окремий InsufficientStockException
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient stock");
         }
 
@@ -116,26 +171,5 @@ public class ProductService {
 
         product.setQuantity(product.getQuantity() + quantity);
         productRepository.save(product);
-    }
-
-    private ProductResponseDTO mapToProductResponse(Product product) {
-        return new ProductResponseDTO(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getQuantity(),
-                product.getCategory() != null ? product.getCategory().getName() : "No Category",
-                product.getAccessLevel().name(),
-                product.getSellerId(),
-                product.getSellerName(),
-                product.getSellerLogoUrl(),
-                product.getWeight(),
-                product.getLength(),
-                product.getWidth(),
-                product.getHeight(),
-                product.getPreviewImageUrl(),
-                product.getImageUrls()
-        );
     }
 }
