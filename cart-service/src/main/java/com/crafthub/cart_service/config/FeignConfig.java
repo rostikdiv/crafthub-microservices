@@ -30,6 +30,7 @@ public class FeignConfig {
                 String userRole = request.getHeader("X-User-Role");
                 if (userRole != null) requestTemplate.header("X-User-Role", userRole);
             }
+
         };
     }
 }
