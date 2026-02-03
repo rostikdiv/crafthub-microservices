@@ -23,6 +23,8 @@ import com.crafthub.order_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -169,12 +171,11 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         return mapToOrderResponseDTO(order);
     }
-    public List<OrderResponseDTO> getMyOrders() {
-        UUID userId = userContext.getUserId(); // Беремо ID з токена
-
-        return orderRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(this::mapToOrderResponseDTO)
-                .toList();
+    public Page<OrderResponseDTO> getMyOrders(Pageable pageable) {
+        UUID userId = userContext.getUserId();
+        // findAllByUserId повертає Page<Order>, ми мапимо його в Page<OrderResponseDTO>
+        return orderRepository.findAllByUserId(userId, pageable)
+                .map(this::mapToOrderResponseDTO);
     }
 
     public List<OrderResponseDTO> getAllOrders() {
