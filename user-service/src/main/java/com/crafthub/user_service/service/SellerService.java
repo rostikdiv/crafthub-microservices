@@ -17,11 +17,11 @@ import java.util.UUID;
 public class SellerService {
 
     private final SellerProfileRepository sellerProfileRepository;
-    private final UserRepository userRepository; // Про всяк випадок, якщо шукаємо по userId
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public SellerPublicProfileDTO getSellerPublicProfile(UUID sellerId) {
-        // Шукаємо профіль продавця за ID користувача (sellerId == userId)
+        // Шукаємо профіль продавця за ID користувача
         SellerProfile profile = sellerProfileRepository.findByUserId(sellerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seller profile not found for user: " + sellerId));
 
@@ -33,10 +33,9 @@ public class SellerService {
                 profile.getDescription(),
                 profile.getLogoUrl(),
                 profile.getRating() != null ? profile.getRating() : 0.0f,
+                profile.getReviewCount() != null ? profile.getReviewCount() : 0, // ✅ ДОДАНО: Кількість відгуків
                 user.getIsVerified(),
                 user.getCreatedAt().toLocalDateTime()
         );
     }
-
-
 }

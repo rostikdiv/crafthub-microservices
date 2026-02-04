@@ -35,6 +35,7 @@ public class SellerProfile {
     private Float rating; // Рейтинг продавця
 
     @Column(nullable = false)
+    @Builder.Default
     private Integer reviewCount = 0;
 
     // ... всередині класу SellerProfile додайте:

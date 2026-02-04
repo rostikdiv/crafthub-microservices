@@ -52,4 +52,12 @@ public class OrderController {
     public ResponseEntity<Boolean> checkPurchase(@RequestParam UUID productId) {
         return ResponseEntity.ok(orderService.hasUserPurchasedProduct(productId));
     }
+
+    @GetMapping("/check-seller-purchase")
+    public ResponseEntity<Boolean> checkSellerPurchase(
+            @RequestParam UUID userId,
+            @RequestParam UUID sellerId
+    ) {
+        return ResponseEntity.ok(orderService.hasUserBoughtFromSeller(userId, sellerId));
+    }
 }

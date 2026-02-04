@@ -294,6 +294,12 @@ public class OrderService {
                 .anyMatch(a -> a.getAuthority().equals(permission));
     }
 
+    @Transactional(readOnly = true)
+    public boolean hasUserBoughtFromSeller(UUID userId, UUID sellerId) {
+        List<OrderStatus> validStatuses = List.of(OrderStatus.DELIVERED);
+        return orderRepository.existsByUserIdAndSellerIdAndStatusIn(userId, sellerId, validStatuses);
+    }
+
     private void validateDeliveryDetails(DeliveryDetailsDTO details) {
         if (details == null) {
             throw new BusinessException("Delivery details are required");
