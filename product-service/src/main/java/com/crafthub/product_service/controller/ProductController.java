@@ -26,17 +26,21 @@ public class ProductController {
     private final ProductService productService;
 
     // Оновлений GET з пагінацією
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(
+            @RequestParam(required = false) String search,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
-            @RequestParam(required = false) String search,
-            @RequestParam(required = false, defaultValue = "true") Boolean isAvailable,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @RequestParam(required = false) Boolean isAvailable,
+            @RequestParam(required = false) Double minRating, // 👈 Фільтр рейтингу
+
+            // Сортування працює саме: ?sort=averageRating,desc
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable
     ) {
-        Page<ProductResponseDTO> products = productService.getAllProducts(categoryId, minPrice, maxPrice, search, isAvailable, pageable);
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productService.getAllProducts(
+                search, categoryId, minPrice, maxPrice, isAvailable, minRating, pageable
+        ));
     }
 
     @PostMapping("/")

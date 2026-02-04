@@ -1,4 +1,4 @@
-package com.crafthub.product_service.repository.specification; // 👈 Новий пакет
+package com.crafthub.product_service.repository.specification;
 
 import com.crafthub.product_service.entity.Product;
 import org.springframework.data.jpa.domain.Specification;
@@ -8,17 +8,16 @@ import java.math.BigDecimal;
 
 public class ProductSpecification {
 
-    // Прихований конструктор, бо це утилітний клас
     private ProductSpecification() {}
 
     public static Specification<Product> filterProducts(
-            Long categoryId, // Або UUID, перевірте тип ID у вашій Entity Category
+            Long categoryId,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             String search,
-            Boolean isAvailable
+            Boolean isAvailable,
+            Double minRating // 👈 1. Додаємо новий параметр
     ) {
-        // ✅ ВИПРАВЛЕННЯ: Починаємо з "порожньої" true-умови замість where(null)
         Specification<Product> spec = (root, query, cb) -> cb.conjunction();
 
         // 1. Фільтр за категорією
@@ -39,18 +38,24 @@ public class ProductSpecification {
                     cb.lessThanOrEqualTo(root.get("price"), maxPrice));
         }
 
-        // 4. Наявність (quantity > 0)
+        // 4. Наявність
         if (isAvailable != null && isAvailable) {
             spec = spec.and((root, query, cb) ->
                     cb.greaterThan(root.get("quantity"), 0));
         }
 
-        // 5. Пошук по назві (LIKE %search%)
+        // 5. Пошук по назві
         if (StringUtils.hasText(search)) {
             spec = spec.and((root, query, cb) -> {
                 String likePattern = "%" + search.toLowerCase() + "%";
                 return cb.like(cb.lower(root.get("name")), likePattern);
             });
+        }
+
+        // ✅ 6. НОВИЙ ФІЛЬТР: Рейтинг (greaterThanOrEqualTo)
+        if (minRating != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("averageRating"), minRating));
         }
 
         return spec;

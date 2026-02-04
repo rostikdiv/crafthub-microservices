@@ -112,9 +112,27 @@ public class ProductService {
 
     // ... (getAllProducts, reduceStock, mapToProductResponse та інші методи залишаються без змін) ...
     // Не забудьте додати оновлений getAllProducts з пагінацією, який ми обговорювали раніше.
-    public Page<ProductResponseDTO> getAllProducts(Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, String search, Boolean isAvailable, Pageable pageable) {
-        Specification<Product> spec = ProductSpecification.filterProducts(categoryId, minPrice, maxPrice, search, isAvailable);
-        return productRepository.findAll(spec, pageable).map(this::mapToProductResponse);
+    public Page<ProductResponseDTO> getAllProducts(
+            String search,
+            Long categoryId, // Зверніть увагу, у вашому коді було Long
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Boolean isAvailable,
+            Double minRating,
+            Pageable pageable
+    ) {
+        // Викликаємо оновлений метод специфікації
+        Specification<Product> spec = ProductSpecification.filterProducts(
+                categoryId,
+                minPrice,
+                maxPrice,
+                search,
+                isAvailable,
+                minRating
+        );
+
+        return productRepository.findAll(spec, pageable)
+                .map(this::mapToProductResponse);
     }
 
     // ... решта існуючих методів ...
@@ -130,6 +148,8 @@ public class ProductService {
                 product.getSellerId(),
                 product.getSellerName(),
                 product.getSellerLogoUrl(),
+                product.getAverageRating() != null ? product.getAverageRating() : 0.0,
+                product.getReviewCount() != null ? product.getReviewCount() : 0,
                 product.getWeight(),
                 product.getLength(),
                 product.getWidth(),

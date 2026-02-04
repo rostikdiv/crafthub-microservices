@@ -70,6 +70,14 @@ public class Product {
     private String sellerName;
     private String sellerLogoUrl;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "double precision default 0.0")
+    private Double averageRating = 0.0;
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private Integer reviewCount = 0;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

@@ -17,6 +17,9 @@ public record ProductResponseDTO(
         String sellerName,
         String sellerLogoUrl,
 
+        Double averageRating,
+        Integer reviewCount,
+
         Double weight,
         Double length,
         Double width,

@@ -280,6 +280,15 @@ public class OrderService {
         }
     }
 
+    public boolean hasUserPurchasedProduct(UUID productId) {
+        UUID userId = userContext.getUserId();
+
+        // 🔒 ЖОРСТКА ВИМОГА: Тільки якщо доставлено
+        List<OrderStatus> validStatuses = List.of(OrderStatus.DELIVERED);
+
+        return orderRepository.existsByUserIdAndItemsProductIdAndStatusIn(userId, productId, validStatuses);
+    }
+
     private boolean hasPermission(String permission) {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(permission));

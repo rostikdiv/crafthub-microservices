@@ -24,7 +24,6 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    // ✅ Тільки той, хто має право купувати (BUYER, MILITARY)
     @PreAuthorize("hasAuthority('order:create')")
     public ResponseEntity<PaymentResponseDTO> createOrder(@RequestBody OrderRequestDTO request) {
         return ResponseEntity.ok(orderService.createOrder(request));
@@ -33,22 +32,24 @@ public class OrderController {
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('order:read:my')")
     public ResponseEntity<Page<OrderResponseDTO>> getMyOrders(
-            // Додаємо дефолтне сортування: нові зверху
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return ResponseEntity.ok(orderService.getMyOrders(pageable));
     }
 
-    // 🔒 Тільки для адмінів (змінюємо доступ)
     @GetMapping
     @PreAuthorize("hasAuthority('order:read:all')")
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    // ✅ Додаємо GET метод для конкретного замовлення
     @GetMapping("/{id}")
     public ResponseEntity<OrderResponseDTO> getOrderById(@PathVariable UUID id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/check-purchase")
+    public ResponseEntity<Boolean> checkPurchase(@RequestParam UUID productId) {
+        return ResponseEntity.ok(orderService.hasUserPurchasedProduct(productId));
     }
 }
