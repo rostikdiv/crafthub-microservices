@@ -3,6 +3,7 @@ package com.crafthub.notification_service.listeners;
 import com.crafthub.notification_service.dto.DeliveryStatusChangedEvent;
 import com.crafthub.notification_service.dto.OrderPlacedEventDTO;
 import com.crafthub.notification_service.dto.PaymentSuccessEventDTO;
+import com.crafthub.notification_service.dto.UserVerificationEvent;
 import com.crafthub.notification_service.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +60,23 @@ public class KafkaListeners {
             emailService.sendDeliveryUpdate("user@example.com", event.orderId().toString(), event.status());
         } catch (Exception e) {
             log.error("Error processing delivery-status event", e);
+        }
+    }
+
+    @KafkaListener(topics = "user-verification-topic", groupId = "notification-group")
+    public void handleUserVerification(String message) {
+        try {
+            UserVerificationEvent event = objectMapper.readValue(message, UserVerificationEvent.class);
+            log.info("👤 Notification: Verification event for {} -> verified={}", event.email(), event.isVerified());
+
+            if (event.isVerified()) {
+                emailService.sendVerificationApproved(event.email());
+            } else {
+                emailService.sendVerificationRejected(event.email(), event.reason());
+            }
+
+        } catch (Exception e) {
+            log.error("Error processing user-verification event", e);
         }
     }
 }

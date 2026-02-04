@@ -34,6 +34,9 @@ public class SellerProfile {
 
     private Float rating; // Рейтинг продавця
 
+    @Column(nullable = false)
+    private Integer reviewCount = 0;
+
     // ... всередині класу SellerProfile додайте:
     @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<SellerPoint> pickupPoints;

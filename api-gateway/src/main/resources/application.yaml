@@ -22,7 +22,7 @@ spring:
             - id: user_service_route
               uri: lb://user-service
               predicates:
-                - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**
+                - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/sellers/**
               filters:
                 - AuthenticationFilter
 

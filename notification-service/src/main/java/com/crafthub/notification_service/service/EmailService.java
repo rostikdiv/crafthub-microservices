@@ -78,4 +78,24 @@ public class EmailService {
             default -> status;
         };
     }
+
+    public void sendVerificationApproved(String toEmail) {
+        String html = """
+            <h2 style="color: green;">Вітаємо! Ваш акаунт підтверджено ✅</h2>
+            <p>Ваші документи успішно пройшли перевірку.</p>
+            <p>Тепер ви маєте повний доступ до функціоналу продавця або військового підрозділу.</p>
+            <p>Бажаємо успішної роботи на платформі CraftHub!</p>
+            """;
+        sendEmail(toEmail, "CraftHub: Акаунт верифіковано", html);
+    }
+
+    public void sendVerificationRejected(String toEmail, String reason) {
+        String html = """
+            <h2 style="color: red;">Верифікацію відхилено ❌</h2>
+            <p>На жаль, ми не змогли підтвердити ваш акаунт.</p>
+            <p><strong>Причина:</strong> %s</p>
+            <p>Будь ласка, виправте недоліки та завантажте документи повторно в особистому кабінеті.</p>
+            """.formatted(reason != null ? reason : "Причина не вказана");
+        sendEmail(toEmail, "CraftHub: Відмова у верифікації", html);
+    }
 }

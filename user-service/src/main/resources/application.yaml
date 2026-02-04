@@ -24,6 +24,16 @@ spring:
         show_sql: true
         format_sql: true
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      # Серіалізація ключа (String) та значення (JSON)
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        # Важливо: вимикаємо передачу типів класів у заголовках,
+        # бо DTO в різних сервісах лежать у різних пакетах
+        spring.json.add.type.headers: false
 management:
   tracing:
     sampling:

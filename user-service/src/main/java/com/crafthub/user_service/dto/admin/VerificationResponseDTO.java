@@ -7,11 +7,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record VerificationResponseDTO(
-        UUID id,                // ID самого документа (щоб його апрувнути)
-        UUID userId,            // Чий документ
-        DocumentType type,      // Тип (PASSPORT, MILITARY_ID...)
-        String url,             // Посилання на фото
+        UUID id,
+        UUID userId,
+        DocumentType type,
+        String url,
         VerificationStatus status,
-        String rejectionReason, // Якщо відхилено
-        LocalDateTime uploadedAt
+        LocalDateTime uploadedAt // Заповнюємо з doc.getCreatedAt()
 ) {}

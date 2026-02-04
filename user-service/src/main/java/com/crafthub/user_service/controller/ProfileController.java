@@ -29,15 +29,4 @@ public class ProfileController {
         profileService.createMilitaryProfile(dto);
         return ResponseEntity.ok("Military profile created");
     }
-
-    @PostMapping("/verification-docs")
-    public ResponseEntity<String> uploadDoc(@RequestBody VerificationDocRequestDTO dto) {
-        profileService.uploadVerificationDoc(dto);
-        return ResponseEntity.ok("Document uploaded for verification");
-    }
-
-    @GetMapping("/verification-docs")
-    public ResponseEntity<List<VerificationDoc>> getMyDocs() {
-        return ResponseEntity.ok(profileService.getMyDocuments());
-    }
 }

@@ -77,23 +77,22 @@ public class ProfileService {
         militaryProfileRepository.save(profile);
     }
 
-    // --- 3. Завантаження документів ---
+
     @Transactional
-    public void uploadVerificationDoc(VerificationDocRequestDTO dto) {
+    public void updateSellerProfile(SellerProfileRequestDTO dto) {
         User user = getCurrentUser();
+        SellerProfile profile = user.getSellerProfile();
 
-        VerificationDoc doc = VerificationDoc.builder()
-                .user(user)
-                .documentType(dto.documentType())
-                .docUrl(dto.docUrl())
-                .status(VerificationStatus.PENDING) // Статус "Очікує перевірки"
-                .build();
+        if (profile == null) {
+            throw new ResourceNotFoundException("Seller profile not created yet");
+        }
 
-        verificationDocRepository.save(doc);
-    }
+        // Оновлюємо дозволені поля
+        profile.setCompanyName(dto.companyName());
+        profile.setDescription(dto.description());
+        profile.setLogoUrl(dto.logoUrl());
+        // taxId зазвичай не змінюють просто так, бо це вимагає нової верифікації
 
-    // Отримати мої документи
-    public List<VerificationDoc> getMyDocuments() {
-        return verificationDocRepository.findAllByUserId(getCurrentUser().getId());
+        sellerProfileRepository.save(profile);
     }
 }

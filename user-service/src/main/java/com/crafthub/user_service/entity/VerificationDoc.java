@@ -4,6 +4,8 @@ import com.crafthub.user_service.entity.enums.DocumentType;
 import com.crafthub.user_service.entity.enums.VerificationStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -31,5 +33,10 @@ public class VerificationDoc {
     @Enumerated(EnumType.STRING)
     private VerificationStatus status;
 
-    private String rejectionReason;
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
