@@ -25,6 +25,17 @@ spring:
     show-sql: true
     format_sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+
 management:
   tracing:
     sampling:

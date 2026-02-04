@@ -34,6 +34,19 @@ spring:
         # Важливо: вимикаємо передачу типів класів у заголовках,
         # бо DTO в різних сервісах лежать у різних пакетах
         spring.json.add.type.headers: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+
+
 management:
   tracing:
     sampling:
