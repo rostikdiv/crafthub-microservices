@@ -50,7 +50,6 @@ public class ProductController {
         return productService.createProduct(productRequest);
     }
 
-    // ✅ НОВИЙ ЕНДПОІНТ: Масове створення
     @PostMapping("/bulk")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('product:create')")
@@ -66,6 +65,30 @@ public class ProductController {
     @GetMapping("/{id}")
     public ProductResponseDTO getProductById(@PathVariable UUID id) {
         return productService.getProductById(id);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:update')")
+    public ResponseEntity<ProductResponseDTO> updateProduct(
+            @PathVariable UUID id,
+            @RequestBody ProductRequestDTO request
+    ) {
+        return ResponseEntity.ok(productService.updateProduct(id, request));
+    }
+
+    @PostMapping("/{id}/discount")
+    @PreAuthorize("hasAuthority('product:update')") // Або перевірка власника
+    public ResponseEntity<ProductResponseDTO> applyDiscount(
+            @PathVariable UUID id,
+            @RequestParam BigDecimal newPrice
+    ) {
+        return ResponseEntity.ok(productService.applyDiscount(id, newPrice));
+    }
+
+    @DeleteMapping("/{id}/discount")
+    @PreAuthorize("hasAuthority('product:update')")
+    public ResponseEntity<ProductResponseDTO> removeDiscount(@PathVariable UUID id) {
+        return ResponseEntity.ok(productService.removeDiscount(id));
     }
 
     @PostMapping("/{id}/reduce-stock")

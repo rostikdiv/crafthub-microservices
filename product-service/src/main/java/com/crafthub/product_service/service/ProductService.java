@@ -7,6 +7,7 @@ import com.crafthub.product_service.dto.SellerInfoDTO; // Переконайте
 import com.crafthub.product_service.entity.Category;
 import com.crafthub.product_service.entity.Product;
 import com.crafthub.product_service.entity.enums.AccessLevel;
+import com.crafthub.product_service.exception.BusinessException;
 import com.crafthub.product_service.exception.ResourceNotFoundException;
 import com.crafthub.product_service.repository.CategoryRepository;
 import com.crafthub.product_service.repository.ProductRepository;
@@ -20,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -142,6 +144,7 @@ public class ProductService {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
+                product.getOldPrice(),
                 product.getQuantity(),
                 product.getCategory() != null ? product.getCategory().getName() : "No Category",
                 product.getAccessLevel().name(),
@@ -172,6 +175,56 @@ public class ProductService {
     }
 
     @Transactional
+    public ProductResponseDTO updateProduct(UUID productId, ProductRequestDTO request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // 1. Оновлення базових полів (якщо вони передані)
+        if (request.name() != null) product.setName(request.name());
+        if (request.description() != null) product.setDescription(request.description());
+        if (request.quantity() != null) product.setQuantity(request.quantity());
+        if (request.accessLevel() != null) {
+            try {
+                product.setAccessLevel(AccessLevel.valueOf(request.accessLevel()));
+            } catch (IllegalArgumentException e) {
+                throw new BusinessException("Invalid access level");
+            }
+        }
+
+        // 2. Оновлення Габаритів
+        if (request.weight() != null) product.setWeight(request.weight());
+        if (request.length() != null) product.setLength(request.length());
+        if (request.width() != null) product.setWidth(request.width());
+        if (request.height() != null) product.setHeight(request.height());
+
+        // 3. Логіка зміни ціни (зі скиданням знижки)
+        if (request.price() != null && request.price().compareTo(product.getPrice()) != 0) {
+            product.setPrice(request.price());
+            product.setOldPrice(null); // Скидаємо стару ціну, бо базова змінилася
+        }
+
+        // 4. Оновлення Зображень (Просте присвоєння URL)
+        if (request.previewImageUrl() != null && !request.previewImageUrl().isBlank()) {
+            product.setPreviewImageUrl(request.previewImageUrl());
+        }
+
+        if (request.imageUrls() != null) {
+            // Можна замінити список повністю
+            product.setImageUrls(request.imageUrls());
+        }
+
+        // 5. Оновлення категорії
+        if (request.categoryId() != null && !request.categoryId().equals(product.getCategory().getId())) {
+            Category category = categoryRepository.findById(request.categoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+            product.setCategory(category);
+        }
+
+        productRepository.save(product);
+        return mapToProductResponse(product);
+    }
+
+    @Transactional
     public void reduceStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
@@ -191,5 +244,50 @@ public class ProductService {
 
         product.setQuantity(product.getQuantity() + quantity);
         productRepository.save(product);
+    }
+
+    // У метод оновлення товару (updateProduct) або окремий метод (applyDiscount)
+
+    @Transactional
+    public ProductResponseDTO applyDiscount(UUID productId, BigDecimal newDiscountPrice) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Валідація: Нова ціна має бути меншою за поточну (або стару, якщо вона вже є)
+        BigDecimal originalPrice = (product.getOldPrice() != null) ? product.getOldPrice() : product.getPrice();
+
+        if (newDiscountPrice.compareTo(originalPrice) >= 0) {
+            throw new BusinessException("Discount price must be lower than original price (" + originalPrice + ")");
+        }
+
+        if (newDiscountPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("Price must be greater than 0");
+        }
+
+        // Якщо це перша знижка -> зберігаємо поточну ціну як стару
+        if (product.getOldPrice() == null) {
+            product.setOldPrice(product.getPrice());
+        }
+
+        // Встановлюємо нову ціну продажу
+        product.setPrice(newDiscountPrice);
+
+        productRepository.save(product);
+        return mapToProductResponse(product); // Не забудьте оновити маппер!
+    }
+
+    @Transactional
+    public ProductResponseDTO removeDiscount(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Якщо знижка була -> повертаємо стару ціну
+        if (product.getOldPrice() != null) {
+            product.setPrice(product.getOldPrice()); // Повертаємо 1000
+            product.setOldPrice(null);               // Очищаємо поле
+            productRepository.save(product);
+        }
+
+        return mapToProductResponse(product);
     }
 }
