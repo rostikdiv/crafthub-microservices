@@ -22,6 +22,7 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
+    private final com.crafthub.order_service.service.ReturnService returnService;
 
     @PostMapping
     @PreAuthorize("hasAuthority('order:create')")
@@ -29,11 +30,26 @@ public class OrderController {
         return ResponseEntity.ok(orderService.createOrder(request));
     }
 
+    @PostMapping("/{id}/return")
+    @PreAuthorize("hasAuthority('order:create')")
+    public ResponseEntity<com.crafthub.order_service.dto.order.ReturnResponseDTO> requestReturn(
+            @PathVariable UUID id,
+            @RequestBody com.crafthub.order_service.dto.order.ReturnRequestDTO request) {
+        return ResponseEntity.ok(returnService.requestReturn(id, request));
+    }
+
+    @PutMapping("/returns/{returnId}/approve")
+    @PreAuthorize("hasAuthority('order:approve')") // Or generic admin role
+    public ResponseEntity<com.crafthub.order_service.dto.order.ReturnResponseDTO> approveReturn(
+            @PathVariable UUID returnId,
+            @RequestParam boolean approved) {
+        return ResponseEntity.ok(returnService.approveReturn(returnId, approved));
+    }
+
     @GetMapping("/my")
     @PreAuthorize("hasAuthority('order:read:my')")
     public ResponseEntity<Page<OrderResponseDTO>> getMyOrders(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(orderService.getMyOrders(pageable));
     }
 
@@ -56,8 +72,7 @@ public class OrderController {
     @GetMapping("/check-seller-purchase")
     public ResponseEntity<Boolean> checkSellerPurchase(
             @RequestParam UUID userId,
-            @RequestParam UUID sellerId
-    ) {
+            @RequestParam UUID sellerId) {
         return ResponseEntity.ok(orderService.hasUserBoughtFromSeller(userId, sellerId));
     }
 }

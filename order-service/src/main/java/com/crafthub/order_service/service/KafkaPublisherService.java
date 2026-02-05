@@ -13,10 +13,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaPublisherService {
 
-    private final KafkaTemplate<String, OrderPlacedEventDTO> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     // Назва топіку має співпадати з тією, яку слухає Notification Service
     private static final String TOPIC_NAME = "order-placed-topic";
+    private static final String REFUND_TOPIC = "return-events";
 
     public void sendOrderPlacedEvent(OrderPlacedEventDTO event) {
         log.info("📤 Sending order event to Kafka topic '{}': {}", TOPIC_NAME, event.orderId());
@@ -28,6 +29,16 @@ public class KafkaPublisherService {
         } catch (Exception e) {
             log.error("❌ Failed to send Kafka event: {}", e.getMessage());
             // Тут можна додати логіку збереження в Outbox таблицю, якщо Kafka лежить
+        }
+    }
+
+    public void sendRefundApprovedEvent(com.crafthub.order_service.dto.event.RefundApprovedEventDTO event) {
+        log.info("📤 Sending refund event to Kafka topic '{}': {}", REFUND_TOPIC, event.orderId());
+        try {
+            kafkaTemplate.send(REFUND_TOPIC, event.orderId().toString(), event);
+            log.info("✅ Refund Event sent successfully");
+        } catch (Exception e) {
+            log.error("❌ Failed to send Refund Kafka event", e);
         }
     }
 }

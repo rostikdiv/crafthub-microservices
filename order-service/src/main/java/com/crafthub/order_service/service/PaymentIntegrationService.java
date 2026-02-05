@@ -29,4 +29,14 @@ public class PaymentIntegrationService {
         log.error("Payment service is unavailable for user {}", request.userId());
         throw new BusinessException("Неможливо провести оплату сервіс не доступний.");
     }
+
+    @CircuitBreaker(name = "paymentService", fallbackMethod = "refundPaymentFallback")
+    public void refundPayment(UUID orderId, java.math.BigDecimal amount) {
+        paymentServiceClient.refundPayment(orderId, amount);
+    }
+
+    public void refundPaymentFallback(UUID orderId, java.math.BigDecimal amount, Throwable t) {
+        log.error("Payment service unavailable during refund for order {}", orderId, t);
+        throw new BusinessException("Неможливо оформити повернення коштів. Сервіс оплати недоступний.");
+    }
 }

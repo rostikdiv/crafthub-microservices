@@ -1,7 +1,5 @@
 package com.crafthub.order_service.service;
 
-import com.crafthub.order_service.client.PaymentServiceClient;
-import com.crafthub.order_service.client.ProductServiceClient;
 import com.crafthub.order_service.dto.delivery.DeliveryDetailsDTO;
 import com.crafthub.order_service.dto.order.OrderItemRequestDTO;
 import com.crafthub.order_service.dto.order.OrderItemResponseDTO;
@@ -25,13 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -49,8 +43,10 @@ public class OrderService {
     private final UserContextService userContext;
 
     // Опціональні бін для Kafka/SQS (залежно від того, що підключено)
-    @Autowired(required = false) private KafkaPublisherService kafkaPublisherService;
-    @Autowired(required = false) private SqsPublisherService sqsPublisherService;
+    @Autowired(required = false)
+    private KafkaPublisherService kafkaPublisherService;
+    @Autowired(required = false)
+    private SqsPublisherService sqsPublisherService;
 
     @Transactional
     public PaymentResponseDTO createOrder(OrderRequestDTO request) {
@@ -95,7 +91,8 @@ public class OrderService {
                 // Б. Перевірка доступу (RESTRICTED)
                 if ("RESTRICTED".equals(product.accessLevel())) {
                     if (!hasPermission("product:buy:restricted")) {
-                        throw new AccessDeniedException("Purchasing restricted product requires military authorization.");
+                        throw new AccessDeniedException(
+                                "Purchasing restricted product requires military authorization.");
                     }
                     if (!isVerified) {
                         throw new AccessDeniedException("Account must be verified to purchase restricted items.");
@@ -146,8 +143,7 @@ public class OrderService {
             PaymentRequestDTO paymentRequest = new PaymentRequestDTO(
                     order.getId(),
                     userId,
-                    totalOrderPrice
-            );
+                    totalOrderPrice);
 
             return paymentIntegrationService.initPayment(paymentRequest);
 
@@ -165,12 +161,12 @@ public class OrderService {
         }
     }
 
-
     public OrderResponseDTO getOrderById(UUID orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         return mapToOrderResponseDTO(order);
     }
+
     public Page<OrderResponseDTO> getMyOrders(Pageable pageable) {
         UUID userId = userContext.getUserId();
         // findAllByUserId повертає Page<Order>, ми мапимо його в Page<OrderResponseDTO>
@@ -183,7 +179,7 @@ public class OrderService {
                 .map(this::mapToOrderResponseDTO)
                 .toList();
     }
-    
+
     private void sendNotification(Order order, List<String> productNames, String userEmail, List<UUID> productIds) {
         String summary = String.join(", ", productNames);
         OrderPlacedEventDTO event = new OrderPlacedEventDTO(
@@ -192,8 +188,7 @@ public class OrderService {
                 userEmail,
                 order.getTotalPrice(),
                 summary,
-                productIds
-        );
+                productIds);
 
         if (kafkaPublisherService != null) {
             kafkaPublisherService.sendOrderPlacedEvent(event);
@@ -221,14 +216,12 @@ public class OrderService {
         log.info("✅ Order {} status updated to PAID", orderId);
     }
 
-
     private OrderResponseDTO mapToOrderResponseDTO(Order order) {
         List<OrderItemResponseDTO> itemsDto = order.getItems().stream()
                 .map(item -> new OrderItemResponseDTO(
                         item.getProductId(),
                         item.getQuantity(),
-                        item.getPricePerUnit()
-                ))
+                        item.getPricePerUnit()))
                 .toList();
 
         return new OrderResponseDTO(
@@ -238,8 +231,7 @@ public class OrderService {
                 order.getStatus(),
                 order.getCreatedAt(),
                 itemsDto,
-                order.getDeliveryInfo()
-        );
+                order.getDeliveryInfo());
     }
 
     @Transactional

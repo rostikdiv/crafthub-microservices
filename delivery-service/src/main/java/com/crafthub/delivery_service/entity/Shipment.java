@@ -1,6 +1,7 @@
 package com.crafthub.delivery_service.entity;
 
 import com.crafthub.delivery_service.dto.external.DeliveryDetailsDTO;
+import com.crafthub.delivery_service.entity.enums.ShipmentType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -22,12 +23,17 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false) // Removed unique = true to allow multiple shipments (returns)
     private UUID orderId; // Зв'язок з Order Service
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryStatus status; // PREPARING, SHIPPED...
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private ShipmentType type = ShipmentType.OUTBOUND;
 
     private String trackingNumber; // ТТН (згенеруємо пізніше)
 
@@ -42,6 +48,9 @@ public class Shipment {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        if (this.status == null) this.status = DeliveryStatus.PREPARING;
+        if (this.status == null)
+            this.status = DeliveryStatus.PREPARING;
+        if (this.type == null)
+            this.type = ShipmentType.OUTBOUND;
     }
 }

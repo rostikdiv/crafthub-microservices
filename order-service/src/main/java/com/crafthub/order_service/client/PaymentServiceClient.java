@@ -12,4 +12,8 @@ public interface PaymentServiceClient {
 
     @PostMapping("/api/v1/payments/init")
     PaymentResponseDTO initPayment(@RequestBody PaymentRequestDTO request);
+
+    @PostMapping("/api/v1/payments/refund")
+    String refundPayment(@org.springframework.web.bind.annotation.RequestParam("orderId") java.util.UUID orderId,
+            @org.springframework.web.bind.annotation.RequestParam("amount") java.math.BigDecimal amount);
 }

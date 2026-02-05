@@ -1,5 +1,8 @@
 package com.crafthub.payment_service.entity;
 
 public enum TransactionStatus {
-    PENDING, SUCCESS, FAILED
+    PENDING,
+    SUCCESS,
+    FAILED,
+    REFUNDED
 }

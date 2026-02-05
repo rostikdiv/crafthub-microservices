@@ -38,17 +38,26 @@ public class Order {
     private OrderStatus status;
 
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private DeliveryDetailsDTO deliveryInfo;
 
+    @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        if (this.status == null) this.status = OrderStatus.PENDING_PAYMENT;
+        this.updatedAt = LocalDateTime.now();
+        if (this.status == null)
+            this.status = OrderStatus.PENDING_PAYMENT;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

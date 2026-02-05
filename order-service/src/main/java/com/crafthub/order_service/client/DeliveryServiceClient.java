@@ -1,0 +1,14 @@
+package com.crafthub.order_service.client;
+
+import com.crafthub.order_service.dto.delivery.ReturnShipmentRequestDTO;
+import com.crafthub.order_service.dto.delivery.ReturnShipmentResponseDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@FeignClient(name = "delivery-service", path = "/api/v1/delivery/return")
+public interface DeliveryServiceClient {
+
+    @PostMapping
+    ReturnShipmentResponseDTO createReturnShipment(@RequestBody ReturnShipmentRequestDTO request);
+}

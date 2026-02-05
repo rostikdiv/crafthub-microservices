@@ -58,6 +58,8 @@ public class ShipmentService {
 
         shipmentRepository.save(shipment);
         log.info("✅ Shipment created successfully with ID: {}", shipment.getId());
+
+        simulateDelivery(shipment.getId());
     }
 
     @Transactional(readOnly = true)
@@ -77,7 +79,8 @@ public class ShipmentService {
         Shipment shipment = shipmentRepository.findById(shipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found")); // ✅
 
-        if (shipment.getStatus() == newStatus) return;
+        if (shipment.getStatus() == newStatus)
+            return;
 
         shipment.setStatus(newStatus);
         if (newStatus == DeliveryStatus.SHIPPED) {
@@ -86,8 +89,7 @@ public class ShipmentService {
         shipmentRepository.save(shipment);
 
         DeliveryStatusChangedEvent event = new DeliveryStatusChangedEvent(
-                shipment.getOrderId(), newStatus, LocalDateTime.now()
-        );
+                shipment.getOrderId(), newStatus, LocalDateTime.now());
 
         log.info("📢 Sending DeliveryStatusChangedEvent: orderId={}, status={}", shipment.getOrderId(), newStatus);
         kafkaTemplate.send("delivery-status-topic", shipment.getOrderId().toString(), event);
@@ -107,5 +109,57 @@ public class ShipmentService {
 
     private String generateFakeTrackingNumber(String provider) {
         return provider.substring(0, 2) + "-" + System.currentTimeMillis();
+    }
+
+    @Transactional
+    public com.crafthub.delivery_service.dto.response.ReturnShipmentResponseDTO createReturnShipment(
+            com.crafthub.delivery_service.dto.request.ReturnShipmentRequestDTO request) {
+        log.info("Creating RETURN shipment for Order: {}", request.orderId());
+
+        // 1. Створюємо зворотну доставку
+        Shipment shipment = Shipment.builder()
+                .orderId(request.orderId())
+                .status(DeliveryStatus.PREPARING)
+                .type(com.crafthub.delivery_service.entity.enums.ShipmentType.RETURN)
+                .deliveryDetails(request.returnAddress())
+                .trackingNumber("RET-" + System.currentTimeMillis())
+                .build();
+
+        shipmentRepository.save(shipment);
+        log.info("✅ Return shipment created: {}", shipment.getId());
+
+        // 2. Розрахунок вартості (Тимчасова логіка)
+        java.math.BigDecimal shippingCost = java.math.BigDecimal.valueOf(70.0); // Базова ціна
+        if (request.weight() != null && request.weight() > 2.0) {
+            shippingCost = shippingCost.add(java.math.BigDecimal.valueOf((request.weight() - 2.0) * 10)); // +10 грн за
+                                                                                                          // кожен кг
+                                                                                                          // понад 2 кг
+        }
+
+        // 3. Запуск симуляції доставки
+        simulateDelivery(shipment.getId());
+
+        return new com.crafthub.delivery_service.dto.response.ReturnShipmentResponseDTO(
+                shipment.getId(),
+                shipment.getTrackingNumber(),
+                shippingCost);
+    }
+
+    private void simulateDelivery(UUID shipmentId) {
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(5000); // 5 seconds delay
+                log.info("🚚 Simulating delivery for shipment: {}", shipmentId);
+                // Note: Calling this method directly bypasses @Transactional proxy,
+                // but since repository methods are transactional, it handles the DB update
+                // correctly for this simple case.
+                updateShipmentStatus(shipmentId, DeliveryStatus.DELIVERED);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Delivery simulation interrupted for shipment: {}", shipmentId);
+            } catch (Exception e) {
+                log.error("Failed to simulate delivery for shipment: {}", shipmentId, e);
+            }
+        });
     }
 }

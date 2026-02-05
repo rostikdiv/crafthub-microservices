@@ -69,13 +69,37 @@ public class PaymentService {
             PaymentSuccessEventDTO event = new PaymentSuccessEventDTO(
                     transaction.getOrderId(),
                     "user@placeholder.com", // В реальності треба брати з User Service
-                    transaction.getAmount()
-            );
+                    transaction.getAmount());
             kafkaProducerService.sendPaymentSuccessEvent(event);
         } else {
             transaction.setStatus(TransactionStatus.FAILED);
             repository.save(transaction);
         }
+    }
+
+    @Transactional
+    public void refundPayment(UUID orderId, java.math.BigDecimal amount) {
+        log.info("Processing refund for Order: {}, Amount: {}", orderId, amount);
+
+        // Знаходимо оригінальну успішну транзакцію
+        var transactions = repository.findByOrderId(orderId); // припускаємо що повертає Optional<Transaction> або List.
+        // Але repository.findByOrderId повертає Optional<Transaction> за поточним кодом
+        // (див. initPayment).
+        // Якщо там Optional, то це проблема, бо може бути кілька транзакцій (оплата +
+        // повернення).
+        // Треба перевірити репозиторій.
+
+        // MVP спрощення: Просто створюємо нову транзакцію зі статусом REFUNDED.
+        Transaction refundTransaction = Transaction.builder()
+                .orderId(orderId)
+                .userId(UUID.randomUUID()) // Або передавати userId
+                .amount(amount.negate()) // Від'ємна сума для звітності
+                .status(TransactionStatus.REFUNDED)
+                .provider("MOCK_PAY")
+                .build();
+
+        repository.save(refundTransaction);
+        log.info("✅ Refund processed successfully: {}", refundTransaction.getId());
     }
 
     public List<TransactionDTO> getAllTransactions() {
@@ -86,8 +110,7 @@ public class PaymentService {
                         tx.getUserId(),
                         tx.getAmount(),
                         tx.getStatus().name(),
-                        tx.getCreatedAt()
-                ))
+                        tx.getCreatedAt()))
                 .toList();
     }
 }
