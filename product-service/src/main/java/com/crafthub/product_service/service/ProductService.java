@@ -43,7 +43,20 @@ public class ProductService {
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         UUID userId = userContext.getUserId();
-        SellerInfoDTO sellerInfo = fetchSellerInfoSafe(userId);
+
+        SellerInfoDTO sellerInfo;
+        try {
+            // 🛑 Прямий виклик. Якщо User Service лежить - ми хочемо впасти, а не зберегти "Unknown"
+            sellerInfo = userServiceClient.getSellerInfo(userId);
+        } catch (Exception e) {
+            log.error("Failed to fetch seller info during product creation for user {}: {}", userId, e.getMessage());
+            // Повертаємо зрозумілу помилку користувачу
+            throw new BusinessException("Неможливо створити товар: не вдалося отримати профіль продавця. Спробуйте пізніше.");
+        }
+
+        // Перевірка (опціонально): чи дозволено цьому продавцю створювати товари
+        // if (!sellerInfo.isVerified()) { ... }
+
         return saveProductInternal(request, userId, sellerInfo);
     }
 
@@ -52,26 +65,23 @@ public class ProductService {
     public List<ProductResponseDTO> createProducts(List<ProductRequestDTO> requests) {
         UUID userId = userContext.getUserId();
 
-        // 1. Оптимізація: Отримуємо дані про продавця ОДИН РАЗ для всієї пачки
-        SellerInfoDTO sellerInfo = fetchSellerInfoSafe(userId);
+        SellerInfoDTO sellerInfo;
+        try {
+            // Те саме для масового створення
+            sellerInfo = userServiceClient.getSellerInfo(userId);
+        } catch (Exception e) {
+            log.error("Batch creation failed. User Service unavailable for user {}", userId);
+            throw new BusinessException("Неможливо створити товари: сервіс користувачів недоступний.");
+        }
 
         log.info("Batch creating {} products for User ID: {}", requests.size(), userId);
 
-        // 2. Зберігаємо всі товари
+        // sellerInfo тут вже гарантовано не null
+        final SellerInfoDTO finalSellerInfo = sellerInfo;
+
         return requests.stream()
-                .map(req -> saveProductInternal(req, userId, sellerInfo))
+                .map(req -> saveProductInternal(req, userId, finalSellerInfo))
                 .collect(Collectors.toList());
-    }
-
-    // --- Приватні допоміжні методи ---
-
-    private SellerInfoDTO fetchSellerInfoSafe(UUID userId) {
-        try {
-            return userServiceClient.getSellerInfo(userId);
-        } catch (Exception e) {
-            log.warn("Could not fetch seller info for user {}: {}", userId, e.getMessage());
-            return null;
-        }
     }
 
     private ProductResponseDTO saveProductInternal(ProductRequestDTO request, UUID userId, SellerInfoDTO sellerInfo) {

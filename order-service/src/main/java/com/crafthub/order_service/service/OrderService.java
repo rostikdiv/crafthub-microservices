@@ -44,8 +44,8 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductServiceClient productServiceClient;
-    private final PaymentServiceClient paymentServiceClient;
+    private final ProductIntegrationService productIntegrationService;
+    private final PaymentIntegrationService paymentIntegrationService;
     private final UserContextService userContext;
 
     // Опціональні бін для Kafka/SQS (залежно від того, що підключено)
@@ -74,7 +74,7 @@ public class OrderService {
             for (OrderItemRequestDTO itemRequest : request.items()) {
 
                 // А. Отримуємо інфо про товар
-                ProductResponseDTO product = productServiceClient.getProductById(itemRequest.productId());
+                ProductResponseDTO product = productIntegrationService.getProductById(itemRequest.productId());
                 if (product == null) {
                     throw new ResourceNotFoundException("Product not found with ID: " + itemRequest.productId());
                 }
@@ -103,7 +103,7 @@ public class OrderService {
                 }
 
                 // В. СПИСАННЯ ЗІ СКЛАДУ
-                productServiceClient.reduceStock(product.id(), itemRequest.quantity());
+                productIntegrationService.reduceStock(product.id(), itemRequest.quantity());
 
                 // Г. Створюємо OrderItem
                 OrderItem orderItem = OrderItem.builder()
@@ -149,14 +149,14 @@ public class OrderService {
                     totalOrderPrice
             );
 
-            return paymentServiceClient.initPayment(paymentRequest);
+            return paymentIntegrationService.initPayment(paymentRequest);
 
         } catch (Exception e) {
             log.error("❌ Error creating order: {}. Rolling back stock...", e.getMessage());
             // Компенсація
             for (OrderItem item : reservedItems) {
                 try {
-                    productServiceClient.restoreStock(item.getProductId(), item.getQuantity());
+                    productIntegrationService.restoreStock(item.getProductId(), item.getQuantity());
                 } catch (Exception ex) {
                     log.error("CRITICAL: Failed to rollback stock for product {}", item.getProductId(), ex);
                 }

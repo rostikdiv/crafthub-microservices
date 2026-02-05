@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final ProductServiceClient productServiceClient;
+    private final ProductServiceIntegration productServiceIntegration;
     private final UserContextService userContext;
 
     // =========================================================================
@@ -55,12 +55,14 @@ public class CartService {
     // =========================================================================
 
     // --- ОТРИМАННЯ КОШИКА (З синхронізацією цін та наявності) ---
+    // --- ОТРИМАННЯ КОШИКА (З синхронізацією цін та наявності) ---
     public Cart getCart(UUID userId) {
         Cart cart = cartRepository.findById(userId)
                 .orElse(Cart.builder()
                         .userId(userId)
                         .sections(new ArrayList<>())
                         .totalPrice(BigDecimal.ZERO)
+                        .isDataUpToDate(true)
                         .build());
 
         if (cart.getSections().isEmpty()) {
@@ -68,7 +70,8 @@ public class CartService {
         }
 
         // 1. Отримуємо свіжі дані про товари з Product Service
-        List<ProductResponseDTO> freshProducts;
+        List<ProductResponseDTO> freshProducts = null; // Ініціалізуємо null
+
         try {
             List<UUID> allProductIds = cart.getSections().stream()
                     .flatMap(section -> section.getItems().stream())
@@ -77,11 +80,25 @@ public class CartService {
 
             if (allProductIds.isEmpty()) return cart;
 
-            freshProducts = productServiceClient.getProductsByIds(allProductIds);
+            // Виклик через Circuit Breaker
+            freshProducts = productServiceIntegration.getProductsByIds(allProductIds);
+
         } catch (Exception e) {
-            log.warn("Product Service unavailable, returning cached cart. Error: {}", e.getMessage());
-            return cart; // Graceful degradation: повертаємо кешований кошик, якщо сервіс товарів лежить
+            log.warn("Product Service error, returning cached cart. Error: {}", e.getMessage());
+            return cart;
         }
+
+        // 🔥 ВАЖЛИВА ЗМІНА: Перевіряємо на NULL перед використанням
+        // Якщо Circuit Breaker спрацював і повернув null -> ми просто віддаємо старий кошик
+        if (freshProducts == null || freshProducts.isEmpty()) {
+            log.info("Product Service unavailable (fallback triggered). Returning cached cart for user {}", userId);
+            cart.setDataUpToDate(false);
+            return cart;
+        }
+        // 2. Якщо ми тут — значить дані прийшли успішно, оновлюємо кошик
+        cart.setDataUpToDate(true);
+
+
 
         // Створюємо мапу для швидкого пошуку: ID -> Product
         Map<UUID, ProductResponseDTO> productMap = freshProducts.stream()
@@ -90,7 +107,6 @@ public class CartService {
         boolean cartChanged = false;
         Iterator<CartSection> sectionIterator = cart.getSections().iterator();
 
-        // 2. Проходимо по секціях і оновлюємо дані
         while (sectionIterator.hasNext()) {
             CartSection section = sectionIterator.next();
             List<CartItem> validItems = new ArrayList<>();
@@ -98,7 +114,8 @@ public class CartService {
             for (CartItem item : section.getItems()) {
                 ProductResponseDTO freshData = productMap.get(item.getProductId());
 
-                // Якщо товару більше не існує в базі -> видаляємо з кошика
+                // Якщо товару більше не існує в базі (Product Service повернув список, але цього товару там немає)
+                // Тоді видаляємо його з кошика
                 if (freshData == null) {
                     cartChanged = true;
                     continue;
@@ -109,7 +126,7 @@ public class CartService {
                     cartChanged = true;
                 }
 
-                // Оновлюємо дані секції (назва магазину/лого), якщо змінилися
+                // Оновлюємо дані секції
                 if (section.getSellerName() == null || !section.getSellerName().equals(freshData.sellerName())) {
                     section.setSellerName(freshData.sellerName());
                     section.setSellerLogoUrl(freshData.sellerLogoUrl());
@@ -118,7 +135,6 @@ public class CartService {
 
                 // Перевіряємо наявність на складі
                 if (freshData.quantity() > 0) {
-                    // Якщо в кошику більше ніж є на складі -> зменшуємо
                     if (item.getQuantity() > freshData.quantity()) {
                         item.setQuantity(freshData.quantity());
                         cartChanged = true;
@@ -131,7 +147,6 @@ public class CartService {
 
             section.setItems(validItems);
 
-            // Якщо в секції не залишилось товарів -> видаляємо секцію
             if (section.getItems().isEmpty()) {
                 sectionIterator.remove();
                 cartChanged = true;
@@ -151,7 +166,7 @@ public class CartService {
         // 1. Отримуємо актуальні дані про товар
         ProductResponseDTO product;
         try {
-            product = productServiceClient.getProductById(itemDto.productId());
+            product = productServiceIntegration.getProductById(itemDto.productId());
         } catch (Exception e) {
             throw new ResourceNotFoundException("Product not found or service unavailable");
         }

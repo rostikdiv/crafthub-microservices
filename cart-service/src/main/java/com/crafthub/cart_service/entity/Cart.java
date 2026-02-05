@@ -2,6 +2,7 @@ package com.crafthub.cart_service.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
@@ -25,4 +26,8 @@ public class Cart {
 
     @Builder.Default
     private BigDecimal totalPrice = BigDecimal.ZERO;
+
+    @Transient // ⚠️ Це поле НЕ буде створювати колонку в БД
+    @Builder.Default
+    private boolean isDataUpToDate = true;
 }

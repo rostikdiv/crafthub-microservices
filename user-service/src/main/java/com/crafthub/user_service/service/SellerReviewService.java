@@ -26,7 +26,7 @@ public class SellerReviewService {
 
     private final SellerReviewRepository reviewRepository;
     private final SellerProfileRepository profileRepository;
-    private final OrderServiceClient orderServiceClient;
+    private final OrderServiceIntegration orderServiceIntegration;
     private final UserRepository userRepository;
 
     @Transactional
@@ -44,7 +44,7 @@ public class SellerReviewService {
         }
 
         // 3. ПЕРЕВІРКА ЧЕРЕЗ ORDER SERVICE
-        Boolean hasBought = orderServiceClient.checkSellerPurchase(userId, request.sellerId());
+        Boolean hasBought = orderServiceIntegration.checkSellerPurchase(userId, request.sellerId());
         if (!Boolean.TRUE.equals(hasBought)) {
             throw new BusinessException("You can only review sellers you have purchased from (delivered orders).");
         }

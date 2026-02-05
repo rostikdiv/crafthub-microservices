@@ -29,6 +29,23 @@ management:
     sampling:
       probability: 1.0
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      productService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10          # Пам'ятаємо останні 10 запитів
+        minimumNumberOfCalls: 5        # Починаємо аналіз після 5-го запиту
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s    # Час "карантину" (блокування)
+        failureRateThreshold: 50       # Поріг помилок (50%)
+        eventConsumerBufferSize: 10
+        ignoreExceptions:              # Не рахувати це як збій сервісу
+          - com.crafthub.order_service.exception.ResourceNotFoundException
+          - com.crafthub.order_service.exception.BusinessException
+          - feign.FeignException.NotFound
+          - feign.FeignException.BadRequest
 ---
 # ======================================================
 # === ПРОФІЛЬ "local" (Kafka + Zipkin + Eureka) ===
@@ -71,6 +88,7 @@ feign:
 aws:
   xray:
     enabled: false
+
 
 ---
 # ======================================================

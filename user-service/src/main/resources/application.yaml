@@ -58,6 +58,27 @@ application:
       secret-key: ${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}
       expiration: ${JWT_EXPIRATION:86400000}
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10          # Кількість запитів для аналізу (останні 10)
+        minimumNumberOfCalls: 5        # Починаємо рахувати статистику після 5 запитів
+        permittedNumberOfCallsInHalfOpenState: 3 # Скільки пробних запитів пропустити, коли сервіс "оживає"
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s    # Час блокування (5 секунд), перш ніж спробувати знову
+        failureRateThreshold: 50       # Якщо 50% запитів впали - відкриваємо Circuit Breaker
+        eventConsumerBufferSize: 10
+        ignoreExceptions:              # Помилки, які не вважаються збоєм сервісу
+          - feign.FeignException.NotFound
+          - feign.FeignException.BadRequest
+          - com.crafthub.user_service.exception.ResourceNotFoundException
+          - com.crafthub.user_service.exception.BusinessException
+    instances:
+      orderService:
+        baseConfig: default
+
 ---
 # ======================================================
 # === ПРОФІЛЬ "local" (Zipkin) ===

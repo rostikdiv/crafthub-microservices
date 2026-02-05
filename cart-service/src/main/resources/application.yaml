@@ -31,6 +31,20 @@ management:
     sampling:
       probability: 1.0
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        ignoreExceptions:
+          - feign.FeignException.NotFound
+    instances:
+      productService:
+        baseConfig: default
 ---
 # ======================================================
 # === ПРОФІЛЬ "local" (Zipkin) ===

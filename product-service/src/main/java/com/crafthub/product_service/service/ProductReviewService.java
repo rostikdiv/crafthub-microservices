@@ -25,7 +25,7 @@ public class ProductReviewService {
 
     private final ProductReviewRepository reviewRepository;
     private final ProductRepository productRepository;
-    private final OrderServiceClient orderServiceClient;
+    private final OrderServiceIntegration orderServiceIntegration;
     private final UserContextService userContext;
     private final UserServiceClient userServiceClient; // Якщо треба дістати ім'я
 
@@ -49,7 +49,7 @@ public class ProductReviewService {
 
         // 2. Перевірка "Verified Purchase" (тільки для автора, не залежить від батька)
         // Ми перевіряємо, чи цей КОНКРЕТНИЙ юзер купував товар
-        Boolean isVerified = orderServiceClient.checkPurchase(request.productId());
+        Boolean isVerified = orderServiceIntegration.checkPurchase(request.productId());
         if (isVerified == null) isVerified = false;
 
         // 3. Створення
