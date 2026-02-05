@@ -1,6 +1,7 @@
 package com.crafthub.product_service.config;
 
 import feign.RequestInterceptor;
+import feign.codec.ErrorDecoder;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Configuration
 public class FeignConfig {
+
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new RetreiveMessageErrorDecoder();
+    }
 
     @Bean
     public RequestInterceptor requestInterceptor() {

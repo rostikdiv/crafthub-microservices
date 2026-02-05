@@ -1,4 +1,4 @@
-package com.crafthub.order_service.config;
+package com.crafthub.user_service.config;
 
 import feign.RequestInterceptor;
 import feign.codec.ErrorDecoder;
@@ -10,7 +10,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Configuration
 public class FeignConfig {
-
 
     @Bean
     public ErrorDecoder errorDecoder() {
