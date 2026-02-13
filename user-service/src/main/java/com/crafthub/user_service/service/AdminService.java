@@ -33,7 +33,7 @@ public class AdminService {
     public List<VerificationRequestResponseDTO> getPendingVerifications() {
         return userRepository.findAll().stream()
                 .filter(user -> !Boolean.TRUE.equals(user.getIsVerified())) // Тільки не верифіковані
-                .filter(this::hasPendingDocs)         // Тільки ті, хто має документи на перевірці
+                .filter(this::hasPendingDocs) // Тільки ті, хто має документи на перевірці
                 .map(this::mapToRequestDTO)
                 .collect(Collectors.toList());
     }
@@ -66,8 +66,7 @@ public class AdminService {
                     user.getId(),
                     user.getEmail(),
                     isVerified,
-                    reason
-            );
+                    reason);
             kafkaTemplate.send("user-verification-topic", event); // 👈 Відправляємо в топік
             log.info("Sent verification event for user {}", user.getEmail());
         } catch (Exception e) {
@@ -77,7 +76,8 @@ public class AdminService {
     }
 
     private boolean hasPendingDocs(User user) {
-        if (user.getDocuments() == null || user.getDocuments().isEmpty()) return false;
+        if (user.getDocuments() == null || user.getDocuments().isEmpty())
+            return false;
         return user.getDocuments().stream()
                 .anyMatch(doc -> doc.getStatus() == VerificationStatus.PENDING);
     }
@@ -101,18 +101,17 @@ public class AdminService {
                 user.getRole(),
                 specificName,
                 user.getCreatedAt().toLocalDateTime(),
-                pendingCount
-        );
+                pendingCount);
     }
 
     private VerificationResponseDTO mapToDocDTO(VerificationDoc doc) {
+        String proxyUrl = "/api/v1/documents/" + doc.getId();
         return new VerificationResponseDTO(
                 doc.getId(),
                 doc.getUser().getId(),
                 doc.getDocumentType(),
-                doc.getDocUrl(),
+                proxyUrl,
                 doc.getStatus(),
-                doc.getCreatedAt()
-        );
+                doc.getCreatedAt());
     }
 }

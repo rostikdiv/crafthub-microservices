@@ -7,10 +7,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record VerificationResponseDTO(
-        UUID id,
-        UUID userId,
-        DocumentType type,
-        String url,
-        VerificationStatus status,
-        LocalDateTime uploadedAt // Заповнюємо з doc.getCreatedAt()
-) {}
+                UUID id,
+                UUID userId,
+                DocumentType documentType, // Was type
+                String docUrl, // Was url
+                VerificationStatus status,
+                LocalDateTime createdAt // Was uploadedAt
+) {
+}

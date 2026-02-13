@@ -50,7 +50,8 @@ public class ProductReviewService {
         // 2. Перевірка "Verified Purchase" (тільки для автора, не залежить від батька)
         // Ми перевіряємо, чи цей КОНКРЕТНИЙ юзер купував товар
         Boolean isVerified = orderServiceIntegration.checkPurchase(request.productId());
-        if (isVerified == null) isVerified = false;
+        if (isVerified == null)
+            isVerified = false;
 
         // 3. Створення
         ProductReview review = ProductReview.builder()
@@ -102,8 +103,8 @@ public class ProductReviewService {
 
         productRepository.save(product);
 
-
-        // log.info("Updated rating for product {}: {} stars ({} reviews)", productId, newRating, newCount);
+        // log.info("Updated rating for product {}: {} stars ({} reviews)", productId,
+        // newRating, newCount);
     }
 
     @Transactional(readOnly = true)
@@ -116,7 +117,8 @@ public class ProductReviewService {
 
     private UserReviewHistoryDTO mapToHistoryDTO(ProductReview review) {
         // Отримуємо товар (щоб показати назву і картинку)
-        // Краще використовувати кешування або batch-fetching, щоб не робити запит на кожен рядок
+        // Краще використовувати кешування або batch-fetching, щоб не робити запит на
+        // кожен рядок
         var product = productRepository.findById(review.getProductId()).orElse(null);
         String productName = (product != null) ? product.getName() : "Unknown Product";
         String productImg = (product != null) ? product.getPreviewImageUrl() : null;
@@ -143,8 +145,7 @@ public class ProductReviewService {
                 productImg,
                 isReply,
                 replyToUser,
-                replyToText
-        );
+                replyToText);
     }
 
     // Рекурсивний маппер
@@ -158,7 +159,6 @@ public class ProductReviewService {
                 review.isVerifiedPurchase(),
                 review.getCreatedAt(),
                 review.getParent() != null ? review.getParent().getId() : null,
-                review.getReplies().stream().map(this::mapToDTO).collect(Collectors.toList())
-        );
+                review.getReplies().stream().map(this::mapToDTO).collect(Collectors.toList()));
     }
 }

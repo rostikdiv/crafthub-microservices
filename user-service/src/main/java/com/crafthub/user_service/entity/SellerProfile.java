@@ -2,6 +2,7 @@ package com.crafthub.user_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
 @Entity
@@ -19,6 +20,7 @@ public class SellerProfile {
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JsonIgnore
     private User user;
 
     @Column(nullable = false)
@@ -29,7 +31,7 @@ public class SellerProfile {
 
     private String logoUrl;
 
-    @Column(nullable = false, unique=true)
+    @Column(nullable = false, unique = true)
     private String taxId; // ІПН або ЄДРПОУ
 
     private Float rating; // Рейтинг продавця
@@ -37,6 +39,10 @@ public class SellerProfile {
     @Column(nullable = false)
     @Builder.Default
     private Integer reviewCount = 0;
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    @Builder.Default
+    private Integer totalSales = 0;
 
     // ... всередині класу SellerProfile додайте:
     @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)

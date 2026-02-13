@@ -46,12 +46,14 @@ public class ProductService {
 
         SellerInfoDTO sellerInfo;
         try {
-            // 🛑 Прямий виклик. Якщо User Service лежить - ми хочемо впасти, а не зберегти "Unknown"
+            // 🛑 Прямий виклик. Якщо User Service лежить - ми хочемо впасти, а не зберегти
+            // "Unknown"
             sellerInfo = userServiceClient.getSellerInfo(userId);
         } catch (Exception e) {
             log.error("Failed to fetch seller info during product creation for user {}: {}", userId, e.getMessage());
             // Повертаємо зрозумілу помилку користувачу
-            throw new BusinessException("Неможливо створити товар: не вдалося отримати профіль продавця. Спробуйте пізніше.");
+            throw new BusinessException(
+                    "Неможливо створити товар: не вдалося отримати профіль продавця. Спробуйте пізніше.");
         }
 
         // Перевірка (опціонально): чи дозволено цьому продавцю створювати товари
@@ -86,7 +88,8 @@ public class ProductService {
 
     private ProductResponseDTO saveProductInternal(ProductRequestDTO request, UUID userId, SellerInfoDTO sellerInfo) {
         Category category = categoryRepository.findById(request.categoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + request.categoryId()));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Category not found with id: " + request.categoryId()));
 
         AccessLevel accessLevel = AccessLevel.PUBLIC;
         if (request.accessLevel() != null) {
@@ -122,8 +125,10 @@ public class ProductService {
         return mapToProductResponse(savedProduct);
     }
 
-    // ... (getAllProducts, reduceStock, mapToProductResponse та інші методи залишаються без змін) ...
-    // Не забудьте додати оновлений getAllProducts з пагінацією, який ми обговорювали раніше.
+    // ... (getAllProducts, reduceStock, mapToProductResponse та інші методи
+    // залишаються без змін) ...
+    // Не забудьте додати оновлений getAllProducts з пагінацією, який ми
+    // обговорювали раніше.
     public Page<ProductResponseDTO> getAllProducts(
             String search,
             Long categoryId, // Зверніть увагу, у вашому коді було Long
@@ -131,8 +136,8 @@ public class ProductService {
             BigDecimal maxPrice,
             Boolean isAvailable,
             Double minRating,
-            Pageable pageable
-    ) {
+            UUID sellerId, // ✅ Add sellerId parameter
+            Pageable pageable) {
         // Викликаємо оновлений метод специфікації
         Specification<Product> spec = ProductSpecification.filterProducts(
                 categoryId,
@@ -140,8 +145,8 @@ public class ProductService {
                 maxPrice,
                 search,
                 isAvailable,
-                minRating
-        );
+                minRating,
+                sellerId); // ✅ Pass sellerId
 
         return productRepository.findAll(spec, pageable)
                 .map(this::mapToProductResponse);
@@ -168,8 +173,7 @@ public class ProductService {
                 product.getWidth(),
                 product.getHeight(),
                 product.getPreviewImageUrl(),
-                product.getImageUrls()
-        );
+                product.getImageUrls());
     }
 
     public ProductResponseDTO getProductById(UUID id) {
@@ -190,9 +194,12 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         // 1. Оновлення базових полів (якщо вони передані)
-        if (request.name() != null) product.setName(request.name());
-        if (request.description() != null) product.setDescription(request.description());
-        if (request.quantity() != null) product.setQuantity(request.quantity());
+        if (request.name() != null)
+            product.setName(request.name());
+        if (request.description() != null)
+            product.setDescription(request.description());
+        if (request.quantity() != null)
+            product.setQuantity(request.quantity());
         if (request.accessLevel() != null) {
             try {
                 product.setAccessLevel(AccessLevel.valueOf(request.accessLevel()));
@@ -202,10 +209,14 @@ public class ProductService {
         }
 
         // 2. Оновлення Габаритів
-        if (request.weight() != null) product.setWeight(request.weight());
-        if (request.length() != null) product.setLength(request.length());
-        if (request.width() != null) product.setWidth(request.width());
-        if (request.height() != null) product.setHeight(request.height());
+        if (request.weight() != null)
+            product.setWeight(request.weight());
+        if (request.length() != null)
+            product.setLength(request.length());
+        if (request.width() != null)
+            product.setWidth(request.width());
+        if (request.height() != null)
+            product.setHeight(request.height());
 
         // 3. Логіка зміни ціни (зі скиданням знижки)
         if (request.price() != null && request.price().compareTo(product.getPrice()) != 0) {
@@ -294,10 +305,18 @@ public class ProductService {
         // Якщо знижка була -> повертаємо стару ціну
         if (product.getOldPrice() != null) {
             product.setPrice(product.getOldPrice()); // Повертаємо 1000
-            product.setOldPrice(null);               // Очищаємо поле
+            product.setOldPrice(null); // Очищаємо поле
             productRepository.save(product);
         }
 
         return mapToProductResponse(product);
+    }
+
+    @Transactional
+    public void deleteProduct(UUID productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new ResourceNotFoundException("Product not found with id: " + productId);
+        }
+        productRepository.deleteById(productId);
     }
 }

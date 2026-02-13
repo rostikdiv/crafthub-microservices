@@ -1,0 +1,450 @@
+[
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_kyiv",
+        "nameUkr": "Київ",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_kyiv_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Пирогівський шлях, 135"
+            },
+            {
+                "externalId": "ref_kyiv_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Богатирська, 11"
+            },
+            {
+                "externalId": "ref_kyiv_3",
+                "branchNumber": "3",
+                "name": "Відділення №3: вул. Калачівська, 13"
+            },
+            {
+                "externalId": "ref_kyiv_4",
+                "branchNumber": "4",
+                "name": "Відділення №4: вул. Верховинна, 69"
+            },
+            {
+                "externalId": "ref_kyiv_5",
+                "branchNumber": "5",
+                "name": "Відділення №5: вул. Федорова, 32"
+            },
+            {
+                "externalId": "ref_kyiv_6",
+                "branchNumber": "6",
+                "name": "Відділення №6: вул. Миколи Василенка, 2"
+            },
+            {
+                "externalId": "ref_kyiv_7",
+                "branchNumber": "7",
+                "name": "Відділення №7: вул. Магнітогорська, 1а"
+            },
+            {
+                "externalId": "ref_kyiv_8",
+                "branchNumber": "8",
+                "name": "Відділення №8: просп. Перемоги, 9"
+            },
+            {
+                "externalId": "ref_kyiv_9",
+                "branchNumber": "9",
+                "name": "Відділення №9: вул. Дегтярівська, 48"
+            },
+            {
+                "externalId": "ref_kyiv_10",
+                "branchNumber": "10",
+                "name": "Відділення №10: просп. В. Гавела, 4"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_lviv",
+        "nameUkr": "Львів",
+        "region": "Львівська область",
+        "branches": [
+            {
+                "externalId": "ref_lviv_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Городоцька, 369"
+            },
+            {
+                "externalId": "ref_lviv_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Пластова, 7"
+            },
+            {
+                "externalId": "ref_lviv_3",
+                "branchNumber": "3",
+                "name": "Відділення №3: вул. Угорська, 22"
+            },
+            {
+                "externalId": "ref_lviv_4",
+                "branchNumber": "4",
+                "name": "Відділення №4: вул. Кульпарківська, 93"
+            },
+            {
+                "externalId": "ref_lviv_5",
+                "branchNumber": "5",
+                "name": "Відділення №5: вул. Данила Апостола, 16"
+            },
+            {
+                "externalId": "ref_lviv_6",
+                "branchNumber": "6",
+                "name": "Відділення №6: вул. Сихівська, 8"
+            },
+            {
+                "externalId": "ref_lviv_7",
+                "branchNumber": "7",
+                "name": "Відділення №7: вул. Личаківська, 8"
+            },
+            {
+                "externalId": "ref_lviv_8",
+                "branchNumber": "8",
+                "name": "Відділення №8: вул. Коновальця, 6"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_odessa",
+        "nameUkr": "Одеса",
+        "region": "Одеська область",
+        "branches": [
+            {
+                "externalId": "ref_odessa_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: Київське шосе, 27"
+            },
+            {
+                "externalId": "ref_odessa_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Базова, 16"
+            },
+            {
+                "externalId": "ref_odessa_3",
+                "branchNumber": "3",
+                "name": "Відділення №3: вул. Дальницька, 23/4"
+            },
+            {
+                "externalId": "ref_odessa_4",
+                "branchNumber": "4",
+                "name": "Відділення №4: вул. Академіка Вільямса, 86"
+            },
+            {
+                "externalId": "ref_odessa_5",
+                "branchNumber": "5",
+                "name": "Відділення №5: вул. Академіка Філатова, 24"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_kharkiv",
+        "nameUkr": "Харків",
+        "region": "Харківська область",
+        "branches": [
+            {
+                "externalId": "ref_kharkiv_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Польова, 67"
+            },
+            {
+                "externalId": "ref_kharkiv_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Роганська, 101"
+            },
+            {
+                "externalId": "ref_kharkiv_3",
+                "branchNumber": "3",
+                "name": "Відділення №3: вул. Тюрінська, 124"
+            },
+            {
+                "externalId": "ref_kharkiv_4",
+                "branchNumber": "4",
+                "name": "Відділення №4: проїзд Стадіонний, 13"
+            },
+            {
+                "externalId": "ref_kharkiv_5",
+                "branchNumber": "5",
+                "name": "Відділення №5: майдан Юрія Гагаріна, 2"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_dnipro",
+        "nameUkr": "Дніпро",
+        "region": "Дніпропетровська область",
+        "branches": [
+            {
+                "externalId": "ref_dnipro_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Маршала Малиновського, 114"
+            },
+            {
+                "externalId": "ref_dnipro_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Академіка Янгеля, 40"
+            },
+            {
+                "externalId": "ref_dnipro_3",
+                "branchNumber": "3",
+                "name": "Відділення №3: вул. Тверська, 1"
+            },
+            {
+                "externalId": "ref_dnipro_4",
+                "branchNumber": "4",
+                "name": "Відділення №4: вул. Князя Ярослава Мудрого, 68"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_drohobych",
+        "nameUkr": "Дрогобич",
+        "region": "Львівська область",
+        "branches": [
+            {
+                "externalId": "ref_drog_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. П. Орлика, 18"
+            },
+            {
+                "externalId": "ref_drog_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Лесі Українки, 14"
+            },
+            {
+                "externalId": "ref_drog_3",
+                "branchNumber": "3",
+                "name": "Відділення №3: вул. Пилипа Орлика, 9"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_stryi",
+        "nameUkr": "Стрий",
+        "region": "Львівська область",
+        "branches": [
+            {
+                "externalId": "ref_stryi_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Сколівська, 14"
+            },
+            {
+                "externalId": "ref_stryi_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Богдана Хмельницького, 4"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_sambir",
+        "nameUkr": "Самбір",
+        "region": "Львівська область",
+        "branches": [
+            {
+                "externalId": "ref_sambir_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Валова, 1"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_truskavets",
+        "nameUkr": "Трускавець",
+        "region": "Львівська область",
+        "branches": [
+            {
+                "externalId": "ref_truskavets_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Мазепи, 21"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_brovary",
+        "nameUkr": "Бровари",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_brovary_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Олега Онікієнка, 125"
+            },
+            {
+                "externalId": "ref_brovary_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Київська, 243"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_boryspil",
+        "nameUkr": "Бориспіль",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_boryspil_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Київський Шлях, 10"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_irpin",
+        "nameUkr": "Ірпінь",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_irpin_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Центральна, 6"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_bucha",
+        "nameUkr": "Буча",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_bucha_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: бул. Богдана Хмельницького, 4"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_vyshneve",
+        "nameUkr": "Вишневе",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_vyshneve_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Київська, 3"
+            }
+        ]
+    },
+    {
+        "provider": "UKRPOSHTA",
+        "externalId": "ref_ukr_lviv",
+        "nameUkr": "Львів",
+        "region": "Львівська область",
+        "branches": [
+            {
+                "externalId": "ref_ukr_lviv_1",
+                "branchNumber": "79000",
+                "name": "Відділення 79000: вул. Словацького, 1"
+            },
+            {
+                "externalId": "ref_ukr_lviv_2",
+                "branchNumber": "79007",
+                "name": "Відділення 79007: вул. Гнатюка, 8"
+            },
+            {
+                "externalId": "ref_ukr_lviv_3",
+                "branchNumber": "79010",
+                "name": "Відділення 79010: вул. Личаківська, 22"
+            }
+        ]
+    },
+    {
+        "provider": "UKRPOSHTA",
+        "externalId": "ref_ukr_kyiv",
+        "nameUkr": "Київ",
+        "region": "Київська область",
+        "branches": [
+            {
+                "externalId": "ref_ukr_kyiv_1",
+                "branchNumber": "01001",
+                "name": "Відділення 01001: вул. Хрещатик, 22"
+            },
+            {
+                "externalId": "ref_ukr_kyiv_2",
+                "branchNumber": "02002",
+                "name": "Відділення 02002: вул. Митрополита Андрея Шептицького, 16/4"
+            }
+        ]
+    },
+    {
+        "provider": "UKRPOSHTA",
+        "externalId": "ref_ukr_odessa",
+        "nameUkr": "Одеса",
+        "region": "Одеська область",
+        "branches": [
+            {
+                "externalId": "ref_ukr_odessa_1",
+                "branchNumber": "65000",
+                "name": "Відділення 65000: вул. Садова, 10"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_zhytomyr",
+        "nameUkr": "Житомир",
+        "region": "Житомирська область",
+        "branches": [
+            {
+                "externalId": "ref_zhit_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: площа Згоди, 6"
+            },
+            {
+                "externalId": "ref_zhit_2",
+                "branchNumber": "2",
+                "name": "Відділення №2: вул. Київська, 10"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_vinnytsia",
+        "nameUkr": "Вінниця",
+        "region": "Вінницька область",
+        "branches": [
+            {
+                "externalId": "ref_vin_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Якова Гальчевського, 13"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_chernivtsi",
+        "nameUkr": "Чернівці",
+        "region": "Чернівецька область",
+        "branches": [
+            {
+                "externalId": "ref_che_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Руська, 248є"
+            }
+        ]
+    },
+    {
+        "provider": "NOVA_POSHTA",
+        "externalId": "ref_uzhhorod",
+        "nameUkr": "Ужгород",
+        "region": "Закарпатська область",
+        "branches": [
+            {
+                "externalId": "ref_uzh_1",
+                "branchNumber": "1",
+                "name": "Відділення №1: вул. Гагаріна, 36"
+            }
+        ]
+    }
+]

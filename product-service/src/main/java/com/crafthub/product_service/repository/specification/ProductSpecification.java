@@ -8,7 +8,8 @@ import java.math.BigDecimal;
 
 public class ProductSpecification {
 
-    private ProductSpecification() {}
+    private ProductSpecification() {
+    }
 
     public static Specification<Product> filterProducts(
             Long categoryId,
@@ -16,32 +17,29 @@ public class ProductSpecification {
             BigDecimal maxPrice,
             String search,
             Boolean isAvailable,
-            Double minRating // 👈 1. Додаємо новий параметр
+            Double minRating,
+            java.util.UUID sellerId // 👈 2. Add sellerId
     ) {
         Specification<Product> spec = (root, query, cb) -> cb.conjunction();
 
         // 1. Фільтр за категорією
         if (categoryId != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("category").get("id"), categoryId));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId));
         }
 
         // 2. Ціна ВІД
         if (minPrice != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("price"), minPrice));
         }
 
         // 3. Ціна ДО
         if (maxPrice != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("price"), maxPrice));
         }
 
         // 4. Наявність
         if (isAvailable != null && isAvailable) {
-            spec = spec.and((root, query, cb) ->
-                    cb.greaterThan(root.get("quantity"), 0));
+            spec = spec.and((root, query, cb) -> cb.greaterThan(root.get("quantity"), 0));
         }
 
         // 5. Пошук по назві
@@ -52,10 +50,14 @@ public class ProductSpecification {
             });
         }
 
-        // ✅ 6. НОВИЙ ФІЛЬТР: Рейтинг (greaterThanOrEqualTo)
+        // 6. Рейтинг
         if (minRating != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.greaterThanOrEqualTo(root.get("averageRating"), minRating));
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("averageRating"), minRating));
+        }
+
+        // 7. Seller ID
+        if (sellerId != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("sellerId"), sellerId));
         }
 
         return spec;

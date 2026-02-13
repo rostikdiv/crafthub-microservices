@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -24,6 +25,7 @@ public class VerificationDocService {
 
     private final VerificationDocRepository docRepository;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
     // --- HELPER: Отримати поточного юзера ---
     private User getCurrentUser() {
@@ -115,15 +117,41 @@ public class VerificationDocService {
         docRepository.save(doc);
     }
 
+    // [R] DOWNLOAD: Скачати документ (для проксі)
+    @Transactional(readOnly = true)
+    public InputStream downloadDocument(UUID docId) {
+        VerificationDoc doc = docRepository.findById(docId)
+                .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
+
+        User user = getCurrentUser();
+        // Доступ дозволено, якщо: ти власник АБО ти адмін
+        boolean isOwner = doc.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == com.crafthub.user_service.entity.enums.Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new BusinessException("Access denied");
+        }
+
+        // Extract object name from URL
+        String objectName = fileStorageService.extractObjectNameFromUrl(doc.getDocUrl(), "documents");
+        if (objectName == null) {
+            throw new ResourceNotFoundException("File not found in storage");
+        }
+
+        return fileStorageService.getFile("documents", objectName);
+    }
+
     // --- MAPPER ---
     private VerificationResponseDTO mapToDTO(VerificationDoc doc) {
+        // Замість Presigned URL, повертаємо посилання на наш Proxy Controller
+        String proxyUrl = "/api/v1/documents/" + doc.getId();
+
         return new VerificationResponseDTO(
                 doc.getId(),
                 doc.getUser().getId(),
                 doc.getDocumentType(),
-                doc.getDocUrl(),
+                proxyUrl,
                 doc.getStatus(),
-                doc.getCreatedAt()
-        );
+                doc.getCreatedAt());
     }
 }

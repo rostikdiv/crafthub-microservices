@@ -17,6 +17,9 @@ public class MinioConfig {
     @Value("${minio.secret-key}")
     private String secretKey;
 
+    @Value("${minio.external-url:http://localhost:9000}")
+    private String externalUrl;
+
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
@@ -24,4 +27,5 @@ public class MinioConfig {
                 .credentials(accessKey, secretKey)
                 .build();
     }
+
 }

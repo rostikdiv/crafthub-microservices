@@ -28,6 +28,11 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.initPayment(request));
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<PaymentResponseDTO> getTransactionByOrderId(@PathVariable UUID orderId) {
+        return ResponseEntity.ok(paymentService.getTransactionByOrderId(orderId));
+    }
+
     // Webhook залишаємо відкритим (SecurityConfig.permitAll), або додаємо перевірку
     // підпису
     @PostMapping("/webhook/{transactionId}")

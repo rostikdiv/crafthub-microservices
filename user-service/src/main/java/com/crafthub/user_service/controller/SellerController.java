@@ -25,9 +25,21 @@ public class SellerController {
         return ResponseEntity.ok(sellerService.getSellerPublicProfile(id));
     }
 
-    @PutMapping("/seller-profile")
+    @PostMapping("/profile")
+    public ResponseEntity<String> createSellerProfile(@RequestBody SellerProfileRequestDTO dto) {
+        profileService.createSellerProfile(dto);
+        return ResponseEntity.ok("Seller profile created");
+    }
+
+    @PutMapping("/profile")
     public ResponseEntity<String> updateSellerProfile(@RequestBody SellerProfileRequestDTO dto) {
         profileService.updateSellerProfile(dto);
         return ResponseEntity.ok("Seller profile updated");
+    }
+
+    @PostMapping("/internal/{id}/sales/increment")
+    public ResponseEntity<Void> incrementSales(@PathVariable UUID id) {
+        sellerService.incrementSales(id);
+        return ResponseEntity.ok().build();
     }
 }

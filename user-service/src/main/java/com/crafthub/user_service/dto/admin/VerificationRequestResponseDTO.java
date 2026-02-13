@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record VerificationRequestResponseDTO(
-        UUID userId,
-        String email,
-        String fullName,
-        Role role,                // Поточна роль (наприклад, BUYER)
-        String companyOrUnitName, // Назва магазину або номер частини (з профілю)
-        LocalDateTime registeredAt,
-        long pendingDocsCount     // Скільки документів ще не перевірено
-) {}
+                UUID userId,
+                String email,
+                String fullName,
+                Role role,
+                String specificName, // Was companyOrUnitName
+                LocalDateTime createdAt, // Was registeredAt
+                long pendingDocsCount) {
+}

@@ -1,5 +1,7 @@
 package com.crafthub.product_service.service;
 
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,15 @@ public class FileStorageService {
     @Value("${minio.url}")
     private String minioUrl;
 
+    @Value("${minio.external-url:http://localhost:9000}")
+    private String externalUrl;
+
+    @Value("${minio.access-key}")
+    private String accessKey;
+
+    @Value("${minio.secret-key}")
+    private String secretKey;
+
     @SneakyThrows
     public String uploadFile(MultipartFile file, String bucketName) {
         if (file.isEmpty()) {
@@ -34,18 +45,46 @@ public class FileStorageService {
         // 2. Отримуємо потік
         InputStream inputStream = file.getInputStream();
 
-        // 3. Вантажимо в MinIO
+        // 3. Перевіряємо та створюємо бакет
+        boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
+        if (!found) {
+            minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
+        }
+
+        // 4. Вантажимо в MinIO
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
                         .object(fileName)
                         .stream(inputStream, file.getSize(), -1)
                         .contentType(file.getContentType())
-                        .build()
-        );
+                        .build());
 
-        // 4. Повертаємо URL
+        // 5. Повертаємо URL
         return minioUrl + "/" + bucketName + "/" + fileName;
+    }
+
+    @SneakyThrows
+    public String getPresignedUrl(String objectName, String bucketName) {
+        MinioClient signingClient = MinioClient.builder()
+                .endpoint(externalUrl)
+                .credentials(accessKey, secretKey)
+                .build();
+
+        return signingClient.getPresignedObjectUrl(
+                io.minio.GetPresignedObjectUrlArgs.builder()
+                        .method(io.minio.http.Method.GET)
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .expiry(24 * 60 * 60) // 24 hours
+                        .build());
+    }
+
+    public String extractObjectNameFromUrl(String url, String bucketName) {
+        if (url == null || !url.contains(bucketName))
+            return null;
+        String afterBucket = url.substring(url.indexOf(bucketName) + bucketName.length() + 1);
+        return afterBucket;
     }
 
     private String getExtension(String filename) {

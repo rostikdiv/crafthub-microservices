@@ -21,7 +21,8 @@ public class OrderServiceIntegration {
     }
 
     // FALLBACK: Fail Safe
-    // Якщо не можемо перевірити історію -> забороняємо дію (безпечніше для рейтингу)
+    // Якщо не можемо перевірити історію -> забороняємо дію (безпечніше для
+    // рейтингу)
     public Boolean checkSellerPurchaseFallback(UUID userId, UUID sellerId, Throwable t) {
         log.warn("⚠️ Circuit Breaker: Failed to check seller purchase verification. Reason: {}", t.getMessage());
         return false;

@@ -24,12 +24,24 @@ public class LocationService {
     private final BranchRepository branchRepository;
 
     @Transactional(readOnly = true)
-    public List<LocationResponseDTO> searchCities(DeliveryProvider provider, String query) {
-        return locationRepository.findByProviderAndNameUkrContainingIgnoreCase(provider, query)
-                .stream()
+    public List<String> getRegions(DeliveryProvider provider) {
+        return locationRepository.findDistinctRegionsByProvider(provider);
+    }
+
+    @Transactional(readOnly = true)
+    public List<LocationResponseDTO> searchCities(DeliveryProvider provider, String query, String region) {
+        List<Location> locations;
+        if (region != null && !region.isBlank()) {
+            locations = locationRepository.findByProviderAndRegionAndNameUkrContainingIgnoreCase(provider, region,
+                    query);
+        } else {
+            locations = locationRepository.findByProviderAndNameUkrContainingIgnoreCase(provider, query);
+        }
+
+        return locations.stream()
                 .map(loc -> new LocationResponseDTO(
-                        loc.getId(), loc.getExternalId(), loc.getNameUkr(), loc.getRegion()
-                )).toList();
+                        loc.getId(), loc.getExternalId(), loc.getNameUkr(), loc.getRegion()))
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -37,8 +49,8 @@ public class LocationService {
         return branchRepository.findByLocationId(cityId)
                 .stream()
                 .map(branch -> new BranchResponseDTO(
-                        branch.getId(), branch.getExternalId(), branch.getBranchNumber(), branch.getName()
-                )).toList();
+                        branch.getId(), branch.getExternalId(), branch.getBranchNumber(), branch.getName()))
+                .toList();
     }
 
     @Transactional

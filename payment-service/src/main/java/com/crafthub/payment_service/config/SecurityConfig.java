@@ -23,8 +23,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Вебхук зазвичай публічний (або має свій токен), тому дозволяємо
                         .requestMatchers("/api/v1/payments/webhook/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        // Swagger UI
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(new HeaderAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

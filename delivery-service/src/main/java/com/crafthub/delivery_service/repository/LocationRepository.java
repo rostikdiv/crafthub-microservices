@@ -15,5 +15,11 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
     // Знайти місто за назвою та провайдером (для Autocomplete)
     List<Location> findByProviderAndNameUkrContainingIgnoreCase(DeliveryProvider provider, String name);
 
+    List<Location> findByProviderAndRegionAndNameUkrContainingIgnoreCase(DeliveryProvider provider, String region,
+            String name);
+
     Optional<Location> findByProviderAndExternalId(DeliveryProvider provider, String externalId);
+
+    @Query("SELECT DISTINCT l.region FROM Location l WHERE l.provider = :provider ORDER BY l.region")
+    List<String> findDistinctRegionsByProvider(@Param("provider") DeliveryProvider provider);
 }

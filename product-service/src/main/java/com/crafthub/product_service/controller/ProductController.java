@@ -34,13 +34,12 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Boolean isAvailable,
             @RequestParam(required = false) Double minRating, // 👈 Фільтр рейтингу
+            @RequestParam(required = false) UUID sellerId, // 👈 New Filter: Seller ID
 
             // Сортування працює саме: ?sort=averageRating,desc
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable
-    ) {
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(
-                search, categoryId, minPrice, maxPrice, isAvailable, minRating, pageable
-        ));
+                search, categoryId, minPrice, maxPrice, isAvailable, minRating, sellerId, pageable));
     }
 
     @PostMapping("/")
@@ -71,8 +70,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('product:update')")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable UUID id,
-            @RequestBody ProductRequestDTO request
-    ) {
+            @RequestBody ProductRequestDTO request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
@@ -80,8 +78,7 @@ public class ProductController {
     @PreAuthorize("hasAuthority('product:update')") // Або перевірка власника
     public ResponseEntity<ProductResponseDTO> applyDiscount(
             @PathVariable UUID id,
-            @RequestParam BigDecimal newPrice
-    ) {
+            @RequestParam BigDecimal newPrice) {
         return ResponseEntity.ok(productService.applyDiscount(id, newPrice));
     }
 
@@ -108,5 +105,12 @@ public class ProductController {
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         return ResponseEntity.ok("product service works!");
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('product:delete')")
+    public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

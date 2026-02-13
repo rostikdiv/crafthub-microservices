@@ -1,10 +1,14 @@
 package com.crafthub.user_service.controller;
 
+import com.crafthub.user_service.dto.ChangePasswordRequestDTO;
 import com.crafthub.user_service.dto.SellerInfoDTO;
+import com.crafthub.user_service.dto.UserUpdateDTO;
 import com.crafthub.user_service.entity.SellerProfile;
 import com.crafthub.user_service.entity.User;
-import com.crafthub.user_service.exception.ResourceNotFoundException; // ✅
+import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.UserRepository;
+import com.crafthub.user_service.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +23,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     // Отримати всіх користувачів (Тільки для Адміна)
     @GetMapping
@@ -28,9 +33,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
-        return ResponseEntity.ok(userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)));
+    public ResponseEntity<com.crafthub.user_service.dto.UserResponseDTO> getUserById(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.getUserByIdWithProfiles(id));
     }
 
     // Видалення (Тільки для Адміна)
@@ -62,7 +66,22 @@ public class UserController {
                 user.getId(),
                 profile.getCompanyName(),
                 profile.getLogoUrl(),
-                user.getIsVerified()
-        ));
+                user.getIsVerified(),
+                profile.getRating(),
+                profile.getReviewCount(),
+                profile.getTotalSales()));
+    }
+
+    // --- User Profile Updates ---
+
+    @PutMapping("/me")
+    public ResponseEntity<User> updateCurrentUser(@RequestBody @Valid UserUpdateDTO dto) {
+        return ResponseEntity.ok(userService.updateCurrentUser(dto));
+    }
+
+    @PostMapping("/me/password")
+    public ResponseEntity<Void> changePassword(@RequestBody @Valid ChangePasswordRequestDTO dto) {
+        userService.changePassword(dto);
+        return ResponseEntity.ok().build();
     }
 }

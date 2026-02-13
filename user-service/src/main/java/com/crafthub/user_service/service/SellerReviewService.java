@@ -40,12 +40,16 @@ public class SellerReviewService {
 
         // 2. Не можна оцінювати самого себе
         if (userId.equals(request.sellerId())) {
+            System.err.println(
+                    "Review Error: User " + userId + " tried to review self (Seller " + request.sellerId() + ")");
             throw new BusinessException("You cannot review yourself");
         }
 
         // 3. ПЕРЕВІРКА ЧЕРЕЗ ORDER SERVICE
         Boolean hasBought = orderServiceIntegration.checkSellerPurchase(userId, request.sellerId());
         if (!Boolean.TRUE.equals(hasBought)) {
+            System.err.println("Review Error: Purchase verification failed for User " + userId + " and Seller "
+                    + request.sellerId());
             throw new BusinessException("You can only review sellers you have purchased from (delivered orders).");
         }
 
@@ -89,7 +93,6 @@ public class SellerReviewService {
     private SellerReviewResponseDTO mapToDTO(SellerReview r) {
         // Повертаємо DTO
         return new SellerReviewResponseDTO(
-                r.getId(), r.getUserId(), r.getUserName(), r.getRating(), r.getComment(), r.getCreatedAt()
-        );
+                r.getId(), r.getUserId(), r.getUserName(), r.getRating(), r.getComment(), r.getCreatedAt());
     }
 }

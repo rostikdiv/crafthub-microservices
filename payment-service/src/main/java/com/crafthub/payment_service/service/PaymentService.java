@@ -25,6 +25,15 @@ public class PaymentService {
     private final TransactionRepository repository;
     private final KafkaProducerService kafkaProducerService;
 
+    public PaymentResponseDTO getTransactionByOrderId(UUID orderId) {
+        Transaction transaction = repository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for order: " + orderId));
+
+        String mockUrl = "http://localhost:8080/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
+
+        return new PaymentResponseDTO(transaction.getId(), transaction.getStatus().name(), mockUrl);
+    }
+
     public PaymentResponseDTO initPayment(PaymentRequestDTO request) {
         // Перевірка на дублікат (опціонально)
         if (repository.findByOrderId(request.orderId()).isPresent()) {
