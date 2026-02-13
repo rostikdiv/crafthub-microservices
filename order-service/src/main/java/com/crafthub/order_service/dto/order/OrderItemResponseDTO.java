@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public record OrderItemResponseDTO(
-        UUID productId,
-        Integer quantity,
-        BigDecimal pricePerUnit
-) {}
+                UUID productId,
+                String name,
+                Integer quantity,
+                BigDecimal pricePerUnit) {
+}

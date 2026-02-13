@@ -17,6 +17,7 @@ import com.crafthub.order_service.repository.OrderRepository;
 import com.crafthub.order_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,10 +35,13 @@ public class ReturnService {
     private final DeliveryServiceIntegration deliveryService;
     private final UserContextService userContextService;
     private final PaymentIntegrationService paymentIntegrationService;
-    private final KafkaPublisherService kafkaPublisherService;
+
+    @Autowired(required = false)
+    private KafkaPublisherService kafkaPublisherService;
 
     @Transactional
     public ReturnResponseDTO requestReturn(UUID orderId, ReturnRequestDTO request) {
+        // ... method content ...
         log.info("Processing return request for Order: {}, Item: {}", orderId, request.orderItemId());
 
         // 1. Пошук та валідація замовлення
@@ -166,7 +170,10 @@ public class ReturnService {
                     orderReturn.getProductId(),
                     orderReturn.getQuantity(),
                     orderReturn.getReason().name());
-            kafkaPublisherService.sendRefundApprovedEvent(event);
+
+            if (kafkaPublisherService != null) {
+                kafkaPublisherService.sendRefundApprovedEvent(event);
+            }
 
             // 3. Оновлення статусу замовлення (якщо всі товари повернуто - REFUNDED, інакше
             // PARTIALLY_REFUNDED? (немає статусу))

@@ -28,7 +28,12 @@ RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 COPY order-service/src ./order-service/src
 
 # Збираємо, але знову монтуємо кеш .m2, щоб не качати нічого зайвого
-RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl order-service -am
+# Діагностика версій та залежностей
+RUN mvn -version
+RUN mvn dependency:tree -pl order-service
+
+# Збираємо БЕЗ кешу (тимчасово для debug)
+RUN mvn clean package -DskipTests -pl order-service -am
 
 # --------- ЕТАП 2: ЗАПУСК (Run) ---------
 # Використовуємо МІНІМАЛЬНИЙ образ тільки з Java Runtime

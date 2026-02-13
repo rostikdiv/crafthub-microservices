@@ -12,7 +12,10 @@ import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
     Page<Order> findAllByUserId(UUID userId, Pageable pageable);
+
     boolean existsByUserIdAndItemsProductIdAndStatusIn(UUID userId, UUID productId, Collection<OrderStatus> statuses);
 
     boolean existsByUserIdAndSellerIdAndStatusIn(UUID userId, UUID sellerId, Collection<OrderStatus> statuses);
+
+    Page<Order> findAllBySellerId(UUID sellerId, Pageable pageable);
 }

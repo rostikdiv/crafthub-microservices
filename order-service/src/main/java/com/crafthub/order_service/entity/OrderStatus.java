@@ -4,6 +4,8 @@ public enum OrderStatus {
     // 🟡 Етап оформлення
     CREATED,
     PENDING_PAYMENT,
+    PENDING_CONFIRMATION, // Для післяплати (COD), чекає підтвердження продавця
+    CONFIRMED, // Підтверджено продавцем
 
     // 🟢 Етап успіху
     PAID, // Гроші отримано

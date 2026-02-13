@@ -37,6 +37,9 @@ public class Order {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private com.crafthub.order_service.entity.enums.PaymentMethod paymentMethod;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

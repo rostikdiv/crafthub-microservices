@@ -15,13 +15,13 @@ public record DeliveryDetailsDTO(
         DeliveryType type,
 
         // 2. Географія (Спільне для всіх крім чистого самовивозу без прив'язки)
-        String cityRef,     // "ref-lviv-np"
-        String cityName,    // "Львів"
-        String region,      // "Львівська область"
+        String cityRef, // "ref-lviv-np"
+        String cityName, // "Львів"
+        String region, // "Львівська область"
 
         // 3. Якщо BRANCH (Відділення)
-        String branchRef,   // "ref-br-1"
-        String branchName,  // "Відділення №1: ..."
+        String branchRef, // "ref-br-1"
+        String branchName, // "Відділення №1: ..."
 
         // 4. Якщо COURIER (Адресна)
         String street,
@@ -30,7 +30,7 @@ public record DeliveryDetailsDTO(
         String zipCode,
 
         // 5. Якщо SELF_PICKUP (Самовивіз)
-        UUID sellerPointId,        // ID точки в User Service
-        String pickupAddress,      // Текстова адреса (snapshot)
-        String pickupInstructions  // "Код 359"
-) {}
+        UUID sellerPointId, // ID точки в User Service
+        String pickupAddress, // Текстова адреса (snapshot)
+        String pickupInstructions) { // "Код 359"
+}

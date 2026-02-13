@@ -3,6 +3,7 @@ package com.crafthub.order_service.controller;
 import com.crafthub.order_service.dto.order.OrderRequestDTO;
 import com.crafthub.order_service.dto.order.OrderResponseDTO;
 import com.crafthub.order_service.dto.payment.PaymentResponseDTO;
+import com.crafthub.order_service.entity.OrderStatus;
 import com.crafthub.order_service.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -67,6 +68,21 @@ public class OrderController {
     @GetMapping("/check-purchase")
     public ResponseEntity<Boolean> checkPurchase(@RequestParam UUID productId) {
         return ResponseEntity.ok(orderService.hasUserPurchasedProduct(productId));
+    }
+
+    @GetMapping("/seller")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<Page<OrderResponseDTO>> getSellerOrders(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(orderService.getSellerOrders(pageable));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<OrderResponseDTO> updateOrderStatus(
+            @PathVariable UUID id,
+            @RequestParam OrderStatus status) {
+        return ResponseEntity.ok(orderService.updateOrderStatusBySeller(id, status));
     }
 
     @GetMapping("/check-seller-purchase")

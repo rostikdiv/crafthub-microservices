@@ -22,6 +22,9 @@ public class OrderItem {
     @Column(nullable = false)
     private UUID productId;
 
+    @Column(nullable = true)
+    private String name;
+
     @Column(nullable = false)
     private Integer quantity;
 
