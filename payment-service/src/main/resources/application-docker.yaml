@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-payment-db:5432/payment_service_db
+    username: crafthub
+    password: password
+  kafka:
+    bootstrap-servers: kafka:9092
+  zipkin:
+    base-url: http://zipkin:9411
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-discovery:8761/eureka/

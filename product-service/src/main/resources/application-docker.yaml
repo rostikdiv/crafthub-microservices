@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-product-db:5432/product_service_db
+    username: crafthub
+    password: password
+  kafka:
+    bootstrap-servers: kafka:9092
+  zipkin:
+    base-url: http://zipkin:9411
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-discovery:8761/eureka/
+
+minio:
+  url: http://minio:9000
+  access-key: minioadmin
+  secret-key: minioadmin

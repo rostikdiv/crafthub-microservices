@@ -1,0 +1,44 @@
+spring:
+  # 1. Вимикаємо AWS (так само, як в local)
+  autoconfigure:
+    exclude:
+      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
+      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
+      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
+      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
+  # 2. Налаштовуємо Kafka на контейнер (kafka:9092)
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: "notification-group"
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  # 3. Налаштування пошти (Копіюємо, бо вони потрібні і в докері)
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 54baf4bfea8233
+    password: 70ea0c846bc5da
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# 4. Сервіс діскавері (через ім'я контейнера)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-discovery:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# 5. Zipkin (через ім'я контейнера)
+management:
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans

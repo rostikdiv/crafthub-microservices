@@ -62,6 +62,16 @@ spring:
       - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
       - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
+  cloud:
+    aws:
+      sqs:
+        enabled: false
+      region:
+        static: us-east-1
+      credentials:
+        access-key: dummy
+        secret-key: dummy
+
   # Налаштування Kafka (тільки для local)
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}

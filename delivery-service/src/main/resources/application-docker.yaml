@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-delivery-db:5432/delivery_service_db
+    username: crafthub
+    password: password
+  kafka:
+    bootstrap-servers: kafka:9092
+  zipkin:
+    base-url: http://zipkin:9411
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-discovery:8761/eureka/
+
+application:
+  config:
+    order-url: http://order-service:8083

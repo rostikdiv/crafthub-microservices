@@ -1,0 +1,9 @@
+target/
+.mvn/
+.idea/
+*.iml
+*.log
+minio_data/
+.DS_Store
+*.class
+*.jar

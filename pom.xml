@@ -24,8 +24,8 @@
         <module>order-service</module>
         <module>notification-service</module>
         <module>cart-service</module>
-        <module>payment-service</module>
         <module>delivery-service</module>
+        <module>payment-service</module>
     </modules>
 
     <properties>
@@ -36,6 +36,7 @@
         <testcontainers.version>1.20.1</testcontainers.version>
         <micrometer-tracing.version>1.4.1</micrometer-tracing.version>
         <aws-xray.version>2.18.2</aws-xray.version>
+        <springdoc.version>2.8.5</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -136,6 +137,7 @@
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <proc>full</proc>
                         <annotationProcessorPaths>
                             <path>
                                 <groupId>org.projectlombok</groupId>
