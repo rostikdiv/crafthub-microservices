@@ -302,9 +302,12 @@ public class OrderService {
 
     // --- Seller Methods ---
 
-    public Page<OrderResponseDTO> getSellerOrders(Pageable pageable) {
-        UUID sellerId = userContext.getUserId(); // Providing seller is logged in
-        // TODO: Verify user is actually a seller? Or assume role check handles it.
+    public Page<OrderResponseDTO> getSellerOrders(OrderStatus status, Pageable pageable) {
+        UUID sellerId = userContext.getUserId();
+        if (status != null) {
+            return orderRepository.findAllBySellerIdAndStatus(sellerId, status, pageable)
+                    .map(this::mapToOrderResponseDTO);
+        }
         return orderRepository.findAllBySellerId(sellerId, pageable)
                 .map(this::mapToOrderResponseDTO);
     }
@@ -358,45 +361,16 @@ public class OrderService {
 
         boolean shouldStartSimulation = false;
 
-        if (order.getPaymentMethod() == PaymentMethod.COD) {
-            // If COD, start simulation when CONFIRMED or PREPARING
-            if (order.getStatus() == OrderStatus.CONFIRMED || order.getStatus() == OrderStatus.PREPARING) {
-                shouldStartSimulation = true;
-            }
-        } else if (order.getPaymentMethod() == PaymentMethod.CARD) {
-            // If CARD, start when PAID AND (CONFIRMED or PREPARING)
-            boolean isConfirmed = order.getStatus() == OrderStatus.CONFIRMED
-                    || order.getStatus() == OrderStatus.PREPARING;
-            boolean isPaid = order.getStatus() == OrderStatus.PAID; // Wait, OrderStatus only holds one value.
-            // Problem: OrderStatus enum handles both payment state and shipping state
-            // partially.
-            // PAID means paid but not yet shipped?
-            // Actually, we need to know if it IS paid.
-            // Let's assume if status is CONFIRMED/PREPARING, it WAS paid if it's Card?
-            // No, transition for Card: PENDING_PAYMENT -> PAID -> (Seller Confirms) ->
-            // PREPARING.
-            // So if status is PREPARING (or CONFIRMED), it implies previous steps passed.
-            // But wait, what if Seller confirms BEFORE payment?
-            // Typically seller shouldn't confirm unpaid card order.
+        // Unified Logic for both COD and CARD:
+        // 1. Initial State: PENDING_CONFIRMATION (set by createOrder for COD, or
+        // confirmOrderPayment for CARD)
+        // 2. Seller Confirms: Status -> CONFIRMED (No simulation)
+        // 3. Seller Prepares: Status -> PREPARING (Start Simulation)
 
-            // Let's refine:
-            // Flow: PENDING_PAYMENT -> PAID -> PREPARING -> DELIVERED.
-            // Flow: PENDING_CONFIRMATION -> PREPARING -> DELIVERED.
-
-            if (order.getStatus() == OrderStatus.CONFIRMED || order.getStatus() == OrderStatus.PREPARING) {
-                // For Card, ensure it was paid.
-                // We can check if previous status was PAID, or just trust that to reach
-                // PREPARING it must be valid.
-                // But wait, seller can force status check.
-                // Let's rely on the fact that for CARD, we only Auto-Deliver if status is
-                // explicitly suitable.
-                shouldStartSimulation = true;
-            }
-            // Also trigger if it JUST became PAID and was already Confirmed? (Unlikely
-            // flow)
-            // Actually, simplest rule: If status is PREPARING (or CONFIRMED for
-            // simplicity), assume ready to ship.
-            // The trigger is the status change to PREPARING/CONFIRMED.
+        if (order.getStatus() == OrderStatus.PREPARING || order.getStatus() == OrderStatus.CONFIRMED) {
+            // Trigger simulation when CONFIRMED or PREPARING.
+            // This ensures that "Confirming" an order kicks off the delivery flow.
+            shouldStartSimulation = true;
         }
 
         if (shouldStartSimulation) {
@@ -424,25 +398,16 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
-        if (order.getStatus() == OrderStatus.PAID || order.getStatus() == OrderStatus.DELIVERED) {
+        if (order.getStatus() == OrderStatus.PAID || order.getStatus() == OrderStatus.DELIVERED
+                || order.getStatus() == OrderStatus.PENDING_CONFIRMATION) {
             return;
         }
 
-        order.setStatus(OrderStatus.PAID);
+        // Changed from PAID to PENDING_CONFIRMATION to unify workflow with COD
+        order.setStatus(OrderStatus.PENDING_CONFIRMATION);
         orderRepository.save(order);
 
-        // If Payment was the missing piece and now it's PAID...
-        // Does it auto-confirm? No, seller must confirm.
-        // So we just set to PAID. Seller sees PAID order and clicks "Accept" ->
-        // PREPARING.
-        // Then checkAndScheduleDelivery triggers.
-        // What if Seller "Accepted" (PREPARING) *before* payment? (Rare but possible if
-        // UI allows).
-        // If status was already PREPARING, and now it's PAID?
-        // OrderStatus is single field. We can't be both PREPARING and PENDING_PAYMENT.
-        // So sequence is strict: PENDING_PAYMENT -> PAID -> PREPARING.
-
-        log.info("✅ Order {} status updated to PAID", orderId);
+        log.info("✅ Order {} payment confirmed. Status updated to PENDING_CONFIRMATION", orderId);
     }
 
     // ... validateDeliveryDetails ...
@@ -472,5 +437,97 @@ public class OrderService {
                 throw new BusinessException("Pickup address is required");
             }
         }
+    }
+
+    // --- Cancel & Return Logic ---
+
+    @Transactional
+    public void cancelMyOrder(UUID orderId, String reason) {
+        UUID userId = userContext.getUserId();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+
+        if (!order.getUserId().equals(userId)) {
+            throw new AccessDeniedException("You can only cancel your own orders");
+        }
+
+        // Allow cancellation only for early stages
+        if (order.getStatus() != OrderStatus.PENDING_PAYMENT &&
+                order.getStatus() != OrderStatus.PENDING_CONFIRMATION &&
+                order.getStatus() != OrderStatus.CREATED) {
+            throw new BusinessException("Cannot cancel order in status " + order.getStatus() + ". Contact support.");
+        }
+
+        log.info("Order {} cancelled by user {}. Reason: {}", orderId, userId, reason);
+        updateOrderStatus(order, OrderStatus.CANCELLED);
+
+        // Restore stock if it was reserved
+        restoreStock(order);
+    }
+
+    @Transactional
+    public void requestReturn(UUID orderId, String reason) {
+        UUID userId = userContext.getUserId();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+
+        if (!order.getUserId().equals(userId)) {
+            throw new AccessDeniedException("You can only request return for your own orders");
+        }
+
+        if (order.getStatus() != OrderStatus.DELIVERED) {
+            throw new BusinessException(
+                    "Return can only be requested for DELIVERED orders. Current status: " + order.getStatus());
+        }
+
+        log.info("Return requested for Order {} by User {}. Reason: {}", orderId, userId, reason);
+        order.setReturnReason(reason);
+        updateOrderStatus(order, OrderStatus.RETURN_REQUESTED);
+    }
+
+    @Transactional
+    public void processReturn(UUID orderId, boolean approved) {
+        UUID sellerId = userContext.getUserId();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+
+        if (!order.getSellerId().equals(sellerId)) {
+            throw new AccessDeniedException("You are not the seller of this order");
+        }
+
+        if (order.getStatus() != OrderStatus.RETURN_REQUESTED) {
+            throw new BusinessException("Order is not in RETURN_REQUESTED state");
+        }
+
+        OrderStatus newStatus = approved ? OrderStatus.RETURN_APPROVED : OrderStatus.RETURN_REJECTED;
+        log.info("Seller {} processed return for Order {}. Decision: {}", sellerId, orderId, newStatus);
+
+        updateOrderStatus(order, newStatus);
+    }
+
+    @Transactional
+    public void completeReturn(UUID orderId) {
+        UUID sellerId = userContext.getUserId();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
+
+        if (!order.getSellerId().equals(sellerId)) {
+            throw new AccessDeniedException("You are not the seller of this order");
+        }
+
+        if (order.getStatus() != OrderStatus.RETURN_APPROVED) {
+            throw new BusinessException("Return must be APPROVED before completing refund.");
+        }
+
+        log.info("Seller {} completing return for Order {}. Status -> REFUNDED.", sellerId, orderId);
+        updateOrderStatus(order, OrderStatus.REFUNDED);
+
+        // Restore stock since item is returned
+        restoreStock(order);
+    }
+
+    private void updateOrderStatus(Order order, OrderStatus newStatus) {
+        order.setStatus(newStatus);
+        orderRepository.save(order);
     }
 }

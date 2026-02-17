@@ -47,6 +47,9 @@ public class Order {
     @Column(columnDefinition = "jsonb")
     private DeliveryDetailsDTO deliveryInfo;
 
+    @Column(length = 1000)
+    private String returnReason;
+
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();

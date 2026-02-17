@@ -20,6 +20,12 @@ public enum OrderStatus {
     // 🔴 Етап скасування
     PAYMENT_FAILED,
     CANCELLED,
+
+    // ↩️ Повернення
+    RETURN_REQUESTED,
+    RETURN_APPROVED,
+    RETURN_REJECTED,
+
     REFUNDING,
     REFUNDED
 }

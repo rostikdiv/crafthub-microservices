@@ -23,7 +23,17 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
-    private final com.crafthub.order_service.service.ReturnService returnService;
+    // private final com.crafthub.order_service.service.ReturnService returnService;
+    // // Removed
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAuthority('order:create')")
+    public ResponseEntity<Void> cancelOrder(
+            @PathVariable UUID id,
+            @RequestBody(required = false) String reason) { // Reason is optional
+        orderService.cancelMyOrder(id, reason);
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping
     @PreAuthorize("hasAuthority('order:create')")
@@ -33,18 +43,31 @@ public class OrderController {
 
     @PostMapping("/{id}/return")
     @PreAuthorize("hasAuthority('order:create')")
-    public ResponseEntity<com.crafthub.order_service.dto.order.ReturnResponseDTO> requestReturn(
+    public ResponseEntity<Void> requestReturn(
             @PathVariable UUID id,
-            @RequestBody com.crafthub.order_service.dto.order.ReturnRequestDTO request) {
-        return ResponseEntity.ok(returnService.requestReturn(id, request));
+            @RequestBody SimpleReturnRequest request) {
+        orderService.requestReturn(id, request.reason());
+        return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/returns/{returnId}/approve")
-    @PreAuthorize("hasAuthority('order:approve')") // Or generic admin role
-    public ResponseEntity<com.crafthub.order_service.dto.order.ReturnResponseDTO> approveReturn(
-            @PathVariable UUID returnId,
+    @PutMapping("/{id}/return/process")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<Void> processReturn(
+            @PathVariable UUID id,
             @RequestParam boolean approved) {
-        return ResponseEntity.ok(returnService.approveReturn(returnId, approved));
+        orderService.processReturn(id, approved);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/return/complete")
+    @PreAuthorize("hasRole('SELLER')")
+    public ResponseEntity<Void> completeReturn(
+            @PathVariable UUID id) {
+        orderService.completeReturn(id);
+        return ResponseEntity.ok().build();
+    }
+
+    public record SimpleReturnRequest(String reason) {
     }
 
     @GetMapping("/my")
@@ -73,8 +96,9 @@ public class OrderController {
     @GetMapping("/seller")
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Page<OrderResponseDTO>> getSellerOrders(
+            @RequestParam(required = false) OrderStatus status,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(orderService.getSellerOrders(pageable));
+        return ResponseEntity.ok(orderService.getSellerOrders(status, pageable));
     }
 
     @PatchMapping("/{id}/status")

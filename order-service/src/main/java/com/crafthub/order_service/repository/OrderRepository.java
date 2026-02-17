@@ -18,4 +18,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
     boolean existsByUserIdAndSellerIdAndStatusIn(UUID userId, UUID sellerId, Collection<OrderStatus> statuses);
 
     Page<Order> findAllBySellerId(UUID sellerId, Pageable pageable);
+
+    Page<Order> findAllBySellerIdAndStatus(UUID sellerId, OrderStatus status, Pageable pageable);
 }

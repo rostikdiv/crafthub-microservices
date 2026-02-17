@@ -128,9 +128,10 @@ public class ReturnService {
         // Але в плані було "Змінити статус на REFUNDING". Давайте змінимо, якщо це
         // повернення.
         // Або краще не чіпати глобальний статус замовлення, якщо повернення часткове.
-        // Для MVP змінимо статус замовлення на REFUNDING.
-        order.setStatus(OrderStatus.REFUNDING); // Потрібно додати цей статус в OrderStatus.java, якщо його там немає
-                                                // (ми додавали)
+        // Для MVP змінимо статус замовлення на RETURN_REQUESTED.
+        order.setStatus(OrderStatus.RETURN_REQUESTED); // Потрібно додати цей статус в OrderStatus.java, якщо його там
+                                                       // немає
+        // (ми додавали)
         orderRepository.save(order);
 
         return new ReturnResponseDTO(
