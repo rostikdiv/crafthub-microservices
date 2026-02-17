@@ -59,7 +59,8 @@ public class ShipmentService {
         shipmentRepository.save(shipment);
         log.info("✅ Shipment created successfully with ID: {}", shipment.getId());
 
-        simulateDelivery(shipment.getId());
+        // simulateDelivery(shipment.getId()); // Disable auto-simulation to allow
+        // OrderService to control flow via Seller Confirmation
     }
 
     @Transactional(readOnly = true)

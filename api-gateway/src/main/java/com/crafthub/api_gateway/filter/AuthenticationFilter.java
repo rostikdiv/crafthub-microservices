@@ -56,11 +56,22 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     String role = claims.get("role", String.class);
                     String email = claims.getSubject();
                     List<String> permissions = claims.get("permissions", List.class);
-                    String permissionsStr = permissions != null ? String.join(",", permissions) : "";
+                    if (permissions == null) {
+                        permissions = new java.util.ArrayList<>();
+                    } else {
+                        permissions = new java.util.ArrayList<>(permissions);
+                    }
+
+                    if (role != null && !role.isEmpty()) {
+                        permissions.add("ROLE_" + role);
+                    }
+
+                    String permissionsStr = String.join(",", permissions);
                     String isVerified = String.valueOf(claims.get("isVerified"));
 
                     System.out.println("✅ TOKEN VALID. User: " + email + ", Role: " + role);
-                    System.out.println("👉 ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions=[" + permissionsStr.length() + " chars]");
+                    System.out.println("👉 ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions=["
+                            + permissionsStr.length() + " chars]");
 
                     // 🔥 МУТАЦІЯ ЗАПИТУ
                     ServerHttpRequest modifiedRequest = request.mutate()
