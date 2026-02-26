@@ -36,6 +36,7 @@ public class ProfileService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
+
     // --- 1. Створення профілю Продавця ---
     @Transactional
     public void createSellerProfile(SellerProfileRequestDTO dto) {
@@ -77,7 +78,6 @@ public class ProfileService {
         militaryProfileRepository.save(profile);
     }
 
-
     @Transactional
     public void updateSellerProfile(SellerProfileRequestDTO dto) {
         User user = getCurrentUser();
@@ -94,5 +94,20 @@ public class ProfileService {
         // taxId зазвичай не змінюють просто так, бо це вимагає нової верифікації
 
         sellerProfileRepository.save(profile);
+    }
+
+    // --- 4. Завантаження документів верифікації ---
+    @Transactional
+    public void addVerificationDocument(VerificationDocRequestDTO dto) {
+        User user = getCurrentUser();
+
+        VerificationDoc doc = VerificationDoc.builder()
+                .user(user)
+                .documentType(dto.documentType())
+                .docUrl(dto.docUrl())
+                .status(VerificationStatus.PENDING)
+                .build();
+
+        verificationDocRepository.save(doc);
     }
 }

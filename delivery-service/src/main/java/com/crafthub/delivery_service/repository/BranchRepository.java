@@ -10,4 +10,9 @@ public interface BranchRepository extends JpaRepository<Branch, UUID> {
 
     // Знайти всі відділення у конкретному місті
     List<Branch> findByLocationId(UUID locationId);
+
+    // Знайти всі відділення певного провайдера (для адмінки)
+    org.springframework.data.domain.Page<Branch> findByLocationProvider(
+            com.crafthub.delivery_service.entity.DeliveryProvider provider,
+            org.springframework.data.domain.Pageable pageable);
 }

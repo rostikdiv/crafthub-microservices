@@ -18,7 +18,15 @@ public class LocationController {
 
     private final LocationService locationService;
 
-    // КРОК 0: Отримати список областей
+    // КРОК 0: Отримати всі локації (для адмінки)
+    // GET /api/v1/delivery/locations
+    @GetMapping
+    public ResponseEntity<org.springframework.data.domain.Page<LocationResponseDTO>> getAllLocations(
+            @org.springframework.data.web.PageableDefault(size = 20, sort = "nameUkr") org.springframework.data.domain.Pageable pageable) {
+        return ResponseEntity.ok(locationService.getAllLocations(pageable));
+    }
+
+    // КРОК 1: Отримати список областей
     // GET /api/v1/delivery/locations/regions?provider=NOVA_POSHTA
     @GetMapping("/regions")
     public ResponseEntity<List<String>> getRegions(@RequestParam DeliveryProvider provider) {
@@ -52,5 +60,46 @@ public class LocationController {
             @RequestBody List<com.crafthub.delivery_service.dto.request.LocationCreateDTO> locations) {
         locationService.importLocations(locations);
         return ResponseEntity.ok("Imported " + locations.size() + " locations");
+    }
+
+    // КРОК 4: Оновити локацію
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateLocation(
+            @PathVariable UUID id,
+            @RequestBody com.crafthub.delivery_service.dto.request.LocationUpdateDTO dto) {
+        locationService.updateLocation(id, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    // КРОК 5: Видалити локацію
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLocation(@PathVariable UUID id) {
+        locationService.deleteLocation(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // КРОК 6: Отримати всі відділення (Global Search)
+    // GET /api/v1/delivery/locations/branches/all?provider=NOVA_POSHTA
+    @GetMapping("/branches/all")
+    public ResponseEntity<org.springframework.data.domain.Page<BranchResponseDTO>> getAllBranches(
+            @RequestParam DeliveryProvider provider,
+            @org.springframework.data.web.PageableDefault(size = 20) org.springframework.data.domain.Pageable pageable) {
+        return ResponseEntity.ok(locationService.getAllBranches(provider, pageable));
+    }
+
+    // КРОК 7: Оновити відділення
+    @PutMapping("/branches/{id}")
+    public ResponseEntity<Void> updateBranch(
+            @PathVariable UUID id,
+            @RequestBody com.crafthub.delivery_service.dto.request.BranchUpdateDTO dto) {
+        locationService.updateBranch(id, dto);
+        return ResponseEntity.ok().build();
+    }
+
+    // КРОК 8: Видалити відділення
+    @DeleteMapping("/branches/{id}")
+    public ResponseEntity<Void> deleteBranch(@PathVariable UUID id) {
+        locationService.deleteBranch(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -45,6 +45,14 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<LocationResponseDTO> getAllLocations(
+            org.springframework.data.domain.Pageable pageable) {
+        return locationRepository.findAll(pageable)
+                .map(loc -> new LocationResponseDTO(
+                        loc.getId(), loc.getExternalId(), loc.getNameUkr(), loc.getRegion()));
+    }
+
+    @Transactional(readOnly = true)
     public List<BranchResponseDTO> getBranchesByCity(UUID cityId) {
         return branchRepository.findByLocationId(cityId)
                 .stream()
@@ -100,6 +108,9 @@ public class LocationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Location not found")); // ✅
         location.setNameUkr(dto.nameUkr());
         location.setRegion(dto.region());
+        if (dto.provider() != null) {
+            location.setProvider(dto.provider());
+        }
     }
 
     @Transactional
@@ -124,5 +135,19 @@ public class LocationService {
             throw new ResourceNotFoundException("Branch not found"); // ✅
         }
         branchRepository.deleteById(branchId);
+    }
+
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<BranchResponseDTO> getAllBranches(
+            DeliveryProvider provider,
+            org.springframework.data.domain.Pageable pageable) {
+
+        return branchRepository.findByLocationProvider(provider, pageable)
+                .map(branch -> new BranchResponseDTO(
+                        branch.getId(),
+                        branch.getExternalId(),
+                        branch.getBranchNumber(),
+                        // Combine City + Branch Name for full context
+                        branch.getLocation().getNameUkr() + ", " + branch.getName()));
     }
 }

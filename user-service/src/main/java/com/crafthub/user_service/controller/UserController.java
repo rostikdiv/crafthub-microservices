@@ -28,8 +28,11 @@ public class UserController {
     // Отримати всіх користувачів (Тільки для Адміна)
     @GetMapping
     @PreAuthorize("hasAuthority('user:ban')") // або ROLE_ADMIN
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public ResponseEntity<List<com.crafthub.user_service.dto.UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(
+                userRepository.findAll().stream()
+                        .map(user -> userService.getUserByIdWithProfiles(user.getId()))
+                        .toList());
     }
 
     @GetMapping("/{id}")
