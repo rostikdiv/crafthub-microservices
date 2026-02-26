@@ -2,6 +2,7 @@ package com.crafthub.order_service.entity;
 
 import com.crafthub.order_service.entity.enums.ReturnReason;
 import com.crafthub.order_service.entity.enums.ReturnStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +26,7 @@ public class OrderReturn {
     // Зв'язок з замовленням
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnore
     private Order order;
 
     // ID конкретного OrderItem, який повертають (спрощення: повертаємо по одній

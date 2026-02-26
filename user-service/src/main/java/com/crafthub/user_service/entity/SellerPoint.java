@@ -2,6 +2,7 @@ package com.crafthub.user_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
 @Entity
@@ -19,6 +20,7 @@ public class SellerPoint {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_profile_id", nullable = false)
+    @JsonIgnore
     private SellerProfile sellerProfile;
 
     @Column(nullable = false)

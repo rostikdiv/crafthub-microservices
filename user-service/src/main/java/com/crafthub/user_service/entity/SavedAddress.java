@@ -2,6 +2,7 @@ package com.crafthub.user_service.entity;
 
 import com.crafthub.user_service.entity.enums.DeliveryProvider;
 import com.crafthub.user_service.entity.enums.DeliveryType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class SavedAddress {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     private String title; // "Дім", "Робота"
