@@ -18,25 +18,37 @@ public class LocationController {
 
     private final LocationService locationService;
 
-    // КРОК 0: Отримати всі локації (для адмінки)
-    // GET /api/v1/delivery/locations
+    /**
+     * Retrieves all locations. Useful for administrative views.
+     *
+     * @param pageable pagination and sorting information
+     * @return a paginated list of locations
+     */
     @GetMapping
     public ResponseEntity<org.springframework.data.domain.Page<LocationResponseDTO>> getAllLocations(
             @org.springframework.data.web.PageableDefault(size = 20, sort = "nameUkr") org.springframework.data.domain.Pageable pageable) {
         return ResponseEntity.ok(locationService.getAllLocations(pageable));
     }
 
-    // КРОК 1: Отримати список областей
-    // GET /api/v1/delivery/locations/regions?provider=NOVA_POSHTA
+    /**
+     * Retrieves a list of regions for a specific delivery provider.
+     *
+     * @param provider the delivery provider (e.g., NOVA_POSHTA)
+     * @return a list of region names
+     */
     @GetMapping("/regions")
     public ResponseEntity<List<String>> getRegions(@RequestParam DeliveryProvider provider) {
         return ResponseEntity.ok(locationService.getRegions(provider));
     }
 
-    // КРОК 1: Отримати міста (пошук по назві + провайдер + область)
-    // GET
-    // /api/v1/delivery/locations/cities?provider=NOVA_POSHTA&query=Льві&region=Львівська
-    // область
+    /**
+     * Searches for cities based on name, provider, and optionally region.
+     *
+     * @param provider the delivery provider
+     * @param query    search term for the city name
+     * @param region   (optional) the region to filter by
+     * @return a list of matching locations
+     */
     @GetMapping("/cities")
     public ResponseEntity<List<LocationResponseDTO>> searchCities(
             @RequestParam DeliveryProvider provider,
@@ -45,16 +57,24 @@ public class LocationController {
         return ResponseEntity.ok(locationService.searchCities(provider, query, region));
     }
 
-    // КРОК 2: Отримати відділення (по ID міста)
-    // GET /api/v1/delivery/locations/branches?cityId=...
+    /**
+     * Retrieves branches for a specific city.
+     *
+     * @param cityId the unique identifier of the city/location
+     * @return a list of branches in the specified city
+     */
     @GetMapping("/branches")
     public ResponseEntity<List<BranchResponseDTO>> getBranches(
             @RequestParam UUID cityId) {
         return ResponseEntity.ok(locationService.getBranchesByCity(cityId));
     }
 
-    // КРОК 3: Імпорт даних (для тестування)
-    // POST /api/v1/delivery/locations/import
+    /**
+     * Imports location and branch data. Primary used for initial seeding/testing.
+     *
+     * @param locations list of location and branch data to import
+     * @return a confirmation message
+     */
     @PostMapping("/import")
     public ResponseEntity<String> importLocations(
             @RequestBody List<com.crafthub.delivery_service.dto.request.LocationCreateDTO> locations) {
@@ -62,7 +82,13 @@ public class LocationController {
         return ResponseEntity.ok("Imported " + locations.size() + " locations");
     }
 
-    // КРОК 4: Оновити локацію
+    /**
+     * Updates an existing location's details.
+     *
+     * @param id  the unique identifier of the location
+     * @param dto updated location data
+     * @return an empty ResponseEntity
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateLocation(
             @PathVariable UUID id,
@@ -71,15 +97,25 @@ public class LocationController {
         return ResponseEntity.ok().build();
     }
 
-    // КРОК 5: Видалити локацію
+    /**
+     * Deletes a location and its associated branches.
+     *
+     * @param id the unique identifier of the location
+     * @return an empty ResponseEntity
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLocation(@PathVariable UUID id) {
         locationService.deleteLocation(id);
         return ResponseEntity.noContent().build();
     }
 
-    // КРОК 6: Отримати всі відділення (Global Search)
-    // GET /api/v1/delivery/locations/branches/all?provider=NOVA_POSHTA
+    /**
+     * Performs a global search for all branches of a specific provider.
+     *
+     * @param provider the delivery provider
+     * @param pageable pagination information
+     * @return a paginated list of branches
+     */
     @GetMapping("/branches/all")
     public ResponseEntity<org.springframework.data.domain.Page<BranchResponseDTO>> getAllBranches(
             @RequestParam DeliveryProvider provider,
@@ -87,7 +123,13 @@ public class LocationController {
         return ResponseEntity.ok(locationService.getAllBranches(provider, pageable));
     }
 
-    // КРОК 7: Оновити відділення
+    /**
+     * Updates an existing branch's details.
+     *
+     * @param id  the unique identifier of the branch
+     * @param dto updated branch data
+     * @return an empty ResponseEntity
+     */
     @PutMapping("/branches/{id}")
     public ResponseEntity<Void> updateBranch(
             @PathVariable UUID id,
@@ -96,7 +138,12 @@ public class LocationController {
         return ResponseEntity.ok().build();
     }
 
-    // КРОК 8: Видалити відділення
+    /**
+     * Deletes a specific branch.
+     *
+     * @param id the unique identifier of the branch
+     * @return an empty ResponseEntity
+     */
     @DeleteMapping("/branches/{id}")
     public ResponseEntity<Void> deleteBranch(@PathVariable UUID id) {
         locationService.deleteBranch(id);

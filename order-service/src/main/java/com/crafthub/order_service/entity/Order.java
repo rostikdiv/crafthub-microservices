@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entity representing an order.
+ * Stores information about the user, seller, items, status, and delivery
+ * details.
+ */
 @Entity
 @Table(name = "orders")
 @Getter

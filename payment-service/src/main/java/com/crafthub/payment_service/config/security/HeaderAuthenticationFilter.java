@@ -15,6 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Filter that extracts user identity and permissions from HTTP headers.
+ * These headers are expected to be propagated from the API Gateway or internal
+ * microservices.
+ */
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
@@ -34,10 +39,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             }
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    userId,
-                    null,
-                    authorities
-            );
+                    userId, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         chain.doFilter(request, response);

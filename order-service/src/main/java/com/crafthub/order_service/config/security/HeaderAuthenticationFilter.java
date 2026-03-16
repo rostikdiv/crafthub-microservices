@@ -15,7 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Цей фільтр бере заголовок X-User-Permissions і створює SecurityContext
+/**
+ * Filter to extract user context and permissions from HTTP headers.
+ * Populates the Spring SecurityContext based on headers provided by the API
+ * Gateway.
+ */
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
@@ -27,7 +31,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Перетворюємо рядок "product:create,order:read" у список Authority
+            // Convert permission string (e.g., "product:create,order:read") to authorities
             List<SimpleGrantedAuthority> authorities = Collections.emptyList();
 
             if (permissionsHeader != null && !permissionsHeader.isEmpty()) {
@@ -36,12 +40,11 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
                         .collect(Collectors.toList());
             }
 
-            // Створюємо аутентифікацію (пароль null, бо ми довіряємо Gateway)
+            // Create authentication token (password is null as we trust the gateway)
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,
-                    authorities
-            );
+                    authorities);
 
             SecurityContextHolder.getContext().setAuthentication(auth);
         }

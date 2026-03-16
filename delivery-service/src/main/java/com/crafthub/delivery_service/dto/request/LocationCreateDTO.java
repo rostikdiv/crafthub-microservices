@@ -3,10 +3,14 @@ package com.crafthub.delivery_service.dto.request;
 import com.crafthub.delivery_service.entity.DeliveryProvider;
 import java.util.List;
 
+/**
+ * Data Transfer Object for creating a new location.
+ */
 public record LocationCreateDTO(
-        DeliveryProvider provider, // NOVA_POSHTA
-        String externalId,         // "ref-lviv-np"
-        String nameUkr,            // "Львів"
-        String region,             // "Львівська область"
-        List<BranchCreateDTO> branches // Вкладений список відділень
-) {}
+                DeliveryProvider provider, // e.g., NOVA_POSHTA
+                String externalId, // Carrier-specific reference
+                String nameUkr, // Ukrainian city name
+                String region, // Region name
+                List<BranchCreateDTO> branches // Nested list of branches to import
+) {
+}

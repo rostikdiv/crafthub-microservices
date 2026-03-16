@@ -1,5 +1,5 @@
 # ======================================================
-# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# === GENERAL CONFIGURATION ===
 # ======================================================
 server:
   port: 8080
@@ -12,13 +12,14 @@ spring:
 
   cloud:
     gateway:
-      server: # ✅ Новий рівень вкладеності
-        webflux: # ✅ Новий рівень вкладеності (для реактивного стеку)
+      server:
+        webflux:
           discovery:
             locator:
               enabled: true
               lower-case-service-id: true
           routes:
+            # Route for User Service (Auth, Profile, Admin)
             - id: user_service_route
               uri: lb://user-service
               predicates:
@@ -26,6 +27,7 @@ spring:
               filters:
                 - AuthenticationFilter
 
+            # Route for Product Service (Catalog, Reviews)
             - id: product_service_route
               uri: lb://product-service
               predicates:
@@ -33,6 +35,7 @@ spring:
               filters:
                 - AuthenticationFilter
 
+            # Route for Order Service
             - id: order_service_route
               uri: lb://order-service
               predicates:
@@ -40,6 +43,7 @@ spring:
               filters:
                 - AuthenticationFilter
 
+            # Route for Cart Service
             - id: cart_service_route
               uri: lb://cart-service
               predicates:
@@ -47,6 +51,7 @@ spring:
               filters:
                 - AuthenticationFilter
 
+            # Route for Payment Service
             - id: payment_service_route
               uri: lb://payment-service
               predicates:
@@ -54,6 +59,7 @@ spring:
               filters:
                 - AuthenticationFilter
 
+            # Route for Delivery Service
             - id: delivery_service_route
               uri: lb://delivery-service
               predicates:
@@ -75,6 +81,7 @@ logging:
 application:
   security:
     jwt:
+      # JWT signature key and expiration (standardized across services)
       secret-key: ${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}
       expiration: ${JWT_EXPIRATION:86400000}
 
@@ -102,13 +109,14 @@ springdoc:
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "local" (Zipkin) ===
+# === PROFILE: "local" (Zipkin) ===
 # ======================================================
 spring:
   config:
     activate:
       on-profile: local
 
+  # Disable AWS components locally
   autoconfigure:
     exclude:
       - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
@@ -134,7 +142,7 @@ aws:
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "aws" (X-Ray) ===
+# === PROFILE: "aws" (X-Ray) ===
 # ======================================================
 spring:
   config:
@@ -148,9 +156,9 @@ spring:
       - org.springframework.cloud.client.discovery.DiscoveryClientAutoConfiguration
   cloud:
     discovery:
-      enabled: false
+      enabled: false # Using native AWS service discovery
     gateway:
-      server: # ✅ Тут теж оновлюємо для AWS профілю
+      server:
         webflux:
           discovery:
             locator:
@@ -189,4 +197,3 @@ aws:
 
 management:
     enabled: false
-

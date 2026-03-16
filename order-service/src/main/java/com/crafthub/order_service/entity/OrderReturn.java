@@ -10,6 +10,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Entity representing a product return request for an order.
+ */
 @Entity
 @Table(name = "order_returns")
 @Getter
@@ -23,14 +26,14 @@ public class OrderReturn {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // Зв'язок з замовленням
+    // Link to the order
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     @JsonIgnore
     private Order order;
 
-    // ID конкретного OrderItem, який повертають (спрощення: повертаємо по одній
-    // позиції)
+    // ID of the specific OrderItem being returned (MVP simplification: one item per
+    // request)
     @Column(nullable = false)
     private Long orderItemId;
 
@@ -48,24 +51,24 @@ public class OrderReturn {
     @Column(nullable = false)
     private ReturnStatus status;
 
-    // --- Фінансова інформація ---
+    // --- Financial Information ---
 
-    // Ціна, за яку товар купували (з врахуванням знижок на момент покупки)
+    // Price at which the item was purchased (including discounts)
     @Column(nullable = false)
     private BigDecimal itemPriceSnapshot;
 
-    // Вартість зворотної доставки (якщо є)
+    // Return shipping cost (if applicable)
     private BigDecimal returnShippingCost;
 
-    // Фінальна сума до виплати
+    // Final refund amount to be paid back
     @Column(nullable = false)
     private BigDecimal finalRefundAmount;
 
-    // Чи було знято кошти за доставку з суми повернення
+    // Whether shipping costs were deducted from the refund amount
     @Builder.Default
     private boolean isShippingDeducted = false;
 
-    // ТТН зворотної доставки (з Delivery Service)
+    // Tracking number for return shipment (from Delivery Service)
     private String returnTrackingNumber;
     private UUID returnShipmentId;
 

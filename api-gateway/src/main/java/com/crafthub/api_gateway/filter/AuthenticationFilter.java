@@ -12,7 +12,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.ArrayList;
 
+/**
+ * Custom gateway filter for authenticating incoming requests via JWT.
+ * Extracts claims and forwards them to downstream microservices as HTTP
+ * headers.
+ */
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
@@ -26,12 +32,15 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         super(Config.class);
     }
 
+    /**
+     * Applies the authentication logic to the gateway exchange.
+     */
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            // Логуємо вхідний запит
+            // Check if the route requires authentication
             if (validator.isSecured.test(request)) {
                 System.out.println("🔒 SECURED REQUEST: " + request.getURI());
 
@@ -49,19 +58,22 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 }
 
                 try {
+                    // Validates the token and extracts claims
                     jwtUtil.validateToken(authHeader);
 
                     Claims claims = jwtUtil.getAllClaimsFromToken(authHeader);
                     String userId = claims.get("id", String.class);
                     String role = claims.get("role", String.class);
                     String email = claims.getSubject();
+
                     List<String> permissions = claims.get("permissions", List.class);
                     if (permissions == null) {
-                        permissions = new java.util.ArrayList<>();
+                        permissions = new ArrayList<>();
                     } else {
-                        permissions = new java.util.ArrayList<>(permissions);
+                        permissions = new ArrayList<>(permissions);
                     }
 
+                    // Prepend ROLE_ to the user role for Spring Security compatibility downstream
                     if (role != null && !role.isEmpty()) {
                         permissions.add("ROLE_" + role);
                     }
@@ -70,10 +82,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     String isVerified = String.valueOf(claims.get("isVerified"));
 
                     System.out.println("✅ TOKEN VALID. User: " + email + ", Role: " + role);
-                    System.out.println("👉 ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions=["
-                            + permissionsStr.length() + " chars]");
+                    System.out.println("👉 ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions (length="
+                            + permissionsStr.length() + ")");
 
-                    // 🔥 МУТАЦІЯ ЗАПИТУ
+                    // Mutate the request to include user identity headers
                     ServerHttpRequest modifiedRequest = request.mutate()
                             .header("X-User-Id", userId)
                             .header("X-User-Role", role)
@@ -82,12 +94,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                             .header("X-User-Is-Verified", isVerified)
                             .build();
 
-                    // Передаємо далі
                     return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
                 } catch (Exception e) {
                     System.out.println("❌ UNAUTHORIZED: " + e.getMessage());
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access");
                 }
             } else {
                 System.out.println("🔓 OPEN REQUEST: " + request.getURI());
@@ -98,5 +109,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     }
 
     public static class Config {
+        // Configuration properties can be added here
     }
 }

@@ -10,37 +10,42 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 
+/**
+ * Configuration for Redis caching.
+ */
 @Configuration
 public class RedisConfig {
 
     @Bean
     public RedisCacheConfiguration cacheConfiguration() {
         return RedisCacheConfiguration.defaultCacheConfig()
-                // ❗️ Це опціонально, але гарна практика: встановити час життя кешу
+                // Optional but good practice: set cache time-to-live (TTL)
                 .entryTtl(Duration.ofMinutes(10))
 
-                // ❗️ Головне виправлення (Ключ):
-                // Ключі (наприклад, "products::1") будуть зберігатися як звичайні рядки.
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                // Key serialization fix:
+                // Keys (e.g., "products::1") will be stored as plain strings.
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 
-                // ❗️ Головне виправлення (Значення):
-                // Значення (наш ProductResponseDTO) будуть зберігатися як JSON.
-                // GenericJackson2JsonRedisSerializer чудово працює з Records та Optionals.
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
+                // Values serialization fix:
+                // Values (our ProductResponseDTO) will be stored as JSON.
+                // GenericJackson2JsonRedisSerializer works well with Records and Optionals.
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                        .fromSerializer(new GenericJackson2JsonRedisSerializer()))
 
-                // Не кешувати 'null' значення (якщо Optional порожній)
+                // Do not cache 'null' values (if Optional is empty)
                 .disableCachingNullValues();
     }
 
-    // Цей бін автоматично застосує нашу конфігурацію 'cacheConfiguration'
-    // до всіх @Cacheable, які ми створюємо.
+    // This bean automatically applies 'cacheConfiguration' to all @Cacheable
+    // annotations we create.
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return (builder) -> builder
                 .withCacheConfiguration("products",
                         cacheConfiguration().entryTtl(Duration.ofMinutes(30)));
 
-        // Тут ми можемо додати специфічні конфігурації для інших кешів,
-        // наприклад, .withCacheConfiguration("users", ...);
+        // Here we can add specific configurations for other caches, e.g.,
+        // .withCacheConfiguration("users", ...);
     }
 }

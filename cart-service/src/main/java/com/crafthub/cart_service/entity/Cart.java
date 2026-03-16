@@ -10,6 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * MongoDB document representing a user's shopping cart.
+ * Carts are structured into sections by seller to facilitate checkout and
+ * display.
+ */
 @Document(collection = "carts")
 @Getter
 @Setter
@@ -18,16 +23,29 @@ import java.util.UUID;
 @Builder
 public class Cart {
 
+    /**
+     * Unique identifier for the cart, corresponding to the user ID.
+     */
     @Id
     private UUID userId;
 
+    /**
+     * List of cart sections, grouped by seller.
+     */
     @Builder.Default
     private List<CartSection> sections = new ArrayList<>();
 
+    /**
+     * Total price of all items in the cart across all sections.
+     */
     @Builder.Default
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
-    @Transient // ⚠️ Це поле НЕ буде створювати колонку в БД
+    /**
+     * Transient flag indicating if the cart data has been synchronized with the
+     * Product Service.
+     */
+    @Transient
     @Builder.Default
     private boolean isDataUpToDate = true;
 }

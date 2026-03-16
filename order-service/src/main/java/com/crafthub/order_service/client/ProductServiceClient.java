@@ -9,8 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
-// name: назва сервісу в Eureka
-// path: базовий шлях API продуктів
+/**
+ * Feign client for the Product Service.
+ * Provides endpoints for retrieving product information and managing stock.
+ */
 @FeignClient(name = "product-service", path = "/api/v1/products")
 public interface ProductServiceClient {
 

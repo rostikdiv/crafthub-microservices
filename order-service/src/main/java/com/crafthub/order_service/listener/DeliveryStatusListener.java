@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener for delivery status update events from Kafka.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -16,6 +19,12 @@ public class DeliveryStatusListener {
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Handles delivery status change events.
+     * Parses the message and updates the corresponding order status.
+     *
+     * @param message The JSON message from Kafka.
+     */
     @KafkaListener(topics = "delivery-status-topic", groupId = "order-service-group")
     public void handleDeliveryStatusChange(String message) {
         try {

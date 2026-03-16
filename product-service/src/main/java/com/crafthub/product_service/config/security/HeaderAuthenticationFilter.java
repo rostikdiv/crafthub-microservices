@@ -15,6 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Custom security filter that extracts user identity and permissions from HTTP
+ * headers.
+ * These headers are expected to be set by the API Gateway.
+ */
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
@@ -24,7 +29,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         String userId = request.getHeader("X-User-Id");
         String permissionsHeader = request.getHeader("X-User-Permissions");
 
-        // Для налагодження (можна видалити потім)
+        // For debugging (can be removed later)
         if (userId != null) {
             System.out.println("🛡️ [ProductService] User: " + userId);
             System.out.println("🛡️ [ProductService] Raw Permissions: " + permissionsHeader);
@@ -36,8 +41,8 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
             if (permissionsHeader != null && !permissionsHeader.isEmpty()) {
                 authorities = Arrays.stream(permissionsHeader.split(","))
-                        .map(String::trim) // 🔥🔥🔥 ОСЬ ЦЬОГО НЕ ВИСТАЧАЛО!
-                        .filter(s -> !s.isEmpty()) // Пропускаємо порожні, якщо є ,,
+                        .map(String::trim) // Trim whitespace to handle multiple permissions
+                        .filter(s -> !s.isEmpty()) // Skip empty segments if any
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
             }
@@ -47,8 +52,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,
-                    authorities
-            );
+                    authorities);
 
             SecurityContextHolder.getContext().setAuthentication(auth);
         }

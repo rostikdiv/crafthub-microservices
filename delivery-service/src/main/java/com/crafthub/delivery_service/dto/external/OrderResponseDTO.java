@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.util.UUID;
 
+/**
+ * Data Transfer Object representing an order retrieved from Order Service.
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,6 +18,6 @@ import java.util.UUID;
 public class OrderResponseDTO {
     private UUID id;
     private UUID userId;
-    // Ми приймаємо це поле як об'єкт (Spring автоматично розпарсить JSON)
+    // Delivery information object (automatically parsed from JSON)
     private DeliveryDetailsDTO deliveryInfo;
 }

@@ -1,4 +1,4 @@
-package com.crafthub.product_service.config; // ⚠️ Змініть пакет під конкретний сервіс!
+package com.crafthub.product_service.config;
 
 import com.crafthub.product_service.exception.BusinessException;
 import com.crafthub.product_service.exception.ResourceNotFoundException;
@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Custom Feign error decoder that extracts error messages from external service
+ * responses
+ * and translates them into local application exceptions.
+ */
 public class RetreiveMessageErrorDecoder implements ErrorDecoder {
 
     private final ErrorDecoder defaultErrorDecoder = new Default();
@@ -18,7 +23,7 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
         String errorMessage = null;
         try (InputStream bodyIs = response.body().asInputStream()) {
-            // Читаємо текст помилки, яку повернув інший сервіс
+            // Read error text returned by the external service
             if (bodyIs != null) {
                 errorMessage = StreamUtils.copyToString(bodyIs, StandardCharsets.UTF_8);
             }
@@ -26,7 +31,7 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
             errorMessage = "Failed to process error response";
         }
 
-        // Якщо повідомлення порожнє, ставимо дефолтне
+        // fallback to default if message is empty
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorMessage = "Unknown error from external service";
         }
@@ -34,14 +39,14 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
         switch (response.status()) {
             case 400:
                 // 400 Bad Request -> BusinessException
-                // Наприклад: "Недостатньо товару на складі"
+                // Example: "Insufficient stock"
                 return new BusinessException(errorMessage);
             case 404:
                 // 404 Not Found -> ResourceNotFoundException
-                // Наприклад: "Product not found"
+                // Example: "Product not found"
                 return new ResourceNotFoundException(errorMessage);
             default:
-                // Всі інші помилки (500, 403) обробляються стандартно
+                // All other errors (500, 403) are handled by the default decoder
                 return defaultErrorDecoder.decode(methodKey, response);
         }
     }

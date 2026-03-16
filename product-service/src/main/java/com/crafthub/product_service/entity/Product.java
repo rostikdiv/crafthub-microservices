@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entity representing a product in the catalog.
+ */
 @Entity
 @Table(name = "products")
 @Getter
@@ -63,7 +66,7 @@ public class Product {
     @Column(nullable = false)
     private UUID sellerId;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Eager, бо нам завжди треба знати категорію товару
+    @ManyToOne(fetch = FetchType.EAGER) // Always fetch category for product details
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
@@ -85,7 +88,8 @@ public class Product {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        if (this.accessLevel == null) this.accessLevel = AccessLevel.PUBLIC;
+        if (this.accessLevel == null)
+            this.accessLevel = AccessLevel.PUBLIC;
     }
 
     @PreUpdate

@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener for payment success events from Kafka.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -16,13 +19,19 @@ public class PaymentEventListener {
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
 
+    /**
+     * Handles payment success events.
+     * Triggers order confirmation upon successful payment.
+     *
+     * @param message The JSON message from Kafka.
+     */
     @KafkaListener(topics = "payment-success-topic", groupId = "order-service-group")
     public void handlePaymentSuccess(String message) {
         try {
             log.info("📨 Received payment success event: {}", message);
             PaymentSuccessEventDTO event = objectMapper.readValue(message, PaymentSuccessEventDTO.class);
 
-            // Викликаємо сервіс для оновлення статусу
+            // Trigger order confirmation
             orderService.confirmOrderPayment(event.orderId());
 
         } catch (Exception e) {

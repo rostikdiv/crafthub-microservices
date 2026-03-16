@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+/**
+ * Entity representing an individual item within an order.
+ */
 @Entity
 @Table(name = "order_items")
 @Getter
@@ -30,7 +33,7 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(nullable = false)
-    private BigDecimal pricePerUnit; // ❗️ Ціна на момент покупки
+    private BigDecimal pricePerUnit; // Item price at the time of purchase
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")

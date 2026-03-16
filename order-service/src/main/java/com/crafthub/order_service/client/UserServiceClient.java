@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.UUID;
 
+/**
+ * Feign client for the User Service (Seller management).
+ */
 @FeignClient(name = "user-service", path = "/api/v1/sellers")
 public interface UserServiceClient {
 

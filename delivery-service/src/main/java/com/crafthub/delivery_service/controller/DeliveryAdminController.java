@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Administrative controller for managing delivery locations and branches.
+ * Restricted to users with administrative privileges.
+ */
 @RestController
 @RequestMapping("/api/v1/admin/delivery")
 @RequiredArgsConstructor
-@PreAuthorize("hasAuthority('order:read:all')") // Або окремий пермішн location:manage
+@PreAuthorize("hasAuthority('order:read:all')") // Or a specific permission like location:manage
 public class DeliveryAdminController {
 
     private final LocationService locationService;

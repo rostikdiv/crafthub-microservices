@@ -1,10 +1,10 @@
 package com.crafthub.delivery_service.entity;
 
 public enum DeliveryStatus {
-    PREPARING,      // Оплачено, створена чернетка
-    READY_TO_SHIP,  // Продавець упакував, але ще не відніс на пошту
-    SHIPPED,        // Передано перевізнику (є ТТН)
-    DELIVERED,      // Отримано клієнтом
-    RETURNED,       // Відмова
-    CANCELLED       // Скасовано
+    PREPARING, // Paid, shipment draft created
+    READY_TO_SHIP, // Packed by seller, waiting for courier/drop-off
+    SHIPPED, // Handed over to carrier (tracking number assigned)
+    DELIVERED, // Received by customer
+    RETURNED, // Customer rejection or return
+    CANCELLED // Delivery cancelled
 }

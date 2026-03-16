@@ -8,11 +8,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Event published when a shipment's delivery status changes.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeliveryStatusChangedEvent {
-    private UUID orderId;          // Ключ для Order Service
-    private DeliveryStatus status; // Новий статус (PREPARING, SHIPPED...)
+    private UUID orderId; // Link to Order Service
+    private DeliveryStatus status; // New status (e.g., PREPARING, SHIPPED)
     private LocalDateTime timestamp;
 }

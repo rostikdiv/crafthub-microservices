@@ -10,6 +10,9 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Entity representing a shipment record.
+ */
 @Entity
 @Table(name = "shipments")
 @Getter
@@ -24,20 +27,20 @@ public class Shipment {
     private UUID id;
 
     @Column(nullable = false) // Removed unique = true to allow multiple shipments (returns)
-    private UUID orderId; // Зв'язок з Order Service
+    private UUID orderId; // Links to Order Service
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DeliveryStatus status; // PREPARING, SHIPPED...
+    private DeliveryStatus status; // PREPARING, SHIPPED, etc.
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private ShipmentType type = ShipmentType.OUTBOUND;
 
-    private String trackingNumber; // ТТН (згенеруємо пізніше)
+    private String trackingNumber; // Tracking number (TTN)
 
-    // Зберігаємо копію адреси, щоб Delivery Service був автономним
+    // Store a copy of the address for service autonomy
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private DeliveryDetailsDTO deliveryDetails;

@@ -1,4 +1,4 @@
-package com.crafthub.payment_service.dto;
+package com.crafthub.payment_service.dto.payment;
 
 import java.util.UUID;
 

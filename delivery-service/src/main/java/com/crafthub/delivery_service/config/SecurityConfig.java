@@ -10,6 +10,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security configuration for the delivery service.
+ * Defines access rules for public and protected endpoints.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -21,10 +25,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Публічні ендпоінти для пошуку міст/відділень (доступні без логіну)
+                        // Public endpoints for location search (accessible without authentication)
                         .requestMatchers("/api/v1/delivery/locations/**").permitAll()
-                        // Всі інші вимагають авторизації або перевірки прав
-                        .anyRequest().permitAll() // Захист через @PreAuthorize
+                        // All other requests require authentication or specific permissions
+                        .anyRequest().permitAll() // Protected via @PreAuthorize on controllers
                 )
                 .addFilterBefore(new HeaderAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();

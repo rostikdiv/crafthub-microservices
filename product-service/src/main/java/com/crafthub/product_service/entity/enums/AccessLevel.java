@@ -1,6 +1,6 @@
 package com.crafthub.product_service.entity.enums;
 
 public enum AccessLevel {
-    PUBLIC,     // Доступно всім
-    RESTRICTED  // Тільки для військових (Фронтенд блокує кнопку, Order Service блокує замовлення)
+    PUBLIC, // Accessible to everyone
+    RESTRICTED // Only for military (Frontend hides UI, Order Service blocks purchase)
 }

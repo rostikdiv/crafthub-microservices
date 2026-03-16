@@ -7,36 +7,43 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * Validator responsible for determining whether a given request requires
+ * authentication.
+ */
 @Component
 public class RouteValidator {
 
-    // 1. Маршрути, які відкриті ЗАВЖДИ (незалежно від методу запиту)
+    /**
+     * List of endpoints that are always open, regardless of the HTTP method.
+     */
     public static final List<String> openApiEndpoints = List.of(
             "/api/v1/auth/register",
             "/api/v1/auth/authenticate",
-            "/api/v1/delivery/locations", // Пошук міст зазвичай публічний
-            "/eureka"
-    );
+            "/api/v1/delivery/locations",
+            "/eureka");
 
+    /**
+     * Predicate that evaluates if a request is secured (requires JWT
+     * authentication).
+     */
     public Predicate<ServerHttpRequest> isSecured = request -> {
         String path = request.getURI().getPath();
 
-        // ЕТАП 1: Перевірка повністю відкритих маршрутів (Auth, Register...)
-        // Якщо шлях є в списку openApiEndpoints -> повертаємо false (НЕ захищений)
+        // Step 1: Check against explicitly open endpoints
         if (openApiEndpoints.stream().anyMatch(path::contains)) {
             return false;
         }
 
-        // ЕТАП 2: Спеціальна логіка для Товарів та Категорій
-        // Дозволяємо доступ без токена ТІЛЬКИ для методу GET
+        // Step 2: Public access for specific GET requests (e.g., viewing products or
+        // categories)
         if (request.getMethod().equals(HttpMethod.GET)) {
-            // Якщо це GET запит на продукти або категорії -> пускаємо без токена
             if (path.contains("/api/v1/products") || path.contains("/api/v1/categories")) {
-                return false; // Не захищений
+                return false;
             }
         }
 
-        // ЕТАП 3: Все інше за замовчуванням захищене (Cart, Orders, Admin, POST-запити на товари...)
+        // Step 3: All other routes are secured by default
         return true;
     };
 }

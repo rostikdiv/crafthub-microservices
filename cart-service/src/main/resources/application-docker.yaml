@@ -1,13 +1,19 @@
 spring:
-  # Якщо кошик на MongoDB:
+  # MongoDB configuration for Docker environment
   data:
     mongodb:
-      # "mongo" - це ім'я сервісу в docker-compose
+      # Uses the "mongo" service name defined in docker-compose.yml
       uri: mongodb://${MONGO_USER:crafthub}:${MONGO_PASS:password}@${MONGO_HOST:mongo}:${MONGO_PORT:27017}/${MONGO_DB:cart_db}?authSource=admin
+  
+  # Kafka bootstrap servers pointing to the "kafka" container
   kafka:
     bootstrap-servers: kafka:9092
+  
+  # Zipkin base URL for containerized environment
   zipkin:
     base-url: http://zipkin:9411
+
+# Eureka Service Discovery configuration
 eureka:
   client:
     serviceUrl:

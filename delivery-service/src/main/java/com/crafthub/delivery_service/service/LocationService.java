@@ -16,6 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service for managing geographic locations (cities/regions) and delivery
+ * service branches.
+ * Supports importing, searching, and CRUD operations for delivery points.
+ */
 @Service
 @RequiredArgsConstructor
 public class LocationService {
@@ -61,9 +66,14 @@ public class LocationService {
                 .toList();
     }
 
+    /**
+     * Imports a list of locations and their associated branches into the database.
+     *
+     * @param dtos list of LocationCreateDTO objects containing data to import
+     */
     @Transactional
     public void importLocations(List<LocationCreateDTO> dtos) {
-        // Логіка імпорту без змін...
+        // Import logic...
         for (var dto : dtos) {
             Location location = Location.builder()
                     .provider(dto.provider())

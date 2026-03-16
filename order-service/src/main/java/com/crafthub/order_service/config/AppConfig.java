@@ -5,9 +5,15 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * General application configuration.
+ */
 @Configuration
 public class AppConfig {
 
+    /**
+     * Custom ObjectMapper bean with Java 8 date/time support.
+     */
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();

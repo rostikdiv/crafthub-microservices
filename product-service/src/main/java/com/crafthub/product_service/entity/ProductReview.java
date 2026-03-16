@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entity representing a product review or a reply to a review.
+ */
 @Entity
 @Table(name = "product_reviews")
 @Getter
@@ -22,30 +25,30 @@ public class ProductReview {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID productId; // Зв'язок з товаром (без @ManyToOne у Product)
+    private UUID productId; // Link to the product (loose coupling, no @ManyToOne in Product)
 
     @Column(nullable = false)
     private UUID userId;
 
-    private String userName; // Кешуємо ім'я
-    private String userAvatarUrl; // Можна додати аватарку
+    private String userName; // Cached user name
+    private String userAvatarUrl; // Optional avatar URL
 
-    private Integer rating; // Рейтинг (1-5). Для відповідей може бути null.
+    private Integer rating; // Rating (1-5). May be null for replies.
 
     @Column(columnDefinition = "TEXT")
     private String comment;
 
     private boolean isVerifiedPurchase;
 
-    // 🔥 РЕАЛІЗАЦІЯ ГІЛОК (Self-Referencing)
+    // SELF-REFERENCING FOR THREADS (Replies)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     @JsonIgnore
-    private ProductReview parent; // Батьківський коментар
+    private ProductReview parent; // Parent review if this is a reply
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("createdAt ASC") // Відповіді сортуємо хронологічно
+    @OrderBy("createdAt ASC") // Sort replies chronologically
     @Builder.Default
     private List<ProductReview> replies = new ArrayList<>();
 

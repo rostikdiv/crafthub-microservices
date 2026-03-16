@@ -1,7 +1,7 @@
 package com.crafthub.product_service.controller;
 
-import com.crafthub.product_service.dto.ProductRequestDTO;
-import com.crafthub.product_service.dto.ProductResponseDTO;
+import com.crafthub.product_service.dto.product.ProductRequestDTO;
+import com.crafthub.product_service.dto.product.ProductResponseDTO;
 import com.crafthub.product_service.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller for managing products, including CRUD operations, stock
+ * management,
+ * and discount applications.
+ */
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
@@ -25,7 +30,19 @@ public class ProductController {
 
     private final ProductService productService;
 
-    // Оновлений GET з пагінацією
+    /**
+     * Retrieves a paginated list of products based on various filters.
+     *
+     * @param search      search term for product name or description
+     * @param categoryId  filter by category identifier
+     * @param minPrice    minimum price filter
+     * @param maxPrice    maximum price filter
+     * @param isAvailable filter items currently in stock
+     * @param minRating   filter products by minimum average rating
+     * @param sellerId    filter products belonging to a specific seller
+     * @param pageable    pagination and sorting parameters
+     * @return page of matching products
+     */
     @GetMapping
     public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(
             @RequestParam(required = false) String search,
@@ -33,10 +50,10 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Boolean isAvailable,
-            @RequestParam(required = false) Double minRating, // 👈 Фільтр рейтингу
-            @RequestParam(required = false) UUID sellerId, // 👈 New Filter: Seller ID
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) UUID sellerId,
 
-            // Сортування працює саме: ?sort=averageRating,desc
+            // Sorting defaults to createdAt, DESC
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(
                 search, categoryId, minPrice, maxPrice, isAvailable, minRating, sellerId, pageable));
@@ -75,7 +92,7 @@ public class ProductController {
     }
 
     @PostMapping("/{id}/discount")
-    @PreAuthorize("hasAuthority('product:update')") // Або перевірка власника
+    @PreAuthorize("hasAuthority('product:update')") // Or check if the user is the product owner
     public ResponseEntity<ProductResponseDTO> applyDiscount(
             @PathVariable UUID id,
             @RequestParam BigDecimal newPrice) {

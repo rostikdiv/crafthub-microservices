@@ -1,5 +1,5 @@
 # ======================================================
-# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# === GENERAL SETTINGS ===
 # ======================================================
 server:
   port: 8083
@@ -8,7 +8,7 @@ spring:
   application:
     name: order-service
   profiles:
-    active: local # ❗️ Профіль за замовчуванням
+    active: local # Default profile
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -34,21 +34,21 @@ resilience4j:
     instances:
       productService:
         registerHealthIndicator: true
-        slidingWindowSize: 10          # Пам'ятаємо останні 10 запитів
-        minimumNumberOfCalls: 5        # Починаємо аналіз після 5-го запиту
+        slidingWindowSize: 10          # Keep track of last 10 requests
+        minimumNumberOfCalls: 5        # Start analysis after the 5th request
         permittedNumberOfCallsInHalfOpenState: 3
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 5s    # Час "карантину" (блокування)
-        failureRateThreshold: 50       # Поріг помилок (50%)
+        waitDurationInOpenState: 5s    # "Quarantine" duration (blocking)
+        failureRateThreshold: 50       # Failure threshold (50%)
         eventConsumerBufferSize: 10
-        ignoreExceptions:              # Не рахувати це як збій сервісу
+        ignoreExceptions:              # Do not count these as service failures
           - com.crafthub.order_service.exception.ResourceNotFoundException
           - com.crafthub.order_service.exception.BusinessException
           - feign.FeignException.NotFound
           - feign.FeignException.BadRequest
 ---
 # ======================================================
-# === ПРОФІЛЬ "local" (Kafka + Zipkin + Eureka) ===
+# === "local" PROFILE (Kafka + Zipkin + Eureka) ===
 # ======================================================
 spring:
   config:
@@ -72,7 +72,7 @@ spring:
         access-key: dummy
         secret-key: dummy
 
-  # Налаштування Kafka (тільки для local)
+  # Kafka settings (local only)
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
 
@@ -92,7 +92,7 @@ feign:
   client:
     config:
       product-service:
-        # Для локальної розробки (прямий доступ або через Gateway)
+        # For local development (direct access or via Gateway)
         url: ${PRODUCT_SERVICE_URL:http://localhost:8082}
 
 aws:
@@ -102,7 +102,7 @@ aws:
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "aws" (SQS + X-Ray + Cloud Map) ===
+# === "aws" PROFILE (SQS + X-Ray + Cloud Map) ===
 # ======================================================
 spring:
   config:
@@ -116,16 +116,15 @@ spring:
       - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
       - org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
 
-  # ❗️ Ми вмикаємо LoadBalancer, але не Discovery!
-  # Це хитрий трюк: Feign потребує хоча б якогось механізму,
-  # але ми змусимо його використовувати жорсткий URL.
+  # We enable LoadBalancer but not Discovery!
+  # Feign requires some mechanism, but we force it to use a static URL.
   cloud:
     discovery:
       enabled: false
     loadbalancer:
       enabled: false # Тримаємо вимкненим, як планували
 
-# ❗️ ОСЬ КЛЮЧОВЕ ВИПРАВЛЕННЯ СТРУКТУРИ
+# KEY STRUCTURE FIX
 feign:
   client:
     config:
@@ -133,7 +132,7 @@ feign:
         connectTimeout: 5000
         readTimeout: 5000
       product-service:
-        # Переконайся, що відступи правильні (2 пробіли)
+        # Ensure correct indentation (2 spaces)
         url: http://product-service.crafthub.internal:8082
 
 application:

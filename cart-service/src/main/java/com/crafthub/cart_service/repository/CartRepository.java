@@ -6,11 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+/**
+ * Repository interface for MongoDB Cart operations.
+ * Uses the user's UUID as the primary document ID.
+ */
 @Repository
-// ❗️ Cart - тип документа, String - тип ID (наш userId)
 public interface CartRepository extends MongoRepository<Cart, UUID> {
-    // Spring Data Mongo автоматично надасть нам:
-    // - findById(String userId) -> Optional<Cart>
-    // - save(Cart cart)
-    // - deleteById(String userId)
+    // Standard MongoRepository methods are available for Cart management.
 }

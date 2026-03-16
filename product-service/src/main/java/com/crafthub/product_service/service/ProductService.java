@@ -1,9 +1,9 @@
 package com.crafthub.product_service.service;
 
 import com.crafthub.product_service.client.UserServiceClient;
-import com.crafthub.product_service.dto.ProductRequestDTO;
-import com.crafthub.product_service.dto.ProductResponseDTO;
-import com.crafthub.product_service.dto.SellerInfoDTO; // Переконайтесь, що цей імпорт є
+import com.crafthub.product_service.dto.product.ProductRequestDTO;
+import com.crafthub.product_service.dto.product.ProductResponseDTO;
+import com.crafthub.product_service.dto.SellerInfoDTO;
 import com.crafthub.product_service.entity.Category;
 import com.crafthub.product_service.entity.Product;
 import com.crafthub.product_service.entity.enums.AccessLevel;
@@ -11,7 +11,7 @@ import com.crafthub.product_service.exception.BusinessException;
 import com.crafthub.product_service.exception.ResourceNotFoundException;
 import com.crafthub.product_service.repository.CategoryRepository;
 import com.crafthub.product_service.repository.ProductRepository;
-import com.crafthub.product_service.repository.specification.ProductSpecification; // Ваш новий імпорт
+import com.crafthub.product_service.repository.specification.ProductSpecification;
 import com.crafthub.product_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +30,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Core service for managing products, including CRUD operations, stock
+ * management,
+ * and filtering logic.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -40,45 +45,57 @@ public class ProductService {
     private final UserContextService userContext;
     private final UserServiceClient userServiceClient;
 
+    /**
+     * Creates a new product for a seller.
+     * Fetches seller information from the User Service to ensure profile existence.
+     *
+     * @param request product creation data
+     * @return newly created product details
+     */
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         UUID userId = userContext.getUserId();
 
         SellerInfoDTO sellerInfo;
         try {
-            // 🛑 Прямий виклик. Якщо User Service лежить - ми хочемо впасти, а не зберегти
+            // Direct call. If User Service is down, we want to fail rather than save
             // "Unknown"
             sellerInfo = userServiceClient.getSellerInfo(userId);
         } catch (Exception e) {
             log.error("Failed to fetch seller info during product creation for user {}: {}", userId, e.getMessage());
-            // Повертаємо зрозумілу помилку користувачу
+            // Return a user-friendly error
             throw new BusinessException(
-                    "Неможливо створити товар: не вдалося отримати профіль продавця. Спробуйте пізніше.");
+                    "Unable to create product: failed to retrieve seller profile. Please try again later.");
         }
 
-        // Перевірка (опціонально): чи дозволено цьому продавцю створювати товари
+        // Check (optional): is the seller verified/allowed to post
         // if (!sellerInfo.isVerified()) { ... }
 
         return saveProductInternal(request, userId, sellerInfo);
     }
 
-    // ✅ НОВИЙ МЕТОД: Масове створення
+    /**
+     * Batch creates multiple products for the current user.
+     *
+     * @param requests list of product creation requests
+     * @return list of created product responses
+     */
     @Transactional
     public List<ProductResponseDTO> createProducts(List<ProductRequestDTO> requests) {
         UUID userId = userContext.getUserId();
 
         SellerInfoDTO sellerInfo;
         try {
-            // Те саме для масового створення
+            // Same check for batch creation
             sellerInfo = userServiceClient.getSellerInfo(userId);
         } catch (Exception e) {
             log.error("Batch creation failed. User Service unavailable for user {}", userId);
-            throw new BusinessException("Неможливо створити товари: сервіс користувачів недоступний.");
+            throw new BusinessException("Unable to create products: user service is unavailable.");
         }
 
         log.info("Batch creating {} products for User ID: {}", requests.size(), userId);
 
-        // sellerInfo тут вже гарантовано не null
+        // sellerInfo is guaranteed not null here
         final SellerInfoDTO finalSellerInfo = sellerInfo;
 
         return requests.stream()
@@ -86,6 +103,9 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Internal helper to save product and map to response.
+     */
     private ProductResponseDTO saveProductInternal(ProductRequestDTO request, UUID userId, SellerInfoDTO sellerInfo) {
         Category category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(
@@ -125,20 +145,19 @@ public class ProductService {
         return mapToProductResponse(savedProduct);
     }
 
-    // ... (getAllProducts, reduceStock, mapToProductResponse та інші методи
-    // залишаються без змін) ...
-    // Не забудьте додати оновлений getAllProducts з пагінацією, який ми
-    // обговорювали раніше.
+    /**
+     * Retrieves a paginated list of products matching the specified filters.
+     */
     public Page<ProductResponseDTO> getAllProducts(
             String search,
-            Long categoryId, // Зверніть увагу, у вашому коді було Long
+            Long categoryId,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             Boolean isAvailable,
             Double minRating,
-            UUID sellerId, // ✅ Add sellerId parameter
+            UUID sellerId, // Add sellerId parameter
             Pageable pageable) {
-        // Викликаємо оновлений метод специфікації
+        // Use the updated specification method
         Specification<Product> spec = ProductSpecification.filterProducts(
                 categoryId,
                 minPrice,
@@ -146,13 +165,15 @@ public class ProductService {
                 search,
                 isAvailable,
                 minRating,
-                sellerId); // ✅ Pass sellerId
+                sellerId); // Pass sellerId
 
         return productRepository.findAll(spec, pageable)
                 .map(this::mapToProductResponse);
     }
 
-    // ... решта існуючих методів ...
+    /**
+     * Maps a Product entity to a ProductResponseDTO.
+     */
     private ProductResponseDTO mapToProductResponse(Product product) {
         return new ProductResponseDTO(
                 product.getId(),
@@ -176,24 +197,33 @@ public class ProductService {
                 product.getImageUrls());
     }
 
+    /**
+     * Retrieves a specific product by its identifier.
+     */
     public ProductResponseDTO getProductById(UUID id) {
         return productRepository.findById(id)
                 .map(this::mapToProductResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
     }
 
+    /**
+     * Retrieves multiple products by their identifiers.
+     */
     public List<ProductResponseDTO> getProductsByIds(List<UUID> ids) {
         return productRepository.findAllById(ids).stream()
                 .map(this::mapToProductResponse)
                 .toList();
     }
 
+    /**
+     * Updates an existing product's details.
+     */
     @Transactional
     public ProductResponseDTO updateProduct(UUID productId, ProductRequestDTO request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        // 1. Оновлення базових полів (якщо вони передані)
+        // 1. Update basic fields (if provided)
         if (request.name() != null)
             product.setName(request.name());
         if (request.description() != null)
@@ -208,7 +238,7 @@ public class ProductService {
             }
         }
 
-        // 2. Оновлення Габаритів
+        // 2. Update Dimensions
         if (request.weight() != null)
             product.setWeight(request.weight());
         if (request.length() != null)
@@ -218,23 +248,23 @@ public class ProductService {
         if (request.height() != null)
             product.setHeight(request.height());
 
-        // 3. Логіка зміни ціни (зі скиданням знижки)
+        // 3. Price change logic (resets old price if base price changes)
         if (request.price() != null && request.price().compareTo(product.getPrice()) != 0) {
             product.setPrice(request.price());
-            product.setOldPrice(null); // Скидаємо стару ціну, бо базова змінилася
+            product.setOldPrice(null); // Reset old price because base price changed
         }
 
-        // 4. Оновлення Зображень (Просте присвоєння URL)
+        // 4. Image Update (Simple assignment)
         if (request.previewImageUrl() != null && !request.previewImageUrl().isBlank()) {
             product.setPreviewImageUrl(request.previewImageUrl());
         }
 
         if (request.imageUrls() != null) {
-            // Можна замінити список повністю
+            // Replace list completely
             product.setImageUrls(request.imageUrls());
         }
 
-        // 5. Оновлення категорії
+        // 5. Category Update
         if (request.categoryId() != null && !request.categoryId().equals(product.getCategory().getId())) {
             Category category = categoryRepository.findById(request.categoryId())
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
@@ -245,6 +275,9 @@ public class ProductService {
         return mapToProductResponse(product);
     }
 
+    /**
+     * Reduces the stock quantity for a product.
+     */
     @Transactional
     public void reduceStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
@@ -258,6 +291,9 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    /**
+     * Restores the stock quantity for a product.
+     */
     @Transactional
     public void restoreStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
@@ -267,14 +303,16 @@ public class ProductService {
         productRepository.save(product);
     }
 
-    // У метод оновлення товару (updateProduct) або окремий метод (applyDiscount)
-
+    /**
+     * Applies a discount price to a product.
+     * Original price is saved in the oldPrice field if it's the first discount.
+     */
     @Transactional
     public ProductResponseDTO applyDiscount(UUID productId, BigDecimal newDiscountPrice) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        // Валідація: Нова ціна має бути меншою за поточну (або стару, якщо вона вже є)
+        // Validation: New price must be lower than the original price
         BigDecimal originalPrice = (product.getOldPrice() != null) ? product.getOldPrice() : product.getPrice();
 
         if (newDiscountPrice.compareTo(originalPrice) >= 0) {
@@ -285,33 +323,39 @@ public class ProductService {
             throw new BusinessException("Price must be greater than 0");
         }
 
-        // Якщо це перша знижка -> зберігаємо поточну ціну як стару
+        // If this is the first discount -> save current price as old price
         if (product.getOldPrice() == null) {
             product.setOldPrice(product.getPrice());
         }
 
-        // Встановлюємо нову ціну продажу
+        // Set the new sale price
         product.setPrice(newDiscountPrice);
 
         productRepository.save(product);
-        return mapToProductResponse(product); // Не забудьте оновити маппер!
+        return mapToProductResponse(product);
     }
 
+    /**
+     * Removes the discount and restores the original price from oldPrice.
+     */
     @Transactional
     public ProductResponseDTO removeDiscount(UUID productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        // Якщо знижка була -> повертаємо стару ціну
+        // If a discount was present -> restore old price
         if (product.getOldPrice() != null) {
-            product.setPrice(product.getOldPrice()); // Повертаємо 1000
-            product.setOldPrice(null); // Очищаємо поле
+            product.setPrice(product.getOldPrice()); // Restore price
+            product.setOldPrice(null); // Clear the field
             productRepository.save(product);
         }
 
         return mapToProductResponse(product);
     }
 
+    /**
+     * Deletes a product by its identifier.
+     */
     @Transactional
     public void deleteProduct(UUID productId) {
         if (!productRepository.existsById(productId)) {

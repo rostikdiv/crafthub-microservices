@@ -33,6 +33,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Core service for managing orders, including creation, stock reduction,
+ * payment initiation, and status management.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +48,7 @@ public class OrderService {
     private final UserContextService userContext;
     private final com.crafthub.order_service.client.UserServiceClient userServiceClient;
 
-    // Опціональні бін для Kafka/SQS (залежно від того, що підключено)
+    // Optional beans for Kafka/SQS (depending on which is connected)
     @Autowired(required = false)
     private KafkaPublisherService kafkaPublisherService;
     @Autowired(required = false)
@@ -71,13 +75,13 @@ public class OrderService {
         try {
             for (OrderItemRequestDTO itemRequest : request.items()) {
 
-                // А. Отримуємо інфо про товар
+                // A. Retrieve product information
                 ProductResponseDTO product = productIntegrationService.getProductById(itemRequest.productId());
                 if (product == null) {
                     throw new ResourceNotFoundException("Product not found with ID: " + itemRequest.productId());
                 }
 
-                // --- ВАЛІДАЦІЯ ПРОДАВЦЯ ---
+                // --- SELLER VALIDATION ---
                 if (commonSellerId == null) {
                     if (product.sellerId() == null) {
                         log.warn("Product {} has no sellerId!", product.id());
@@ -90,7 +94,7 @@ public class OrderService {
                     }
                 }
 
-                // Б. Перевірка доступу (RESTRICTED)
+                // B. Access check (RESTRICTED)
                 if ("RESTRICTED".equals(product.accessLevel())) {
                     if (!hasPermission("product:buy:restricted")) {
                         throw new AccessDeniedException(
@@ -101,10 +105,10 @@ public class OrderService {
                     }
                 }
 
-                // В. СПИСАННЯ ЗІ СКЛАДУ
+                // C. REDUCE STOCK
                 productIntegrationService.reduceStock(product.id(), itemRequest.quantity());
 
-                // Г. Створюємо OrderItem
+                // D. Create OrderItem
                 OrderItem orderItem = OrderItem.builder()
                         .productId(itemRequest.productId())
                         .name(product.name()) // Set Name
@@ -122,7 +126,7 @@ public class OrderService {
                 orderItemsEntityList.add(orderItem);
             }
 
-            // 4. СТВОРЕННЯ ЗАМОВЛЕННЯ
+            // 4. ORDER CREATION
             OrderStatus initialStatus = OrderStatus.PENDING_PAYMENT;
             if (request.paymentMethod() == PaymentMethod.COD) {
                 initialStatus = OrderStatus.PENDING_CONFIRMATION;
@@ -144,9 +148,9 @@ public class OrderService {
             }
 
             orderRepository.save(order);
-            log.info("✅ Order created with ID: {}", order.getId());
+            log.info("Order created with ID: {}", order.getId());
 
-            // 5. Сповіщення та Оплата
+            // 5. Notification and Payment
             sendNotification(order, productNames, userEmail, purchasedProductIds);
 
             try {
@@ -155,7 +159,7 @@ public class OrderService {
                 log.error("Failed to increment sales for seller {}", commonSellerId, e);
             }
 
-            // Якщо післяплата (COD) - повертаємо успіх без редіректу на оплату
+            // If Cash on Delivery (COD) - return success without payment redirect
             if (request.paymentMethod() == PaymentMethod.COD) {
                 return new PaymentResponseDTO(
                         null,
@@ -163,7 +167,7 @@ public class OrderService {
                         null);
             }
 
-            // Якщо картка - ініціюємо оплату
+            // If Card - initiate payment
             PaymentRequestDTO paymentRequest = new PaymentRequestDTO(
                     order.getId(),
                     userId,
@@ -172,8 +176,8 @@ public class OrderService {
             return paymentIntegrationService.initPayment(paymentRequest);
 
         } catch (Exception e) {
-            log.error("❌ Error creating order: {}. Rolling back stock...", e.getMessage());
-            // Компенсація
+            log.error("Error creating order: {}. Rolling back stock...", e.getMessage());
+            // Compensation logic
             for (OrderItem item : reservedItems) {
                 try {
                     productIntegrationService.restoreStock(item.getProductId(), item.getQuantity());
@@ -193,7 +197,7 @@ public class OrderService {
 
     public Page<OrderResponseDTO> getMyOrders(Pageable pageable) {
         UUID userId = userContext.getUserId();
-        // findAllByUserId повертає Page<Order>, ми мапимо його в Page<OrderResponseDTO>
+        // findAllByUserId returns Page<Order>, we map it to Page<OrderResponseDTO>
         return orderRepository.findAllByUserId(userId, pageable)
                 .map(this::mapToOrderResponseDTO);
     }
@@ -221,7 +225,7 @@ public class OrderService {
         }
     }
 
-    // --- Інші методи залишаються без змін ---
+    // --- Other methods remain unchanged ---
 
     private OrderResponseDTO mapToOrderResponseDTO(Order order) {
         List<OrderItemResponseDTO> itemsDto = order.getItems().stream()
@@ -283,7 +287,7 @@ public class OrderService {
     public boolean hasUserPurchasedProduct(UUID productId) {
         UUID userId = userContext.getUserId();
 
-        // 🔒 ЖОРСТКА ВИМОГА: Тільки якщо доставлено
+        // STRICT REQUIREMENT: Only if delivered
         List<OrderStatus> validStatuses = List.of(OrderStatus.DELIVERED);
 
         return orderRepository.existsByUserIdAndItemsProductIdAndStatusIn(userId, productId, validStatuses);
@@ -381,10 +385,10 @@ public class OrderService {
     private void scheduleDelivery(UUID orderId) {
         new Thread(() -> {
             try {
-                log.info("🚚 Simulation: Shipping order {}", orderId);
+                log.info("Simulation: Shipping order {}", orderId);
                 Thread.sleep(5000); // 5 seconds
                 updateOrderStatusFromDelivery(orderId, "DELIVERED");
-                log.info("✅ Simulation: Order {} DELIVERED", orderId);
+                log.info("Simulation: Order {} DELIVERED", orderId);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -394,7 +398,7 @@ public class OrderService {
     // Updated confirmOrderPayment to check for simulation
     @Transactional
     public void confirmOrderPayment(UUID orderId) {
-        log.info("💰 Payment confirmation received for Order: {}", orderId);
+        log.info("Payment confirmation received for Order: {}", orderId);
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
 
@@ -407,7 +411,7 @@ public class OrderService {
         order.setStatus(OrderStatus.PENDING_CONFIRMATION);
         orderRepository.save(order);
 
-        log.info("✅ Order {} payment confirmed. Status updated to PENDING_CONFIRMATION", orderId);
+        log.info("Order {} payment confirmed. Status updated to PENDING_CONFIRMATION", orderId);
     }
 
     // ... validateDeliveryDetails ...

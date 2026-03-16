@@ -11,7 +11,9 @@ import java.util.UUID;
 
 public interface ProductReviewRepository extends JpaRepository<ProductReview, UUID> {
 
-    // Знаходимо тільки батьківські коментарі для конкретного товару
+    /**
+     * Finds only root reviews (where parent is NULL) for a specific product.
+     */
     @Query("SELECT r FROM ProductReview r WHERE r.productId = :productId AND r.parent IS NULL")
     Page<ProductReview> findAllRootReviewsByProductId(@Param("productId") UUID productId, Pageable pageable);
 
@@ -19,11 +21,15 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, UU
 
     Page<ProductReview> findAllByUserId(UUID userId, Pageable pageable);
 
-    // 1. Рахуємо середній рейтинг (повертає Double або null, якщо відгуків немає)
+    /**
+     * Calculates average rating for root reviews of a product.
+     */
     @Query("SELECT AVG(r.rating) FROM ProductReview r WHERE r.productId = :productId AND r.parent IS NULL AND r.rating IS NOT NULL")
     Double getAverageRatingByProductId(@Param("productId") UUID productId);
 
-    // 2. Рахуємо кількість відгуків з оцінками
+    /**
+     * Counts the number of root reviews with ratings for a product.
+     */
     @Query("SELECT COUNT(r) FROM ProductReview r WHERE r.productId = :productId AND r.parent IS NULL AND r.rating IS NOT NULL")
     Long getReviewCountByProductId(@Param("productId") UUID productId);
 

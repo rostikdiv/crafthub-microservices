@@ -11,10 +11,18 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Security configuration for the API Gateway using Spring Security WebFlux.
+ */
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
+    /**
+     * Configures the security web filter chain.
+     * Disables CSRF, enables CORS, and permits all requests at this level.
+     * Actual authentication is handled by the custom AuthenticationFilter.
+     */
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http
@@ -22,13 +30,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                // Дозволяємо всі запити, бо AuthenticationFilter сам вирішує, кого пускати
                 .authorizeExchange(exchanges -> exchanges
                         .anyExchange().permitAll());
 
         return http.build();
     }
 
+    /**
+     * Configures CORS (Cross-Origin Resource Sharing) settings.
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

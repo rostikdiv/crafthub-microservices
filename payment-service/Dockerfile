@@ -1,9 +1,9 @@
-# --------- ЕТАП 1: ЗБІРКА (Build) ---------
+# --------- STAGE 1: Build ---------
 FROM maven:3.9.6-eclipse-temurin-17-focal AS builder
 
 WORKDIR /app
 
-# Копіюємо батьківський pom та pom-файли всіх модулів
+# Copy parent pom and pom files of all modules
 COPY pom.xml .
 COPY api-gateway/pom.xml ./api-gateway/
 COPY user-service/pom.xml ./user-service/
@@ -12,25 +12,25 @@ COPY order-service/pom.xml ./order-service/
 COPY service-discovery/pom.xml ./service-discovery/
 COPY notification-service/pom.xml ./notification-service/
 COPY cart-service/pom.xml ./cart-service/
-# 👇 Додаємо нові сервіси, щоб Maven бачив повну структуру
+# 👇 Add new services so Maven sees the full structure
 COPY payment-service/pom.xml ./payment-service/
 COPY delivery-service/pom.xml ./delivery-service/
 
-# Завантажуємо залежності (кешування)
+# Download dependencies (caching)
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
-# Копіюємо вихідний код саме цього сервісу
+# Copy source code for this specific service
 COPY payment-service/src ./payment-service/src
 
-# Збираємо тільки цей модуль (-pl payment-service)
+# Build only this module (-pl payment-service)
 RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl payment-service -am
 
-# --------- ЕТАП 2: ЗАПУСК (Run) ---------
+# --------- STAGE 2: Run ---------
 FROM eclipse-temurin:17-jre-focal
 
 WORKDIR /app
 
-# Копіюємо зібраний JAR з папки target відповідного модуля
+# Copy built JAR from the target folder of the corresponding module
 COPY --from=builder /app/payment-service/target/payment-service*.jar app.jar
 
 EXPOSE 8086

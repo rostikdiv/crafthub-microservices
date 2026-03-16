@@ -12,7 +12,13 @@ import java.util.UUID;
 
 public interface LocationRepository extends JpaRepository<Location, UUID> {
 
-    // Знайти місто за назвою та провайдером (для Autocomplete)
+    /**
+     * Finds cities by name and provider for autocomplete functionality.
+     *
+     * @param provider the delivery provider
+     * @param name     search term for city name
+     * @return a list of matching locations
+     */
     List<Location> findByProviderAndNameUkrContainingIgnoreCase(DeliveryProvider provider, String name);
 
     List<Location> findByProviderAndRegionAndNameUkrContainingIgnoreCase(DeliveryProvider provider, String region,

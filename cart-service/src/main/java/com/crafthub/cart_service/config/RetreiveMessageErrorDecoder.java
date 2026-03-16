@@ -1,4 +1,4 @@
-package com.crafthub.cart_service.config; // ⚠️ Змініть пакет під конкретний сервіс!
+package com.crafthub.cart_service.config;
 
 import com.crafthub.cart_service.exception.BusinessException;
 import com.crafthub.cart_service.exception.ResourceNotFoundException;
@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Feign error decoder that maps external service error responses to local
+ * exceptions.
+ */
 public class RetreiveMessageErrorDecoder implements ErrorDecoder {
 
     private final ErrorDecoder defaultErrorDecoder = new Default();
@@ -18,7 +22,7 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
         String errorMessage = null;
         try (InputStream bodyIs = response.body().asInputStream()) {
-            // Читаємо текст помилки, яку повернув інший сервіс
+            // Read the error message body from the external service
             if (bodyIs != null) {
                 errorMessage = StreamUtils.copyToString(bodyIs, StandardCharsets.UTF_8);
             }
@@ -26,22 +30,19 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
             errorMessage = "Failed to process error response";
         }
 
-        // Якщо повідомлення порожнє, ставимо дефолтне
         if (errorMessage == null || errorMessage.isEmpty()) {
             errorMessage = "Unknown error from external service";
         }
 
         switch (response.status()) {
             case 400:
-                // 400 Bad Request -> BusinessException
-                // Наприклад: "Недостатньо товару на складі"
+                // 400 Bad Request maps to local BusinessException
                 return new BusinessException(errorMessage);
             case 404:
-                // 404 Not Found -> ResourceNotFoundException
-                // Наприклад: "Product not found"
+                // 404 Not Found maps to local ResourceNotFoundException
                 return new ResourceNotFoundException(errorMessage);
             default:
-                // Всі інші помилки (500, 403) обробляються стандартно
+                // Other statuses (500, 403, etc.) use default Feign behavior
                 return defaultErrorDecoder.decode(methodKey, response);
         }
     }

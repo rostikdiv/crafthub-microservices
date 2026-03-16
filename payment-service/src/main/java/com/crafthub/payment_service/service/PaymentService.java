@@ -1,13 +1,12 @@
 package com.crafthub.payment_service.service;
 
-import com.crafthub.payment_service.dto.PaymentRequestDTO;
-import com.crafthub.payment_service.dto.PaymentResponseDTO;
-import com.crafthub.payment_service.dto.PaymentSuccessEventDTO;
-import com.crafthub.payment_service.dto.TransactionDTO; // ✅ Додано імпорт
+import com.crafthub.payment_service.dto.payment.PaymentRequestDTO;
+import com.crafthub.payment_service.dto.payment.PaymentResponseDTO;
+import com.crafthub.payment_service.dto.payment.PaymentSuccessEventDTO;
+import com.crafthub.payment_service.dto.TransactionDTO;
 import com.crafthub.payment_service.entity.Transaction;
 import com.crafthub.payment_service.entity.TransactionStatus;
-import com.crafthub.payment_service.exception.BusinessException; // ✅
-import com.crafthub.payment_service.exception.ResourceNotFoundException; // ✅
+import com.crafthub.payment_service.exception.ResourceNotFoundException;
 import com.crafthub.payment_service.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
 
+/**
+ * Service for managing payment transactions, processing webhooks, and handling
+ * refunds.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,6 +29,10 @@ public class PaymentService {
     private final TransactionRepository repository;
     private final KafkaProducerService kafkaProducerService;
 
+    /**
+     * Retrieves a payment transaction for a specific order.
+     * Generates a mock webhook URL for manual simulation/testing.
+     */
     public PaymentResponseDTO getTransactionByOrderId(UUID orderId) {
         Transaction transaction = repository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for order: " + orderId));
@@ -34,11 +42,12 @@ public class PaymentService {
         return new PaymentResponseDTO(transaction.getId(), transaction.getStatus().name(), mockUrl);
     }
 
+    /**
+     * Initializes a new payment transaction.
+     * Starts with PENDING status and provides a mock payment URL.
+     */
     public PaymentResponseDTO initPayment(PaymentRequestDTO request) {
-        // Перевірка на дублікат (опціонально)
         if (repository.findByOrderId(request.orderId()).isPresent()) {
-            // Можна повернути існуючу транзакцію, якщо вона PENDING
-            // Або кинути помилку
             log.warn("Transaction for order {} already exists", request.orderId());
         }
 
@@ -59,6 +68,10 @@ public class PaymentService {
         return new PaymentResponseDTO(transaction.getId(), "PENDING", mockUrl);
     }
 
+    /**
+     * Processes payment status updates from external webhooks.
+     * Triggers a success event via Kafka if the payment is confirmed.
+     */
     @Transactional
     public void processWebhook(UUID transactionId, String status) {
         log.info("Processing webhook: Transaction={}, Status={}", transactionId, status);
@@ -67,8 +80,9 @@ public class PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found: " + transactionId));
 
         if (transaction.getStatus() != TransactionStatus.PENDING) {
-            log.warn("Transaction already processed");
-            return; // Або кинути BusinessException, якщо це критично
+            log.warn("Transaction ID {} has already been processed with status: {}", transactionId,
+                    transaction.getStatus());
+            return;
         }
 
         if ("SUCCESS".equalsIgnoreCase(status)) {
@@ -77,40 +91,40 @@ public class PaymentService {
 
             PaymentSuccessEventDTO event = new PaymentSuccessEventDTO(
                     transaction.getOrderId(),
-                    "user@placeholder.com", // В реальності треба брати з User Service
+                    "user@placeholder.com", // Fetch from context or User Service in production
                     transaction.getAmount());
             kafkaProducerService.sendPaymentSuccessEvent(event);
+            log.info("✅ Payment confirmed for transaction {}", transactionId);
         } else {
             transaction.setStatus(TransactionStatus.FAILED);
             repository.save(transaction);
+            log.warn("❌ Payment failed for transaction {}", transactionId);
         }
     }
 
+    /**
+     * Initiates a refund for an order.
+     * Records a new transaction entry with negative amount and REFUNDED status.
+     */
     @Transactional
-    public void refundPayment(UUID orderId, java.math.BigDecimal amount) {
+    public void refundPayment(UUID orderId, BigDecimal amount) {
         log.info("Processing refund for Order: {}, Amount: {}", orderId, amount);
 
-        // Знаходимо оригінальну успішну транзакцію
-        var transactions = repository.findByOrderId(orderId); // припускаємо що повертає Optional<Transaction> або List.
-        // Але repository.findByOrderId повертає Optional<Transaction> за поточним кодом
-        // (див. initPayment).
-        // Якщо там Optional, то це проблема, бо може бути кілька транзакцій (оплата +
-        // повернення).
-        // Треба перевірити репозиторій.
-
-        // MVP спрощення: Просто створюємо нову транзакцію зі статусом REFUNDED.
         Transaction refundTransaction = Transaction.builder()
                 .orderId(orderId)
-                .userId(UUID.randomUUID()) // Або передавати userId
-                .amount(amount.negate()) // Від'ємна сума для звітності
+                .userId(UUID.randomUUID()) // Placeholder userId
+                .amount(amount.negate())
                 .status(TransactionStatus.REFUNDED)
                 .provider("MOCK_PAY")
                 .build();
 
         repository.save(refundTransaction);
-        log.info("✅ Refund processed successfully: {}", refundTransaction.getId());
+        log.info("✅ Refund processed successfully for transaction {}", refundTransaction.getId());
     }
 
+    /**
+     * Retrieves all transaction records from the system.
+     */
     public List<TransactionDTO> getAllTransactions() {
         return repository.findAll().stream()
                 .map(tx -> new TransactionDTO(

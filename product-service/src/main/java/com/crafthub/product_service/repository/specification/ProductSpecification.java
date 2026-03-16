@@ -22,27 +22,27 @@ public class ProductSpecification {
     ) {
         Specification<Product> spec = (root, query, cb) -> cb.conjunction();
 
-        // 1. Фільтр за категорією
+        // 1. Filter by category
         if (categoryId != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId));
         }
 
-        // 2. Ціна ВІД
+        // 2. Minimum price
         if (minPrice != null) {
             spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("price"), minPrice));
         }
 
-        // 3. Ціна ДО
+        // 3. Maximum price
         if (maxPrice != null) {
             spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("price"), maxPrice));
         }
 
-        // 4. Наявність
+        // 4. Availability check
         if (isAvailable != null && isAvailable) {
             spec = spec.and((root, query, cb) -> cb.greaterThan(root.get("quantity"), 0));
         }
 
-        // 5. Пошук по назві
+        // 5. Search by name (case-insensitive)
         if (StringUtils.hasText(search)) {
             spec = spec.and((root, query, cb) -> {
                 String likePattern = "%" + search.toLowerCase() + "%";
@@ -50,7 +50,7 @@ public class ProductSpecification {
             });
         }
 
-        // 6. Рейтинг
+        // 6. Minimum rating
         if (minRating != null) {
             spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("averageRating"), minRating));
         }

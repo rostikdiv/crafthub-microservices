@@ -25,6 +25,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Service for managing product returns and refunds.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -44,7 +47,7 @@ public class ReturnService {
         // ... method content ...
         log.info("Processing return request for Order: {}, Item: {}", orderId, request.orderItemId());
 
-        // 1. Пошук та валідація замовлення
+        // 1. Find and validate order
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
 
@@ -56,14 +59,14 @@ public class ReturnService {
             throw new BusinessException("Only DELIVERED orders can be returned");
         }
 
-        // Перевірка 14 днів (якщо це implemented) - пропустимо для простоти або додамо:
+        // Check 14-day return period
         if (order.getUpdatedAt().plusDays(14).isBefore(LocalDateTime.now())) {
             throw new BusinessException("Return period (14 days) has expired");
         }
 
         OrderItem orderItem = order.getItems().stream()
                 .filter(item -> item.getProductId().toString().equals(request.orderItemId())
-                        || item.getId().toString().equals(request.orderItemId())) // Гнучкий пошук
+                        || item.getId().toString().equals(request.orderItemId())) // Flexible search
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found in order"));
 
@@ -71,9 +74,9 @@ public class ReturnService {
             throw new BusinessException("Cannot return more items than purchased");
         }
 
-        // 2. Створення зворотної накладної
-        // Вага: беремо спрощено (0.5 кг) або треба тягнути з Product Service.
-        // Для MVP передамо 1.0 кг, або додамо це в DTO.
+        // 2. Create return shipping label
+        // Weight: simplified to 1.0 kg for MVP. Ideally should be fetched from Product
+        // Service.
         ReturnShipmentRequestDTO shipmentRequest = new ReturnShipmentRequestDTO(
                 order.getId(),
                 request.returnAddress(),
@@ -82,7 +85,7 @@ public class ReturnService {
 
         ReturnShipmentResponseDTO shipmentResponse = deliveryService.createReturnShipment(shipmentRequest);
 
-        // 3. Фінансовий розрахунок
+        // 3. Financial calculation
         ReturnReason reason = ReturnReason.valueOf(request.reason());
         BigDecimal itemPriceSnapshot = orderItem.getPricePerUnit();
         BigDecimal totalRefundAmount = itemPriceSnapshot.multiply(BigDecimal.valueOf(request.quantity()));
@@ -91,21 +94,21 @@ public class ReturnService {
         boolean isShippingDeducted = false;
 
         if (reason == ReturnReason.CHANGED_MIND || reason == ReturnReason.DID_NOT_FIT) {
-            // Клієнт платить за доставку (віднімаємо з суми повернення)
+            // Customer pays for shipping (deduct from refund amount)
             finalRefundAmount = totalRefundAmount.subtract(returnShippingCost);
             isShippingDeducted = true;
             if (finalRefundAmount.compareTo(BigDecimal.ZERO) < 0) {
-                finalRefundAmount = BigDecimal.ZERO; // Не можемо зняти більше ніж коштував товар
+                finalRefundAmount = BigDecimal.ZERO; // Cannot deduct more than the item price
             }
         } else {
-            // Брак або помилка магазину - повне повернення, доставку оплачує магазин
+            // Defect or store error - full refund, store pays for shipping
             finalRefundAmount = totalRefundAmount;
         }
 
-        // 4. Збереження заявки
+        // 4. Save return request
         OrderReturn orderReturn = OrderReturn.builder()
                 .order(order)
-                .orderItemId(orderItem.getId()) // Зберігаємо ID сутності OrderItem
+                .orderItemId(orderItem.getId()) // Store OrderItem entity ID
                 .productId(orderItem.getProductId())
                 .quantity(request.quantity())
                 .reason(reason)
@@ -119,19 +122,13 @@ public class ReturnService {
                 .build();
 
         orderReturnRepository.save(orderReturn);
-        log.info("✅ Return request saved: {}", orderReturn.getId());
+        log.info("Return request saved: {}", orderReturn.getId());
 
-        // 5. Оновлення статусу замовлення?
-        // Зазвичай замовлення переходить в REFUNDING тільки коли ВСІ товари
-        // повертаються, або це окремий статус для OrderReturn.
-        // Поки що залишимо статус замовлення DELIVERED, керуємось статусом OrderReturn.
-        // Але в плані було "Змінити статус на REFUNDING". Давайте змінимо, якщо це
-        // повернення.
-        // Або краще не чіпати глобальний статус замовлення, якщо повернення часткове.
-        // Для MVP змінимо статус замовлення на RETURN_REQUESTED.
-        order.setStatus(OrderStatus.RETURN_REQUESTED); // Потрібно додати цей статус в OrderStatus.java, якщо його там
-                                                       // немає
-        // (ми додавали)
+        // 5. Update order status?
+        // Usually order transitions to REFUNDING only when ALL items are returned.
+        // For now, we update the status to RETURN_REQUESTED for the entire order in
+        // MVP.
+        order.setStatus(OrderStatus.RETURN_REQUESTED);
         orderRepository.save(order);
 
         return new ReturnResponseDTO(
@@ -156,7 +153,7 @@ public class ReturnService {
         if (approved) {
             orderReturn.setStatus(ReturnStatus.APPROVED);
 
-            // 1. Повернення коштів
+            // 1. Refund payment
             if (orderReturn.getFinalRefundAmount().compareTo(BigDecimal.ZERO) > 0) {
                 paymentIntegrationService.refundPayment(orderReturn.getOrder().getId(),
                         orderReturn.getFinalRefundAmount());
@@ -165,7 +162,7 @@ public class ReturnService {
             orderReturn.setStatus(ReturnStatus.REFUNDED);
             log.info("💰 Refund processed for return: {}", returnId);
 
-            // 2. Відправка події для відновлення стоку
+            // 2. Send event to restore stock
             com.crafthub.order_service.dto.event.RefundApprovedEventDTO event = new com.crafthub.order_service.dto.event.RefundApprovedEventDTO(
                     orderReturn.getOrder().getId(),
                     orderReturn.getProductId(),
@@ -176,16 +173,13 @@ public class ReturnService {
                 kafkaPublisherService.sendRefundApprovedEvent(event);
             }
 
-            // 3. Оновлення статусу замовлення (якщо всі товари повернуто - REFUNDED, інакше
-            // PARTIALLY_REFUNDED? (немає статусу))
-            // Для спрощення ставимо REFUNDED
-            orderReturn.getOrder().setStatus(OrderStatus.REFUNDED); // Оновлюємо статус замовлення
+            // 3. Update order status (simplified to REFUNDED for MVP)
+            orderReturn.getOrder().setStatus(OrderStatus.REFUNDED);
             orderRepository.save(orderReturn.getOrder());
 
         } else {
             orderReturn.setStatus(ReturnStatus.REJECTED);
-            // Повертаємо статус замовлення назад, якщо треба (але ми ставили REFUNDING)
-            // Можна повернути DELIVERED
+            // Revert order status back to DELIVERED
             orderReturn.getOrder().setStatus(OrderStatus.DELIVERED);
             orderRepository.save(orderReturn.getOrder());
         }

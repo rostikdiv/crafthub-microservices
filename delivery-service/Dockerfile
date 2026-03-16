@@ -1,9 +1,9 @@
-# --------- ЕТАП 1: ЗБІРКА (Build) ---------
+# --------- STAGE 1: BUILD ---------
 FROM maven:3.9.6-eclipse-temurin-17-focal AS builder
 
 WORKDIR /app
 
-# Копіюємо всі pom.xml
+# Copy all pom.xml files
 COPY pom.xml .
 COPY api-gateway/pom.xml ./api-gateway/
 COPY user-service/pom.xml ./user-service/
@@ -15,16 +15,16 @@ COPY cart-service/pom.xml ./cart-service/
 COPY payment-service/pom.xml ./payment-service/
 COPY delivery-service/pom.xml ./delivery-service/
 
-# Завантажуємо залежності
+# Download dependencies
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
-# Копіюємо код
+# Copy source code
 COPY delivery-service/src ./delivery-service/src
 
-# Збираємо модуль
+# Build the module
 RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl delivery-service -am
 
-# --------- ЕТАП 2: ЗАПУСК (Run) ---------
+# --------- STAGE 2: RUN ---------
 FROM eclipse-temurin:17-jre-focal
 
 WORKDIR /app

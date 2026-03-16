@@ -15,6 +15,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Security filter that performs authentication based on custom HTTP headers
+ * (e.g., X-User-Id, X-User-Permissions) provided by the API Gateway.
+ */
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
@@ -36,8 +40,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,
-                    authorities
-            );
+                    authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         chain.doFilter(request, response);

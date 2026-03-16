@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.UUID;
 
-@FeignClient(name = "order-service", url = "${application.config.order-url:http://localhost:8083}") // Порт Order Service
+/**
+ * Feign client for interacting with the Order Service.
+ */
+@FeignClient(name = "order-service", url = "${application.config.order-url:http://localhost:8083}") // Order Service URL
 public interface OrderServiceClient {
 
     @GetMapping("/api/v1/orders/{id}")

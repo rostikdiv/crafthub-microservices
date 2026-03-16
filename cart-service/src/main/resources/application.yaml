@@ -1,5 +1,5 @@
 # ======================================================
-# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# === GENERAL SETTINGS ===
 # ======================================================
 server:
   port: 8085
@@ -8,8 +8,9 @@ spring:
   application:
     name: cart-service
   profiles:
-    active: local # ❗️ Профіль за замовчуванням
+    active: local # Default active profile
 
+  # MongoDB Configuration
   data:
     mongodb:
       host: ${MONGO_HOST:localhost}
@@ -17,20 +18,22 @@ spring:
       database: ${MONGO_DB:cart_db}
       username: ${MONGO_USER:crafthub}
       password: ${MONGO_PASS:password}
-      authentication-database: admin  # Важливо!
+      authentication-database: admin
 
+  # Kafka Configuration
   kafka:
     bootstrap-servers: localhost:29092
     consumer:
       group-id: cart-service-group
       auto-offset-reset: earliest
 
-
+# Distributed Tracing
 management:
   tracing:
     sampling:
       probability: 1.0
 
+# Resilience4j Circuit Breaker Settings
 resilience4j:
   circuitbreaker:
     configs:
@@ -47,13 +50,14 @@ resilience4j:
         baseConfig: default
 ---
 # ======================================================
-# === ПРОФІЛЬ "local" (Zipkin) ===
+# === PROFILE "local" (Local development with Zipkin) ===
 # ======================================================
 spring:
   config:
     activate:
       on-profile: local
 
+  # Disable AWS-related autoconfigurations for local profile
   autoconfigure:
     exclude:
       - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
@@ -61,6 +65,7 @@ spring:
       - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
       - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
+# Eureka Discovery
 eureka:
   client:
     service-url:
@@ -68,6 +73,7 @@ eureka:
   instance:
     prefer-ip-address: false
 
+# Zipkin Tracing
 management:
   zipkin:
     tracing:
@@ -79,13 +85,14 @@ aws:
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "aws" (X-Ray) ===
+# === PROFILE "aws" (Cloud deployment with X-Ray) ===
 # ======================================================
 spring:
   config:
     activate:
       on-profile: aws
 
+  # Disable discovery and Zipkin when running in AWS environment
   autoconfigure:
     exclude:
       - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
@@ -94,7 +101,9 @@ spring:
 
   cloud:
     discovery:
-      enabled: false # ❗️ Вимикаємо
+      enabled: false
+
+# AWS X-Ray Integration
 aws:
   xray:
     enabled: true

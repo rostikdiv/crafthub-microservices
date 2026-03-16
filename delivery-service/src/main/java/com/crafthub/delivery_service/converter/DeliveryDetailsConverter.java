@@ -9,6 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * JPA attribute converter for serializing and deserializing DeliveryDetailsDTO
+ * to/from a JSON string column in the database.
+ */
 @Converter
 @Component
 @RequiredArgsConstructor
@@ -19,7 +23,8 @@ public class DeliveryDetailsConverter implements AttributeConverter<DeliveryDeta
 
     @Override
     public String convertToDatabaseColumn(DeliveryDetailsDTO attribute) {
-        if (attribute == null) return null;
+        if (attribute == null)
+            return null;
         try {
             return objectMapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
@@ -30,7 +35,8 @@ public class DeliveryDetailsConverter implements AttributeConverter<DeliveryDeta
 
     @Override
     public DeliveryDetailsDTO convertToEntityAttribute(String dbData) {
-        if (dbData == null || dbData.isEmpty()) return null;
+        if (dbData == null || dbData.isEmpty())
+            return null;
         try {
             return objectMapper.readValue(dbData, DeliveryDetailsDTO.class);
         } catch (JsonProcessingException e) {

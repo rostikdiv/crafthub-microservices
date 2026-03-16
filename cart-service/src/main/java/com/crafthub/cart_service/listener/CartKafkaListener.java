@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Listener for Kafka events that affect the shopping cart.
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -16,14 +19,21 @@ public class CartKafkaListener {
 
     private final CartService cartService;
 
+    /**
+     * Handles order placement events.
+     * Removes purchased items from the user's cart upon successful order creation.
+     *
+     * @param event The OrderPlacedEventDTO containing order and product details.
+     */
     @KafkaListener(topics = "order-placed-topic", groupId = "cart-service-group")
     public void handleOrderPlaced(OrderPlacedEventDTO event) {
         log.info("🔔 Received OrderPlacedEvent: Order #{}", event.orderId());
 
         if (event.productIds() != null && !event.productIds().isEmpty()) {
-            log.info("🛒 Cleaning up cart for user: {}. Removing {} items...", event.userId(), event.productIds().size());
+            log.info("🛒 Cleaning up cart for user: {}. Removing {} items...", event.userId(),
+                    event.productIds().size());
 
-            // Проходимось по кожному ID купленого товару і видаляємо його з кошика
+            // Iterate over each purchased product ID and remove it from the cart
             for (UUID productId : event.productIds()) {
                 try {
                     cartService.removeItemFromCart(event.userId(), productId.toString());

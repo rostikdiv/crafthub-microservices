@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
-@FeignClient(name = "order-service") // Ім'я сервісу в Eureka
+/**
+ * Feign client for interacting with the Order Service.
+ */
+@FeignClient(name = "order-service") // Service name in Eureka
 public interface OrderServiceClient {
 
     @GetMapping("/api/v1/orders/check-purchase")

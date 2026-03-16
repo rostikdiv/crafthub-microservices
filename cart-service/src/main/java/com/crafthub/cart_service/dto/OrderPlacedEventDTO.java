@@ -4,12 +4,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-// Порядок полів має бути таким же, як в Order Service!
+/**
+ * DTO representing an order placement event received from Kafka.
+ */
 public record OrderPlacedEventDTO(
-        UUID orderId,
-        UUID userId,
-        String userEmail,
-        BigDecimal totalPrice,
-        String productName,
-        List<UUID> productIds // ✅ Список ID куплених товарів
-) {}
+                UUID orderId,
+                UUID userId,
+                String userEmail,
+                BigDecimal totalPrice,
+                String productName,
+                List<UUID> productIds) {
+}

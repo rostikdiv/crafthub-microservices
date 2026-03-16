@@ -7,7 +7,11 @@ import com.crafthub.product_service.dto.SellerInfoDTO;
 
 import java.util.UUID;
 
-// Назва сервісу має співпадати з тим, що в user_service/application.yaml (spring.application.name)
+/**
+ * Feign client for interacting with the User Service.
+ */
+// Service name must match spring.application.name in
+// user_service/application.yaml
 @FeignClient(name = "user-service", path = "/api/v1/users")
 public interface UserServiceClient {
 

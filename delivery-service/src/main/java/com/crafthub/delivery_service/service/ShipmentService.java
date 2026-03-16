@@ -19,6 +19,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service for managing the lifecycle of shipments.
+ * Handles shipment creation, status updates, and return shipments.
+ * Integrates with Order Service and sends status change events via Kafka.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,7 +47,7 @@ public class ShipmentService {
             orderData = orderServiceClient.getOrderById(orderId);
         } catch (Exception e) {
             log.error("Failed to fetch order data for ID: {}", orderId, e);
-            // Якщо не можемо дістати замовлення - це бізнес-помилка або серверна
+            // If order data cannot be retrieved, throw a business exception
             throw new BusinessException("Could not fetch order data for shipment creation");
         }
 
@@ -117,7 +122,7 @@ public class ShipmentService {
             com.crafthub.delivery_service.dto.request.ReturnShipmentRequestDTO request) {
         log.info("Creating RETURN shipment for Order: {}", request.orderId());
 
-        // 1. Створюємо зворотну доставку
+        // 1. Create return shipment entity
         Shipment shipment = Shipment.builder()
                 .orderId(request.orderId())
                 .status(DeliveryStatus.PREPARING)
@@ -137,7 +142,7 @@ public class ShipmentService {
                                                                                                           // понад 2 кг
         }
 
-        // 3. Запуск симуляції доставки
+        // 3. Start delivery simulation
         simulateDelivery(shipment.getId());
 
         return new com.crafthub.delivery_service.dto.response.ReturnShipmentResponseDTO(

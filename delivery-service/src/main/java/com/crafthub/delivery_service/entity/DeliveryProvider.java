@@ -4,5 +4,5 @@ public enum DeliveryProvider {
     NOVA_POSHTA,
     UKRPOSHTA,
     SELLER
-    // MEEST - можна додати в майбутньому
+    // MEEST - can be added in the future
 }

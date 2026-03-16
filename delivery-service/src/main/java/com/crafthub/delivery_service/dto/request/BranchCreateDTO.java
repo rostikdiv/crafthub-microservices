@@ -1,7 +1,11 @@
 package com.crafthub.delivery_service.dto.request;
 
+/**
+ * Data Transfer Object for creating a new branch.
+ */
 public record BranchCreateDTO(
-        String externalId,    // "ref-br-1"
-        String branchNumber,  // "1"
-        String name           // "Відділення №1..."
-) {}
+                String externalId, // Carrier-specific reference
+                String branchNumber, // Branch index
+                String name // Full branch name
+) {
+}

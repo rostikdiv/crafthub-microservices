@@ -1,13 +1,13 @@
-# --------- ЕТАП 1: ЗБІРКА (Build) ---------
-# Використовуємо офіційний образ Maven з Java 17
+# --------- STAGE 1: Build ---------
+# Using the official Maven image with Java 17
 FROM maven:3.9.6-eclipse-temurin-17-focal AS builder
 
-# Встановлюємо робочу директорію всередині контейнера
+# Set the working directory inside the container
 WORKDIR /app
 
-# Копіюємо ТІЛЬКИ pom.xml файли (спочатку батьківський, потім наш)
-# Це трюк кешування Docker. Якщо залежності не змінились,
-# Docker не буде завантажувати їх знову.
+# Copy ONLY pom.xml files first (parent then service)
+# This leverages Docker caching: if dependencies haven't changed,
+# Docker won't redownload them.
 COPY pom.xml .
 
 COPY api-gateway/pom.xml ./api-gateway/
@@ -20,34 +20,33 @@ COPY cart-service/pom.xml ./cart-service/
 COPY payment-service/pom.xml ./payment-service/
 COPY delivery-service/pom.xml ./delivery-service/
 
-# Використовуємо кеш Docker BuildKit для папки .m2
+# Use Docker BuildKit cache for the .m2 folder
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
-# 4. Копіюємо вихідний код
-# ❗️ ОСЬ ТВОЯ ПОМИЛКА: ми маємо вказати повний шлях
+# Copy the source code
+# Ensure full path is specified
 COPY order-service/src ./order-service/src
 
-# Збираємо, але знову монтуємо кеш .m2, щоб не качати нічого зайвого
-# Діагностика версій та залежностей
+# Build while mounting the .m2 cache to minimize downloads
+# Diagnostic information
 RUN mvn -version
 RUN mvn dependency:tree -pl order-service
 
-# Збираємо БЕЗ кешу (тимчасово для debug)
+# Build the package (skipping tests for build speed)
 RUN mvn clean package -DskipTests -pl order-service -am
 
-# --------- ЕТАП 2: ЗАПУСК (Run) ---------
-# Використовуємо МІНІМАЛЬНИЙ образ тільки з Java Runtime
+# --------- STAGE 2: Run ---------
+# Use a minimal image with only the Java Runtime
 FROM eclipse-temurin:17-jre-focal
 
-# Встановлюємо робочу директорію
+# Set the working directory
 WORKDIR /app
 
-# Копіюємо наш .jar файл з ЕТАПУ 1 (builder)
-# Зверни увагу на шлях, Maven кладе jar в папку 'target'
+# Copy the .jar file from STAGE 1 (builder)
 COPY --from=builder /app/order-service/target/order-service*.jar app.jar
 
-# Вказуємо порт, який наш додаток буде слухати всередині контейнера
+# Expose the port the application listens on
 EXPOSE 8083
 
-# Команда, яка виконається при запуску контейнера
+# Command to execute when the container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]

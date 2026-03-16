@@ -5,8 +5,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
 
+/**
+ * Configuration for Kafka topics used by the Payment Service.
+ */
 @Configuration
 public class KafkaConfig {
+
+    /**
+     * Declares the topic for successful payment events.
+     */
     @Bean
     public NewTopic paymentSuccessTopic() {
         return TopicBuilder.name("payment-success-topic")

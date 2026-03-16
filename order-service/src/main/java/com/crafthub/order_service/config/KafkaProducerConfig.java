@@ -14,6 +14,9 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Kafka producer configuration for the local profile.
+ */
 @Configuration
 @Profile("local")
 public class KafkaProducerConfig {
@@ -21,7 +24,9 @@ public class KafkaProducerConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    // 1. Фабрика продюсерів: кажемо, як підключатись і як кодувати дані
+    /**
+     * Producer factory config: defines connection settings and serialization.
+     */
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -30,13 +35,15 @@ public class KafkaProducerConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        // Додаткові налаштування для надійності JSON
-        configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false); // Щоб не передавати зайві заголовки класів
+        // Additional settings for reliable JSON serialization
+        configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false); // Avoid passing class type info in headers
 
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
-    // 2. Сам шаблон (Template), який ми інжектимо в KafkaPublisherService
+    /**
+     * Kafka template for publishing events.
+     */
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());

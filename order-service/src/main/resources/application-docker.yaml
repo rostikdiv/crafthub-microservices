@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://postgres-order-db:5432/order_service_db
     username: crafthub
-    password: password # ⚠️ Перевірте, чи такий пароль у docker-compose.yml
+    password: password # Check if this password matches docker-compose.yml
   kafka:
     bootstrap-servers: kafka:9092
   zipkin:

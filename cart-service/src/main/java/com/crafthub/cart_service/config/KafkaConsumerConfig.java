@@ -14,26 +14,31 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Configuration for Kafka consumers in the Cart Service.
+ */
 @Configuration
 public class KafkaConsumerConfig {
 
-    @Value("${spring.kafka.bootstrap-servers}") // Шукає spring -> kafka -> bootstrap-servers
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.consumer.group-id}") // Шукає spring -> kafka -> consumer -> group-id
+    @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
 
+    /**
+     * Configures the Kafka consumer factory with JSON deserialization for
+     * OrderPlacedEventDTO.
+     */
     @Bean
     public ConsumerFactory<String, OrderPlacedEventDTO> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
 
-        // 1. Явно вказуємо адресу (вирішує проблему UnknownHostException)
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        // 2. Налаштовуємо JSON десеріалізатор
-        // Ми кажемо: "Очікуй саме клас OrderPlacedEventDTO"
+        // Explicitly expect OrderPlacedEventDTO for deserialization
         JsonDeserializer<OrderPlacedEventDTO> deserializer = new JsonDeserializer<>(OrderPlacedEventDTO.class);
         deserializer.setRemoveTypeHeaders(false);
         deserializer.addTrustedPackages("*");
@@ -42,14 +47,15 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(
                 props,
                 new StringDeserializer(),
-                deserializer // ✅ Використовуємо налаштований JSON десеріалізатор
-        );
+                deserializer);
     }
 
+    /**
+     * Factory for concurrent Kafka listener containers.
+     */
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, OrderPlacedEventDTO> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, OrderPlacedEventDTO> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, OrderPlacedEventDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }

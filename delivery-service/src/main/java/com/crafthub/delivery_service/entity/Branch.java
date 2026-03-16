@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.UUID;
 
+/**
+ * Entity representing a specific delivery branch/service point.
+ */
 @Entity
 @Table(name = "branches", indexes = {
         @Index(name = "idx_branch_location", columnList = "location_id")
@@ -27,8 +30,8 @@ public class Branch {
     private Location location;
 
     @Column(nullable = false)
-    private String externalId; // Ref відділення
+    private String externalId; // Carrier branch reference ID
 
-    private String branchNumber; // "1", "15-A"
-    private String name; // "Відділення №1: вул. Городоцька..."
+    private String branchNumber; // Branch index, e.g., "1", "15-A"
+    private String name; // Full branch name with address
 }

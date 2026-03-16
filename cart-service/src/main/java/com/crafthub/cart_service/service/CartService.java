@@ -1,6 +1,5 @@
 package com.crafthub.cart_service.service;
 
-import com.crafthub.cart_service.client.ProductServiceClient;
 import com.crafthub.cart_service.dto.CartItemRequestDTO;
 import com.crafthub.cart_service.dto.ProductResponseDTO;
 import com.crafthub.cart_service.entity.Cart;
@@ -19,6 +18,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Core service for shopping cart management.
+ * Handles cart persistence, item management, and price/stock synchronization
+ * with the Product Service.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,33 +33,56 @@ public class CartService {
     private final UserContextService userContext;
 
     // =========================================================================
-    // 🟢 PUBLIC FACADE METHODS (Для Контролера)
-    // Ці методи не приймають userId, а беруть його з контексту безпеки
+    // PUBLIC FACADE METHODS (For the Controller)
     // =========================================================================
 
+    /**
+     * Retrieves the cart for the current authenticated user.
+     * 
+     * @return The current user's cart.
+     */
     public Cart getMyCart() {
         return getCart(userContext.getUserId());
     }
 
+    /**
+     * Adds an item to the current authenticated user's cart.
+     * 
+     * @param itemDto Details of the item to add.
+     * @return The updated cart.
+     */
     public Cart addItemToMyCart(CartItemRequestDTO itemDto) {
         return addItemToCart(userContext.getUserId(), itemDto);
     }
 
+    /**
+     * Removes a product from the current authenticated user's cart.
+     * 
+     * @param productIdStr UUID of the product as a string.
+     * @return The updated cart.
+     */
     public Cart removeItemFromMyCart(String productIdStr) {
         return removeItemFromCart(userContext.getUserId(), productIdStr);
     }
 
+    /**
+     * Clears all items from the current authenticated user's cart.
+     */
     public void clearMyCart() {
         clearCart(userContext.getUserId());
     }
 
     // =========================================================================
-    // 🟡 INTERNAL LOGIC METHODS
-    // Реалізація бізнес-логіки з явним userId
+    // INTERNAL LOGIC METHODS
     // =========================================================================
 
-    // --- ОТРИМАННЯ КОШИКА (З синхронізацією цін та наявності) ---
-    // --- ОТРИМАННЯ КОШИКА (З синхронізацією цін та наявності) ---
+    /**
+     * Retrieves and synchronizes the cart for a specific user ID.
+     * Refreshes product data from the Product Service.
+     *
+     * @param userId The unique ID of the user.
+     * @return The synchronized cart.
+     */
     public Cart getCart(UUID userId) {
         Cart cart = cartRepository.findById(userId)
                 .orElse(Cart.builder()
@@ -69,8 +96,8 @@ public class CartService {
             return cart;
         }
 
-        // 1. Отримуємо свіжі дані про товари з Product Service
-        List<ProductResponseDTO> freshProducts = null; // Ініціалізуємо null
+        // 1. Fetch fresh product data from the Product Service
+        List<ProductResponseDTO> freshProducts = null;
 
         try {
             List<UUID> allProductIds = cart.getSections().stream()
@@ -78,9 +105,9 @@ public class CartService {
                     .map(CartItem::getProductId)
                     .toList();
 
-            if (allProductIds.isEmpty()) return cart;
+            if (allProductIds.isEmpty())
+                return cart;
 
-            // Виклик через Circuit Breaker
             freshProducts = productServiceIntegration.getProductsByIds(allProductIds);
 
         } catch (Exception e) {
@@ -88,19 +115,16 @@ public class CartService {
             return cart;
         }
 
-        // 🔥 ВАЖЛИВА ЗМІНА: Перевіряємо на NULL перед використанням
-        // Якщо Circuit Breaker спрацював і повернув null -> ми просто віддаємо старий кошик
+        // Handle fallback scenario if service is unavailable
         if (freshProducts == null || freshProducts.isEmpty()) {
             log.info("Product Service unavailable (fallback triggered). Returning cached cart for user {}", userId);
             cart.setDataUpToDate(false);
             return cart;
         }
-        // 2. Якщо ми тут — значить дані прийшли успішно, оновлюємо кошик
+
         cart.setDataUpToDate(true);
 
-
-
-        // Створюємо мапу для швидкого пошуку: ID -> Product
+        // Map fresh data for efficient lookup
         Map<UUID, ProductResponseDTO> productMap = freshProducts.stream()
                 .collect(Collectors.toMap(ProductResponseDTO::id, Function.identity()));
 
@@ -114,26 +138,25 @@ public class CartService {
             for (CartItem item : section.getItems()) {
                 ProductResponseDTO freshData = productMap.get(item.getProductId());
 
-                // Якщо товару більше не існує в базі (Product Service повернув список, але цього товару там немає)
-                // Тоді видаляємо його з кошика
+                // Remove item if it no longer exists in Product Service
                 if (freshData == null) {
                     cartChanged = true;
                     continue;
                 }
 
-                // Оновлюємо поля (ціна, назва, картинка)
+                // Update dynamic fields (price, name, etc.)
                 if (updateItemData(item, freshData)) {
                     cartChanged = true;
                 }
 
-                // Оновлюємо дані секції
+                // Update seller context
                 if (section.getSellerName() == null || !section.getSellerName().equals(freshData.sellerName())) {
                     section.setSellerName(freshData.sellerName());
                     section.setSellerLogoUrl(freshData.sellerLogoUrl());
                     cartChanged = true;
                 }
 
-                // Перевіряємо наявність на складі
+                // Validate and adjust based on stock
                 if (freshData.quantity() > 0) {
                     if (item.getQuantity() > freshData.quantity()) {
                         item.setQuantity(freshData.quantity());
@@ -141,7 +164,7 @@ public class CartService {
                     }
                     validItems.add(item);
                 } else {
-                    cartChanged = true; // Товар закінчився
+                    cartChanged = true; // Product is out of stock
                 }
             }
 
@@ -161,9 +184,14 @@ public class CartService {
         return cart;
     }
 
-    // --- ДОДАВАННЯ ТОВАРУ ---
+    /**
+     * Adds an item to a specific cart. Validates availability.
+     *
+     * @param userId  The ID of the user.
+     * @param itemDto The requested item details.
+     * @return The updated cart.
+     */
     public Cart addItemToCart(UUID userId, CartItemRequestDTO itemDto) {
-        // 1. Отримуємо актуальні дані про товар
         ProductResponseDTO product;
         try {
             product = productServiceIntegration.getProductById(itemDto.productId());
@@ -171,7 +199,6 @@ public class CartService {
             throw new ResourceNotFoundException("Product not found or service unavailable");
         }
 
-        // 2. Перевіряємо залишки
         if (product.quantity() < itemDto.quantity()) {
             throw new BusinessException("Not enough stock. Available: " + product.quantity());
         }
@@ -184,12 +211,10 @@ public class CartService {
                         .build());
 
         UUID sellerId = product.sellerId();
-        // Фолбек для старих товарів без продавця
         if (sellerId == null) {
             sellerId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         }
 
-        // 3. Шукаємо або створюємо секцію для цього продавця
         UUID finalSellerId = sellerId;
         CartSection targetSection = cart.getSections().stream()
                 .filter(s -> s.getSellerId().equals(finalSellerId))
@@ -199,29 +224,26 @@ public class CartService {
                             finalSellerId,
                             product.sellerName(),
                             product.sellerLogoUrl(),
-                            new ArrayList<>()
-                    );
+                            new ArrayList<>());
                     cart.getSections().add(newSection);
                     return newSection;
                 });
 
-        // 4. Додаємо або оновлюємо товар у секції
         Optional<CartItem> existingItem = targetSection.getItems().stream()
                 .filter(item -> item.getProductId().equals(itemDto.productId()))
                 .findFirst();
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
-            item.setQuantity(itemDto.quantity()); // Встановлюємо нову кількість (перезапис)
-            item.setPrice(product.price());       // Оновлюємо ціну
+            item.setQuantity(itemDto.quantity());
+            item.setPrice(product.price());
         } else {
             CartItem newItem = new CartItem(
                     itemDto.productId(),
                     product.name(),
                     product.previewImageUrl(),
                     itemDto.quantity(),
-                    product.price()
-            );
+                    product.price());
             targetSection.getItems().add(newItem);
         }
 
@@ -229,7 +251,13 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    // --- ВИДАЛЕННЯ ТОВАРУ ---
+    /**
+     * Removes an item from the cart.
+     *
+     * @param userId       The ID of the user.
+     * @param productIdStr Product UUID string.
+     * @return The updated cart.
+     */
     public Cart removeItemFromCart(UUID userId, String productIdStr) {
         UUID productId = UUID.fromString(productIdStr);
         Cart cart = cartRepository.findById(userId)
@@ -244,11 +272,10 @@ public class CartService {
 
             if (removed) {
                 cartChanged = true;
-                // Якщо секція стала порожньою - видаляємо її
                 if (section.getItems().isEmpty()) {
                     sectionIterator.remove();
                 }
-                break; // Товар знайдено і видалено
+                break;
             }
         }
 
@@ -259,7 +286,11 @@ public class CartService {
         return cart;
     }
 
-    // --- ОЧИЩЕННЯ (Повне) ---
+    /**
+     * Deletes the entire cart for a user.
+     *
+     * @param userId The user's unique ID.
+     */
     public void clearCart(UUID userId) {
         if (cartRepository.existsById(userId)) {
             cartRepository.deleteById(userId);
@@ -267,7 +298,7 @@ public class CartService {
         }
     }
 
-    // --- ДОПОМІЖНІ МЕТОДИ ---
+    // --- HELPER METHODS ---
 
     private void recalculateTotal(Cart cart) {
         BigDecimal total = cart.getSections().stream()
@@ -279,7 +310,6 @@ public class CartService {
 
     private boolean updateItemData(CartItem item, ProductResponseDTO freshData) {
         boolean changed = false;
-        // Порівнюємо BigDecimal правильно (через compareTo)
         if (item.getPrice().compareTo(freshData.price()) != 0) {
             item.setPrice(freshData.price());
             changed = true;
@@ -292,8 +322,6 @@ public class CartService {
             item.setProductImageUrl(freshData.previewImageUrl());
             changed = true;
         }
-        // Оновлюємо кількість, тільки якщо на складі стало менше, ніж у кошику
-        // (Збільшення кількості користувач робить вручну)
         if (item.getQuantity() > freshData.quantity()) {
             item.setQuantity(freshData.quantity());
             changed = true;

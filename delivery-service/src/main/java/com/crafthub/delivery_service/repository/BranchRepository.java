@@ -8,10 +8,21 @@ import java.util.UUID;
 
 public interface BranchRepository extends JpaRepository<Branch, UUID> {
 
-    // Знайти всі відділення у конкретному місті
+    /**
+     * Retrieves all branches for a specific city.
+     *
+     * @param locationId the unique identifier of the city/location
+     * @return a list of branches
+     */
     List<Branch> findByLocationId(UUID locationId);
 
-    // Знайти всі відділення певного провайдера (для адмінки)
+    /**
+     * Retrieves all branches for a specific delivery provider.
+     *
+     * @param provider the delivery provider
+     * @param pageable pagination information
+     * @return a paginated list of branches
+     */
     org.springframework.data.domain.Page<Branch> findByLocationProvider(
             com.crafthub.delivery_service.entity.DeliveryProvider provider,
             org.springframework.data.domain.Pageable pageable);

@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST controller for managing orders.
+ * Handles order creation, cancellation, returns, and status updates.
+ */
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
@@ -26,6 +30,13 @@ public class OrderController {
     // private final com.crafthub.order_service.service.ReturnService returnService;
     // // Removed
 
+    /**
+     * Cancels an order by its ID.
+     *
+     * @param id     The ID of the order to cancel.
+     * @param reason The reason for cancellation (optional).
+     * @return A ResponseEntity with no content.
+     */
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasAuthority('order:create')")
     public ResponseEntity<Void> cancelOrder(
@@ -35,12 +46,25 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Creates a new order.
+     *
+     * @param request The order request DTO containing order details.
+     * @return A ResponseEntity containing the payment response DTO.
+     */
     @PostMapping
     @PreAuthorize("hasAuthority('order:create')")
     public ResponseEntity<PaymentResponseDTO> createOrder(@RequestBody OrderRequestDTO request) {
         return ResponseEntity.ok(orderService.createOrder(request));
     }
 
+    /**
+     * Requests a return for a specific order.
+     *
+     * @param id      The ID of the order for which to request a return.
+     * @param request The simple return request containing the reason.
+     * @return A ResponseEntity with no content.
+     */
     @PostMapping("/{id}/return")
     @PreAuthorize("hasAuthority('order:create')")
     public ResponseEntity<Void> requestReturn(
@@ -50,6 +74,13 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Processes a return request for a specific order.
+     *
+     * @param id       The ID of the order whose return is being processed.
+     * @param approved A boolean indicating whether the return is approved or not.
+     * @return A ResponseEntity with no content.
+     */
     @PutMapping("/{id}/return/process")
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Void> processReturn(
@@ -59,6 +90,12 @@ public class OrderController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * Completes a return process for a specific order.
+     *
+     * @param id The ID of the order whose return is being completed.
+     * @return A ResponseEntity with no content.
+     */
     @PutMapping("/{id}/return/complete")
     @PreAuthorize("hasRole('SELLER')")
     public ResponseEntity<Void> completeReturn(

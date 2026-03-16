@@ -3,8 +3,10 @@ package com.crafthub.product_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
-// UUID імпорт більше не потрібен для ID
 
+/**
+ * Entity representing a product category.
+ */
 @Entity
 @Table(name = "categories")
 @Getter
@@ -15,7 +17,7 @@ import java.util.List;
 public class Category {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ 1, 2, 3...
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID auto-generation (1, 2, 3...)
     private Long id;
 
     @Column(nullable = false, unique = true)

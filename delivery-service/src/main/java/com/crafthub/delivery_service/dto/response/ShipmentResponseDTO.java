@@ -8,6 +8,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Data Transfer Object for shipment status and details.
+ */
 @Data
 @Builder
 public class ShipmentResponseDTO {
@@ -15,7 +18,7 @@ public class ShipmentResponseDTO {
     private UUID orderId;
     private DeliveryStatus status;
     private String trackingNumber;
-    private DeliveryDetailsDTO deliveryDetails; // Покажемо повну адресу
+    private DeliveryDetailsDTO deliveryDetails; // Full delivery address information
     private LocalDateTime createdAt;
     private LocalDateTime shippedAt;
 }

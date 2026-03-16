@@ -1,4 +1,4 @@
-package com.crafthub.product_service.config; // ⚠️ Змініть package відповідно
+package com.crafthub.product_service.config;
 
 import com.crafthub.product_service.config.security.HeaderAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -10,9 +10,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security configuration for the Product microservice.
+ * Relies on custom HeaderAuthenticationFilter for user identification.
+ */
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // ✅ Вмикає @PreAuthorize
+@EnableMethodSecurity // Enables @PreAuthorize
 public class SecurityConfig {
 
     @Bean
@@ -21,9 +25,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Дозволяємо все, бо захист тепер на рівні методів
+                        .anyRequest().permitAll() // Allow all, as protection is now method-level
                 )
-                // Додаємо наш фільтр, який читає заголовки
+                // Add our custom header-based authentication filter
                 .addFilterBefore(new HeaderAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
