@@ -155,9 +155,9 @@ public class ProductService {
             BigDecimal maxPrice,
             Boolean isAvailable,
             Double minRating,
-            UUID sellerId, // Add sellerId parameter
+            UUID sellerId,
+            String accessLevel,
             Pageable pageable) {
-        // Use the updated specification method
         Specification<Product> spec = ProductSpecification.filterProducts(
                 categoryId,
                 minPrice,
@@ -165,7 +165,8 @@ public class ProductService {
                 search,
                 isAvailable,
                 minRating,
-                sellerId); // Pass sellerId
+                sellerId,
+                accessLevel);
 
         return productRepository.findAll(spec, pageable)
                 .map(this::mapToProductResponse);

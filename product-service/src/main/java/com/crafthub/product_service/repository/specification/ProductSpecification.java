@@ -18,7 +18,8 @@ public class ProductSpecification {
             String search,
             Boolean isAvailable,
             Double minRating,
-            java.util.UUID sellerId // 👈 2. Add sellerId
+            java.util.UUID sellerId,
+            String accessLevel
     ) {
         Specification<Product> spec = (root, query, cb) -> cb.conjunction();
 
@@ -58,6 +59,12 @@ public class ProductSpecification {
         // 7. Seller ID
         if (sellerId != null) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("sellerId"), sellerId));
+        }
+
+        // 8. Access Level (clearance)
+        if (accessLevel != null && !accessLevel.isBlank()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("accessLevel"),
+                    com.crafthub.product_service.entity.enums.AccessLevel.valueOf(accessLevel.toUpperCase())));
         }
 
         return spec;

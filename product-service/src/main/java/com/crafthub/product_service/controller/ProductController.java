@@ -52,11 +52,12 @@ public class ProductController {
             @RequestParam(required = false) Boolean isAvailable,
             @RequestParam(required = false) Double minRating,
             @RequestParam(required = false) UUID sellerId,
+            @RequestParam(required = false) String accessLevel,
 
-            // Sorting defaults to createdAt, DESC
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+            // Sorting defaults to: in-stock first (quantity DESC), then newest first (createdAt DESC)
+            @PageableDefault(sort = {"quantity", "createdAt"}, direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         return ResponseEntity.ok(productService.getAllProducts(
-                search, categoryId, minPrice, maxPrice, isAvailable, minRating, sellerId, pageable));
+                search, categoryId, minPrice, maxPrice, isAvailable, minRating, sellerId, accessLevel, pageable));
     }
 
     @PostMapping("/")
