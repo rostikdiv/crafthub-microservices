@@ -15,8 +15,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Filter that extracts user identity and permissions from HTTP headers.
+ * These headers are expected to be set by the API Gateway after successful JWT
+ * validation.
+ */
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
+    /**
+     * Extracts "X-User-Id" and "X-User-Permissions" from the request headers.
+     * If present, sets the security context with a new Authentication token.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
@@ -34,8 +43,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
             }
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    userId, null, authorities
-            );
+                    userId, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         chain.doFilter(request, response);

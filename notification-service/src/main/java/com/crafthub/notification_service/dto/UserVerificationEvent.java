@@ -2,9 +2,13 @@ package com.crafthub.notification_service.dto;
 
 import java.util.UUID;
 
+/**
+ * Event record representing a user verification result.
+ */
 public record UserVerificationEvent(
-        UUID userId,
-        String email,
-        boolean isVerified,
-        String reason // Коментар адміна (причина відмови або вітання)
-) {}
+                UUID userId,
+                String email,
+                boolean isVerified,
+                String reason // Admin comment or rejection reason
+) {
+}

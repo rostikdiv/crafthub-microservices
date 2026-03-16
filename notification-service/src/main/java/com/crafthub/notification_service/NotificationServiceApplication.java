@@ -6,6 +6,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
+/**
+ * Main application class for the Notification Service.
+ * This service handles sending email and other types of notifications to users.
+ */
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableKafka

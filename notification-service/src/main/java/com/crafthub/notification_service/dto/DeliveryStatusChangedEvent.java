@@ -1,10 +1,12 @@
 package com.crafthub.notification_service.dto;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Event record representing a change in delivery status for an order.
+ */
 public record DeliveryStatusChangedEvent(
-        UUID orderId,
-        String status,
-        LocalDateTime timestamp
-) {}
+                UUID orderId,
+                String status,
+                String trackingNumber) {
+}

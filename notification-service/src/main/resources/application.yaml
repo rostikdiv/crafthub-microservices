@@ -1,5 +1,5 @@
 # ======================================================
-# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# === GENERAL CONFIGURATION ===
 # ======================================================
 server:
   port: 8084
@@ -8,7 +8,7 @@ spring:
   application:
     name: notification-service
   profiles:
-    active: local # ❗️ Профіль за замовчуванням
+    active: local # Default active profile
 
 management:
   tracing:
@@ -17,14 +17,14 @@ management:
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "local" (Kafka + Zipkin) ===
+# === PROFILE: "local" (Kafka + Zipkin) ===
 # ======================================================
 spring:
   config:
     activate:
       on-profile: local
 
-  # Виключення AWS (правильно)
+  # Disable AWS autoconfiguration for local profile
   autoconfigure:
     exclude:
       - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
@@ -32,29 +32,26 @@ spring:
       - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
       - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
-  # 👇 ВИПРАВЛЕНО: kafka тепер підпорядкована spring (відступ 2 пробіли)
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     consumer:
       group-id: "notification-group"
       auto-offset-reset: earliest
-      # Ці два рядки можна навіть прибрати, бо ми налаштували це в Java Config
-      # але якщо лишаєш - хай будуть
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   mail:
     host: sandbox.smtp.mailtrap.io
     port: 2525
-    username: 54baf4bfea8233  # 👈 Взято з вашого скріншоту
-    password: 70ea0c846bc5da # 👈 Скопіюйте повний пароль з сайту
+    username: 54baf4bfea8233
+    password: 70ea0c846bc5da
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-# Eureka залишається на верхньому рівні (без відступу під spring)
+
 eureka:
   client:
     service-url:
@@ -70,9 +67,10 @@ management:
 aws:
   xray:
     enabled: false
+
 ---
 # ======================================================
-# === ПРОФІЛЬ "aws" (SQS + X-Ray) ===
+# === PROFILE: "aws" (SQS + X-Ray) ===
 # ======================================================
 spring:
   config:
@@ -84,10 +82,9 @@ spring:
       autoconfigure:
         enabled: true
     discovery:
-      enabled: false # ❗️ Вимикаємо
+      enabled: false
 
-  # ❗️ УВІМКНУТИ AWS автоконфігурацію для AWS профілю
-
+  # Disable Eureka and Zipkin for AWS profile to prioritize AWS-native services
   autoconfigure:
     exclude:
       - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
@@ -99,11 +96,11 @@ io:
   awspring:
     cloud:
       sqs:
-        auto-create-queues: false # ЗАБОРОНИТИ СТВОРЮВАТИ ЧЕРГИ
+        auto-create-queues: false # Disable automatic queue creation
 
 application:
   sqs:
-    # ❗️ Встав сюди СВІЙ URL з консолі SQS
+    # URL of target SQS queue
     orders-queue-url: https://sqs.eu-north-1.amazonaws.com/437387546814/orders_queue
 
 aws:

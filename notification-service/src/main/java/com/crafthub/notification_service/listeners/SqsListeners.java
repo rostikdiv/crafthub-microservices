@@ -5,17 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+/**
+ * Listener component for processing events received from AWS SQS queues.
+ * Used as an alternative to Kafka when running in AWS environments.
+ */
 @Component
 @Slf4j
-@Profile("aws") // ❗️ Тільки для AWS
+@Profile("aws")
 public class SqsListeners {
 
-    // ❗️ Анотація SQS замість Kafka
+    /**
+     * Handles order notifications received via SQS.
+     */
     @SqsListener("${application.sqs.orders-queue-url}")
-    public // Назва нашої SQS черги
-    void handleOrderNotification(String message) {
-        // Логіка та сама
-        log.info("Отримано нове сповіщення про замовлення (з SQS): {}", message);
-        log.info("...симуляція відправки email...");
+    public void handleOrderNotification(String message) {
+        log.info("Received new order notification (from SQS): {}", message);
+        log.info("Simulating email transmission...");
     }
 }
