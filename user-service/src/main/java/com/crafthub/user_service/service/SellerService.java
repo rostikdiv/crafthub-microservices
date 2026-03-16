@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,6 +24,27 @@ public class SellerService {
 
         private final SellerProfileRepository sellerProfileRepository;
         private final UserRepository userRepository;
+
+        /**
+         * Retrieves all seller public profiles (used for filter dropdowns).
+         */
+        @Transactional(readOnly = true)
+        public List<SellerPublicProfileDTO> getAllSellers() {
+                return sellerProfileRepository.findAll().stream()
+                        .map(profile -> new SellerPublicProfileDTO(
+                                profile.getUser().getId(),
+                                profile.getCompanyName(),
+                                profile.getDescription(),
+                                profile.getLogoUrl(),
+                                profile.getRating() != null ? profile.getRating() : 0.0f,
+                                profile.getReviewCount() != null ? profile.getReviewCount() : 0,
+                                profile.getUser().getIsVerified(),
+                                profile.getUser().getCreatedAt().toLocalDateTime(),
+                                java.util.Collections.emptyList()))
+                        .sorted(java.util.Comparator.comparing(
+                                s -> s.companyName() != null ? s.companyName() : ""))
+                        .toList();
+        }
 
         /**
          * Retrieves the public profile details for a seller, including their associated

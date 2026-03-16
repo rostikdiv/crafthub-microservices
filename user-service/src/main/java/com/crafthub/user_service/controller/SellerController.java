@@ -22,10 +22,15 @@ public class SellerController {
     private final ProfileService profileService;
 
     /**
+     * Retrieves a list of all seller public profiles (for filter dropdowns, etc.)
+     */
+    @GetMapping
+    public ResponseEntity<java.util.List<SellerPublicProfileDTO>> getAllSellers() {
+        return ResponseEntity.ok(sellerService.getAllSellers());
+    }
+
+    /**
      * Retrieves the public profile of a seller by their ID.
-     *
-     * @param id The seller's unique identifier.
-     * @return A ResponseEntity containing the seller's public profile details.
      */
     @GetMapping("/{id}")
     public ResponseEntity<SellerPublicProfileDTO> getSellerProfile(@PathVariable UUID id) {

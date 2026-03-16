@@ -35,10 +35,13 @@ public class RouteValidator {
             return false;
         }
 
-        // Step 2: Public access for specific GET requests (e.g., viewing products or
-        // categories)
+        // Step 2: Public access for specific GET requests (e.g., viewing products,
+        // categories, or seller list for filters)
         if (request.getMethod().equals(HttpMethod.GET)) {
-            if (path.contains("/api/v1/products") || path.contains("/api/v1/categories")) {
+            if (path.contains("/api/v1/products") ||
+                path.contains("/api/v1/categories") ||
+                path.contains("/api/v1/sellers") ||
+                path.contains("/api/v1/seller-reviews")) {
                 return false;
             }
         }
