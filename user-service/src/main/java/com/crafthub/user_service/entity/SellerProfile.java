@@ -5,6 +5,10 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
+/**
+ * Entity representing the extended profile information for a system user
+ * registered as a seller.
+ */
 @Entity
 @Table(name = "seller_profiles")
 @Getter
@@ -32,9 +36,9 @@ public class SellerProfile {
     private String logoUrl;
 
     @Column(nullable = false, unique = true)
-    private String taxId; // ІПН або ЄДРПОУ
+    private String taxId;
 
-    private Float rating; // Рейтинг продавця
+    private Float rating;
 
     @Column(nullable = false)
     @Builder.Default
@@ -44,7 +48,6 @@ public class SellerProfile {
     @Builder.Default
     private Integer totalSales = 0;
 
-    // ... всередині класу SellerProfile додайте:
     @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<SellerPoint> pickupPoints;
 }

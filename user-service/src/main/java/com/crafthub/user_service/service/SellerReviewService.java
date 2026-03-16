@@ -1,8 +1,7 @@
 package com.crafthub.user_service.service;
 
-import com.crafthub.user_service.client.OrderServiceClient;
-import com.crafthub.user_service.dto.review.SellerReviewRequestDTO; // Створіть цей DTO (rating, comment, sellerId)
-import com.crafthub.user_service.dto.review.SellerReviewResponseDTO; // Створіть DTO для відповіді
+import com.crafthub.user_service.dto.review.SellerReviewRequestDTO;
+import com.crafthub.user_service.dto.review.SellerReviewResponseDTO;
 import com.crafthub.user_service.entity.SellerProfile;
 import com.crafthub.user_service.entity.SellerReview;
 import com.crafthub.user_service.entity.User;
@@ -20,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+/**
+ * Service for handling seller reviews, including authorization and rating
+ * aggregation.
+ */
 @Service
 @RequiredArgsConstructor
 public class SellerReviewService {
@@ -29,48 +32,52 @@ public class SellerReviewService {
     private final OrderServiceIntegration orderServiceIntegration;
     private final UserRepository userRepository;
 
+    /**
+     * Adds a new review for a seller. Validates that the user is not reviewing
+     * themselves
+     * and has a verified purchase from the seller.
+     *
+     * @param request The review details.
+     * @return The saved review details.
+     */
     @Transactional
     public SellerReviewResponseDTO addReview(SellerReviewRequestDTO request) {
-        // 1. Отримуємо поточного юзера
         String userIdStr = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // 2. Не можна оцінювати самого себе
         if (userId.equals(request.sellerId())) {
-            System.err.println(
-                    "Review Error: User " + userId + " tried to review self (Seller " + request.sellerId() + ")");
             throw new BusinessException("You cannot review yourself");
         }
 
-        // 3. ПЕРЕВІРКА ЧЕРЕЗ ORDER SERVICE
+        // Verification of purchase via communication with Order Service
         Boolean hasBought = orderServiceIntegration.checkSellerPurchase(userId, request.sellerId());
         if (!Boolean.TRUE.equals(hasBought)) {
-            System.err.println("Review Error: Purchase verification failed for User " + userId + " and Seller "
-                    + request.sellerId());
             throw new BusinessException("You can only review sellers you have purchased from (delivered orders).");
         }
 
-        // 4. Зберігаємо відгук
         SellerReview review = SellerReview.builder()
                 .sellerId(request.sellerId())
                 .userId(userId)
-                .userName(user.getFirstName() + " " + user.getLastName()) // Кешуємо ім'я
+                .userName(user.getFirstName() + " " + user.getLastName())
                 .rating(request.rating())
                 .comment(request.comment())
                 .build();
 
         reviewRepository.save(review);
 
-        // 5. 🔥 МИТТЄВЕ ОНОВЛЕННЯ РЕЙТИНГУ ПРОДАВЦЯ
+        // Immediate update of seller rating and review count
         updateSellerStats(request.sellerId());
 
         return mapToDTO(review);
     }
 
-    // Приватний метод для перерахунку статистики
+    /**
+     * Recalculates and updates the average rating and review count for a specified
+     * seller.
+     */
     private void updateSellerStats(UUID sellerId) {
         Double avg = reviewRepository.getAverageRating(sellerId);
         Integer count = reviewRepository.countBySellerId(sellerId);
@@ -84,6 +91,9 @@ public class SellerReviewService {
         profileRepository.save(profile);
     }
 
+    /**
+     * Retrieves all reviews for a specific seller with pagination.
+     */
     @Transactional(readOnly = true)
     public Page<SellerReviewResponseDTO> getReviewsBySeller(UUID sellerId, Pageable pageable) {
         return reviewRepository.findAllBySellerId(sellerId, pageable)
@@ -91,7 +101,6 @@ public class SellerReviewService {
     }
 
     private SellerReviewResponseDTO mapToDTO(SellerReview r) {
-        // Повертаємо DTO
         return new SellerReviewResponseDTO(
                 r.getId(), r.getUserId(), r.getUserName(), r.getRating(), r.getComment(), r.getCreatedAt());
     }

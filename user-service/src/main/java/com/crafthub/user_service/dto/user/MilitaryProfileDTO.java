@@ -1,10 +1,12 @@
-package com.crafthub.user_service.dto;
+package com.crafthub.user_service.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
-
 import java.util.UUID;
 
+/**
+ * Data Transfer Object for military profile details.
+ */
 @Data
 @Builder
 public class MilitaryProfileDTO {

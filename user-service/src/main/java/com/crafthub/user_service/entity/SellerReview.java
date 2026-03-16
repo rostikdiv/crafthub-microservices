@@ -5,6 +5,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Entity representing a review left for a seller by a buyer.
+ */
 @Entity
 @Table(name = "seller_reviews")
 @Getter
@@ -19,19 +22,18 @@ public class SellerReview {
     private UUID id;
 
     @Column(nullable = false)
-    private UUID sellerId; // ID Продавця (на кого пишуть відгук)
+    private UUID sellerId;
 
     @Column(nullable = false)
-    private UUID userId;   // Автор відгуку
+    private UUID userId;
 
-    private String userName; // Ім'я автора (кешуємо, щоб не шукати щоразу)
+    private String userName;
 
-    private Integer rating; // 1-5
+    private Integer rating;
 
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    // Відповідь продавця (опціонально, спрощена схема без дерева)
     @Column(columnDefinition = "TEXT")
     private String sellerReply;
 

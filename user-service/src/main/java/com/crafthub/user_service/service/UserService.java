@@ -1,7 +1,7 @@
 package com.crafthub.user_service.service;
 
-import com.crafthub.user_service.dto.ChangePasswordRequestDTO;
-import com.crafthub.user_service.dto.UserUpdateDTO;
+import com.crafthub.user_service.dto.auth.ChangePasswordRequestDTO;
+import com.crafthub.user_service.dto.user.UserUpdateDTO;
 import com.crafthub.user_service.entity.User;
 import com.crafthub.user_service.exception.BusinessException;
 import com.crafthub.user_service.exception.ResourceNotFoundException;
@@ -14,10 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
-import com.crafthub.user_service.dto.MilitaryProfileDTO;
-import com.crafthub.user_service.dto.SellerProfileDTO;
-import com.crafthub.user_service.dto.UserResponseDTO;
+import com.crafthub.user_service.dto.user.MilitaryProfileDTO;
+import com.crafthub.user_service.dto.seller.SellerProfileDTO;
+import com.crafthub.user_service.dto.user.UserResponseDTO;
 
+/**
+ * Service for core user management operations, including profile mapping and
+ * updates.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -25,27 +29,38 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // --- HELPER Methods ---
-
+    /**
+     * Fetches a user by ID or throws an exception if not found.
+     */
     public User getUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
     }
 
+    /**
+     * Helper to retrieve the currently authenticated user based on the security
+     * context.
+     */
     private User getCurrentUser() {
         String userIdStr = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
         return getUserById(userId);
     }
 
-    // --- PUBLIC API ---
-
+    /**
+     * Retrieves detailed user information, including associated seller and military
+     * profiles.
+     */
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByIdWithProfiles(UUID userId) {
         User user = getUserById(userId);
         return mapToResponseDTO(user);
     }
 
+    /**
+     * Maps user entity and its sub-profiles to a comprehensive Data Transfer
+     * Object.
+     */
     private UserResponseDTO mapToResponseDTO(User user) {
         SellerProfileDTO sellerDTO = null;
         if (user.getSellerProfile() != null) {
@@ -87,6 +102,9 @@ public class UserService {
                 .build();
     }
 
+    /**
+     * Updates the basic profile details of the current user.
+     */
     @Transactional
     public User updateCurrentUser(UserUpdateDTO dto) {
         User user = getCurrentUser();
@@ -97,6 +115,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Validates and updates the current user's password.
+     */
     @Transactional
     public void changePassword(ChangePasswordRequestDTO dto) {
         User user = getCurrentUser();

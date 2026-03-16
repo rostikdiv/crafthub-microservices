@@ -8,49 +8,57 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+/**
+ * Configuration for Feign clients, including error decoding and security header
+ * propagation.
+ */
 @Configuration
 public class FeignConfig {
 
+    /**
+     * Custom error decoder for processing Feign exceptions from external
+     * microservices.
+     */
     @Bean
     public ErrorDecoder errorDecoder() {
         return new RetreiveMessageErrorDecoder();
     }
 
+    /**
+     * Interceptor to propagate security headers (User ID, Email, Roles,
+     * Permissions)
+     * from the current request to outgoing Feign calls.
+     */
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                    .getRequestAttributes();
 
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
 
-                // === Список усіх заголовків безпеки, які ми прокидаємо ===
-
-                // 1. ID користувача (Критично важливо)
+                // List of security headers to be propagated
                 String userId = request.getHeader("X-User-Id");
                 if (userId != null) {
                     requestTemplate.header("X-User-Id", userId);
                 }
 
-                // 2. Email (Для логування або повідомлень)
                 String userEmail = request.getHeader("X-User-Email");
                 if (userEmail != null) {
                     requestTemplate.header("X-User-Email", userEmail);
                 }
 
-                // 3. Роль (Для грубої авторизації)
                 String userRole = request.getHeader("X-User-Role");
                 if (userRole != null) {
                     requestTemplate.header("X-User-Role", userRole);
                 }
 
-                // 4. Права доступу (Для точкової авторизації @PreAuthorize)
                 String userPermissions = request.getHeader("X-User-Permissions");
                 if (userPermissions != null) {
                     requestTemplate.header("X-User-Permissions", userPermissions);
                 }
 
-                // 5. Статус верифікації (Для бізнес-логіки)
                 String isVerified = request.getHeader("X-User-Is-Verified");
                 if (isVerified != null) {
                     requestTemplate.header("X-User-Is-Verified", isVerified);

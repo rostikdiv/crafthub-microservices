@@ -1,11 +1,13 @@
-package com.crafthub.user_service.dto;
+package com.crafthub.user_service.dto.user;
 
 import com.crafthub.user_service.entity.enums.Role;
 import lombok.Builder;
 import lombok.Data;
-
 import java.util.UUID;
 
+/**
+ * Data Transfer Object for user response details, including profiles.
+ */
 @Data
 @Builder
 public class UserResponseDTO {
@@ -18,6 +20,6 @@ public class UserResponseDTO {
     private Boolean isVerified;
     private String avatarUrl;
 
-    private SellerProfileDTO sellerProfile;
+    private com.crafthub.user_service.dto.seller.SellerProfileDTO sellerProfile;
     private MilitaryProfileDTO militaryProfile;
 }

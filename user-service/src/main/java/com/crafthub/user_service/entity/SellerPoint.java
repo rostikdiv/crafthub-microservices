@@ -5,6 +5,9 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
+/**
+ * Entity representing a physical pickup point managed by a seller.
+ */
 @Entity
 @Table(name = "seller_points")
 @Getter
@@ -24,22 +27,20 @@ public class SellerPoint {
     private SellerProfile sellerProfile;
 
     @Column(nullable = false)
-    private String name; // "Головна майстерня"
+    private String name;
 
-    // --- ✅ НОВІ СТРУКТУРОВАНІ ПОЛЯ ---
-
-    // Прив'язка до міста (важливо для фільтрів!)
+    // Location references and city data
     private String cityRef;
     private String cityName;
     private String region;
 
-    // Фізична адреса
+    // Physical address details
     private String streetName;
     private String building;
     private String apartment;
     private String zipCode;
 
-    // Контакти
+    // Contact information
     private String phone;
 
     @Column(columnDefinition = "TEXT")

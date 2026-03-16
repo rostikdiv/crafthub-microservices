@@ -1,12 +1,12 @@
 package com.crafthub.user_service.service;
 
-import com.crafthub.user_service.dto.AuthenticationResponse;
-import com.crafthub.user_service.dto.LoginRequest;
-import com.crafthub.user_service.dto.RegisterRequest;
+import com.crafthub.user_service.dto.auth.AuthenticationResponse;
+import com.crafthub.user_service.dto.auth.LoginRequest;
+import com.crafthub.user_service.dto.auth.RegisterRequest;
 import com.crafthub.user_service.entity.User;
 import com.crafthub.user_service.entity.enums.Role;
-import com.crafthub.user_service.exception.BusinessException; // ✅
-import com.crafthub.user_service.exception.ResourceNotFoundException; // ✅
+import com.crafthub.user_service.exception.BusinessException;
+import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for handling user registration and authentication logic.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -24,13 +27,20 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Registers a new user. Validates email uniqueness before persistence.
+     *
+     * @param request User registration details.
+     * @return AuthenticationResponse containing the JWT token.
+     */
     public AuthenticationResponse register(RegisterRequest request) {
-        // Перевірка на дублікат email
+        // Check for duplicate email
         if (repository.findByEmail(request.getEmail()).isPresent()) {
             throw new BusinessException("User with this email already exists");
         }
 
         var role = request.getRole() == null ? Role.BUYER : request.getRole();
+        // Buyers are auto-verified; sellers and admins require offline verification
         boolean isVerified = role == Role.BUYER;
 
         var user = User.builder()
@@ -51,16 +61,21 @@ public class AuthenticationService {
                 .build();
     }
 
+    /**
+     * Authenticates a user based on email and password.
+     *
+     * @param request Login credentials.
+     * @return AuthenticationResponse containing the JWT token.
+     */
     public AuthenticationResponse authenticate(LoginRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
-                            request.getPassword()
-                    )
-            );
+                            request.getPassword()));
         } catch (BadCredentialsException e) {
-            // Кидаємо BadCredentialsException, який ловиться GlobalExceptionHandler і повертає 401
+            // Rethrow to be caught by GlobalExceptionHandler (resulting in 401
+            // Unauthorized)
             throw e;
         }
 

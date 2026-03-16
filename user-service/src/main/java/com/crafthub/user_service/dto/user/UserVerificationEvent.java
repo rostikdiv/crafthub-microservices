@@ -1,10 +1,15 @@
-package com.crafthub.user_service.dto; // В Notification Service змініть пакет на com.crafthub.notification_service.dto
+package com.crafthub.user_service.dto.user;
 
 import java.util.UUID;
 
+/**
+ * Event record representing a user verification result, to be consumed by other
+ * services (e.g., Notification).
+ */
 public record UserVerificationEvent(
-        UUID userId,
-        String email,
-        boolean isVerified,
-        String reason // Коментар адміна (причина відмови або вітання)
-) {}
+                UUID userId,
+                String email,
+                boolean isVerified,
+                String reason // Admin comment or rejection reason
+) {
+}

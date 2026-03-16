@@ -6,10 +6,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.UUID;
 
+/**
+ * Feign client for communicating with the order-service.
+ */
 @FeignClient(name = "order-service", path = "/api/v1/orders")
 public interface OrderServiceClient {
 
+    /**
+     * Checks if a specific buyer has a completed purchase from a specific seller.
+     */
     @GetMapping("/check-seller-purchase")
     Boolean checkSellerPurchase(@RequestParam("userId") UUID userId,
-                                @RequestParam("sellerId") UUID sellerId);
+            @RequestParam("sellerId") UUID sellerId);
 }

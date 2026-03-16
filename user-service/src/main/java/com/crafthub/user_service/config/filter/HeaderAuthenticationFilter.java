@@ -15,46 +15,41 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Filter that extracts user identity and permissions from headers propagated by
+ * the API Gateway.
+ * This ensures that the User Service is aware of the authenticated user's
+ * context.
+ */
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        // 1. Читаємо заголовки
+        // Read identifiers and permissions from custom headers
         String userId = request.getHeader("X-User-Id");
         String permissionsHeader = request.getHeader("X-User-Permissions");
-        String path = request.getRequestURI();
-
-        // 🔥 ЛОГИ ДЛЯ ДІАГНОСТИКИ
-        System.out.println("========================================");
-        System.out.println("📥 [User Service] Filter hit: " + path);
-        System.out.println("🔎 [User Service] X-User-Id: " + userId);
-        System.out.println("🔎 [User Service] X-User-Permissions: " + permissionsHeader);
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             List<SimpleGrantedAuthority> authorities = Collections.emptyList();
 
+            // Map comma-separated strings to Spring Security authorities
             if (permissionsHeader != null && !permissionsHeader.isEmpty()) {
                 authorities = Arrays.stream(permissionsHeader.split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
             }
 
-            System.out.println("✅ [User Service] Authenticating user " + userId + " with authorities: " + authorities);
-
-            // Створюємо принципала
+            // Create authentication principal without password (Gateway handles primary
+            // auth)
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userId,
                     null,
-                    authorities
-            );
+                    authorities);
 
             SecurityContextHolder.getContext().setAuthentication(auth);
-        } else {
-            System.out.println("⚠️ [User Service] Authentication skipped (header missing or already auth)");
         }
-        System.out.println("========================================");
 
         chain.doFilter(request, response);
     }

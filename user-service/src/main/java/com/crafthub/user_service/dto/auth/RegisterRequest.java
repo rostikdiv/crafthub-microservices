@@ -1,11 +1,14 @@
-package com.crafthub.user_service.dto;
+package com.crafthub.user_service.dto.auth;
 
-import com.crafthub.user_service.entity.enums.Role; // Не забудь імпорт!
+import com.crafthub.user_service.entity.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Data Transfer Object for user registration requests.
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -15,6 +18,6 @@ public class RegisterRequest {
     private String lastName;
     private String email;
     private String password;
-    private String phoneNumber; // 🆕 Нове поле
-    private Role role;          // 🆕 Нове поле (BUYER, MILITARY_UNIT, SELLER)
+    private String phoneNumber;
+    private Role role; // Supported roles: BUYER, MILITARY_UNIT, SELLER
 }

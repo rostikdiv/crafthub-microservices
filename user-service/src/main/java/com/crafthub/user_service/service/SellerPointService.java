@@ -14,6 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service for managing seller pickup points, ensuring ownership and data
+ * integrity.
+ */
 @Service
 @RequiredArgsConstructor
 public class SellerPointService {
@@ -21,6 +25,9 @@ public class SellerPointService {
     private final SellerPointRepository pointRepository;
     private final SellerProfileRepository profileRepository;
 
+    /**
+     * Creates a new pickup point for a seller.
+     */
     @Transactional
     public SellerPointDTO createPoint(UUID userId, SellerPointDTO dto) {
         SellerProfile profile = getProfileByUserId(userId);
@@ -33,6 +40,9 @@ public class SellerPointService {
         return mapToDTO(point);
     }
 
+    /**
+     * Updates an existing pickup point, verifying seller ownership.
+     */
     @Transactional
     public SellerPointDTO updatePoint(UUID userId, UUID pointId, SellerPointDTO dto) {
         SellerProfile profile = getProfileByUserId(userId);
@@ -49,6 +59,9 @@ public class SellerPointService {
         return mapToDTO(point);
     }
 
+    /**
+     * Deletes a pickup point after verifying ownership.
+     */
     @Transactional
     public void deletePoint(UUID userId, UUID pointId) {
         SellerProfile profile = getProfileByUserId(userId);
@@ -63,6 +76,9 @@ public class SellerPointService {
         pointRepository.delete(point);
     }
 
+    /**
+     * Retrieves all pickup points for the current seller.
+     */
     @Transactional(readOnly = true)
     public List<SellerPointDTO> getMyPoints(UUID userId) {
         SellerProfile profile = getProfileByUserId(userId);
@@ -71,11 +87,17 @@ public class SellerPointService {
                 .toList();
     }
 
+    /**
+     * Helper to fetch a seller profile by user ID or throw an exception.
+     */
     private SellerProfile getProfileByUserId(UUID userId) {
         return profileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Seller profile not found for user: " + userId));
     }
 
+    /**
+     * Maps data from a DTO to a SellerPoint entity.
+     */
     private void updatePointFromDTO(SellerPoint point, SellerPointDTO dto) {
         point.setName(dto.name());
         point.setCityRef(dto.cityRef());
@@ -89,6 +111,9 @@ public class SellerPointService {
         point.setInstructions(dto.instructions());
     }
 
+    /**
+     * Maps a SellerPoint entity to a DTO.
+     */
     private SellerPointDTO mapToDTO(SellerPoint point) {
         return new SellerPointDTO(
                 point.getId(),

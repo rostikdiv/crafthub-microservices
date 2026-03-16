@@ -1,10 +1,9 @@
 package com.crafthub.user_service.service;
 
-import com.crafthub.user_service.entity.User; // 🆕 Імпорт нашого User
+import com.crafthub.user_service.entity.User;
 import com.crafthub.user_service.entity.enums.Permission;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +18,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Service for generating, parsing, and validating JSON Web Tokens (JWT).
+ */
 @Service
 public class JwtService {
 
@@ -37,12 +39,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    // 🆕 ОНОВЛЕНИЙ МЕТОД: Додаємо ID та Role в токен
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> extraClaims = new HashMap<>();
         if (userDetails instanceof User customUser) {
-            extraClaims.put("id", customUser.getId());   // Зашиваємо UUID
-            extraClaims.put("role", customUser.getRole()); // Зашиваємо Роль
+            extraClaims.put("id", customUser.getId());
+            extraClaims.put("role", customUser.getRole());
             extraClaims.put("isVerified", customUser.getIsVerified());
 
             Set<String> permissions = customUser.getRole().getPermissions().stream()
@@ -78,11 +79,12 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith((javax.crypto.SecretKey) getSignInKey()) // ❗️ verifyWith приймає SecretKey
+                .verifyWith((javax.crypto.SecretKey) getSignInKey())
                 .build()
-                .parseSignedClaims(token) // ❗️ замість parseClaimsJws
-                .getPayload(); // ❗️ замість getBody
+                .parseSignedClaims(token)
+                .getPayload();
     }
+
     private javax.crypto.SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);

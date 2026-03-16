@@ -1,13 +1,12 @@
-# --------- ЕТАП 1: ЗБІРКА (Build) ---------
-# Використовуємо офіційний образ Maven з Java 17
+# --------- STAGE 1: BUILD ---------
+# Use the official Maven image with Java 17 for the build stage
 FROM maven:3.9.6-eclipse-temurin-17-focal AS builder
 
-# Встановлюємо робочу директорію всередині контейнера
+# Set the working directory inside the container
 WORKDIR /app
 
-# Копіюємо ТІЛЬКИ pom.xml файли (спочатку батьківський, потім наш)
-# Це трюк кешування Docker. Якщо залежності не змінились,
-# Docker не буде завантажувати їх знову.
+# Copy ONLY pom.xml files first (parent then modules)
+# This leverages Docker's layer caching for dependencies.
 COPY pom.xml .
 
 COPY api-gateway/pom.xml ./api-gateway/
@@ -19,29 +18,28 @@ COPY notification-service/pom.xml ./notification-service/
 COPY cart-service/pom.xml ./cart-service/
 COPY payment-service/pom.xml ./payment-service/
 COPY delivery-service/pom.xml ./delivery-service/
-# 3. Завантажуємо залежності (тільки для цього модуля)
+
+# Download dependencies (only for this module to save time)
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
-# 4. Копіюємо вихідний код
-# ❗️ ОСЬ ТВОЯ ПОМИЛКА: ми маємо вказати повний шлях
+# Copy the source code for the user-service
 COPY user-service/src ./user-service/src
 
-# Збираємо, але знову монтуємо кеш .m2, щоб не качати нічого зайвого
+# Build the package, again using a mount cache for the Maven repository
 RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl user-service -am
 
-# --------- ЕТАП 2: ЗАПУСК (Run) ---------
-# Використовуємо МІНІМАЛЬНИЙ образ тільки з Java Runtime
+# --------- STAGE 2: RUN ---------
+# Use a minimal JRE image for the execution stage
 FROM eclipse-temurin:17-jre-focal
 
-# Встановлюємо робочу директорію
+# Set the working directory
 WORKDIR /app
 
-# Копіюємо наш .jar файл з ЕТАПУ 1 (builder)
-# Зверни увагу на шлях, Maven кладе jar в папку 'target'
+# Copy the compiled .jar file from the builder stage
 COPY --from=builder /app/user-service/target/user-service*.jar app.jar
 
-# Вказуємо порт, який наш додаток буде слухати всередині контейнера
+# Expose the port the application listens on
 EXPOSE 8081
 
-# Команда, яка виконається при запуску контейнера
+# Command to execute the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

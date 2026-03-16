@@ -4,14 +4,18 @@ import com.crafthub.user_service.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID; // Використовуємо UUID замість Long
+import java.util.UUID;
 
+/**
+ * Entity representing a system user.
+ * Implements Spring Security's UserDetails for integration with authentication
+ * mechanisms.
+ */
 @Entity
 @Table(name = "users")
 @Getter
@@ -22,7 +26,7 @@ import java.util.UUID; // Використовуємо UUID замість Long
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID) // Змінили на UUID
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false, unique = true)
@@ -46,21 +50,21 @@ public class User implements UserDetails {
     private Role role;
 
     @Column(nullable = false)
-    private Boolean isVerified = false; // Важливо для військових
+    private Boolean isVerified = false;
 
     @Column(nullable = false, updatable = false)
     private Timestamp createdAt;
 
     private Timestamp updatedAt;
 
-    // Зв'язки One-to-One
+    // Relationships
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MilitaryProfile militaryProfile;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private SellerProfile sellerProfile;
 
-    // Зв'язок з документами
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<VerificationDoc> documents;
 
@@ -79,11 +83,14 @@ public class User implements UserDetails {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
-    // Security методи
+    // Spring Security UserDetails implementation
+
+    /**
+     * Returns granted authorities derived from the user's role and associated
+     * permissions.
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // ✅ БУЛО: return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-        // ✅ СТАЛО: Беремо повний список прав з ролі
         return role.getAuthorities();
     }
 

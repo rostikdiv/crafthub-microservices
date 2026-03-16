@@ -1,8 +1,11 @@
 package com.crafthub.user_service.entity.enums;
 
+/**
+ * Enum representing the status of document or user verification.
+ */
 public enum VerificationStatus {
-    PENDING,   // Очікує перевірки
-    APPROVED,  // Підтверджено (для документа)
-    REJECTED,  // Відхилено
-    VERIFIED   // (Можна видалити, якщо не використовуєте, ми використовуємо APPROVED)
+    PENDING,
+    APPROVED,
+    REJECTED,
+    VERIFIED
 }

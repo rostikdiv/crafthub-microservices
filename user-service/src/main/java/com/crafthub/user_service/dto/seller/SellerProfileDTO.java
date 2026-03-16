@@ -1,10 +1,12 @@
-package com.crafthub.user_service.dto;
+package com.crafthub.user_service.dto.seller;
 
 import lombok.Builder;
 import lombok.Data;
-
 import java.util.UUID;
 
+/**
+ * Data Transfer Object for detailed seller profile information.
+ */
 @Data
 @Builder
 public class SellerProfileDTO {

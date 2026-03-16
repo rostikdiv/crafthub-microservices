@@ -13,13 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.UUID;
 
+/**
+ * Service for handling file storage operations using MinIO (S3-compatible).
+ */
 @Service
 @RequiredArgsConstructor
 public class FileStorageService {
 
     private final MinioClient minioClient;
-
-    // Removed injected signing client to prevent startup connection attempts
 
     @Value("${minio.url}")
     private String minioUrl;
@@ -33,27 +34,30 @@ public class FileStorageService {
     @Value("${minio.secret-key}")
     private String secretKey;
 
+    /**
+     * Uploads a file to a specified bucket. Generates a unique filename using UUID.
+     */
     @SneakyThrows
     public String uploadFile(MultipartFile file, String bucketName) {
         if (file.isEmpty()) {
             throw new RuntimeException("File must not be empty");
         }
 
-        // 1. Генеруємо унікальне ім'я
+        // 1. Generate unique filename
         String originalFilename = file.getOriginalFilename();
         String extension = getExtension(originalFilename);
         String fileName = UUID.randomUUID() + "." + extension;
 
-        // 2. Отримуємо потік
+        // 2. Get input stream
         InputStream inputStream = file.getInputStream();
 
-        // 3. Перевіряємо та створюємо бакет
+        // 3. Ensure bucket exists
         boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
         if (!found) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucketName).build());
         }
 
-        // 4. Вантажимо в MinIO
+        // 4. Upload to MinIO
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
@@ -62,16 +66,15 @@ public class FileStorageService {
                         .contentType(file.getContentType())
                         .build());
 
-        // 4. Повертаємо URL (зовнішній / documents / file)
+        // 5. Return internal URL
         return minioUrl + "/" + bucketName + "/" + fileName;
     }
 
+    /**
+     * Generates a presigned URL for secure document access.
+     */
     @SneakyThrows
     public String getPresignedUrl(String objectName, String bucketName) {
-        // Use the internal client (minio:9000) which is guaranteed to work.
-        // The URL will be http://minio:9000/...
-        // The frontend (fixImageUrl) handles the rewrite to localhost:9000 for the
-        // browser.
         return minioClient.getPresignedObjectUrl(
                 io.minio.GetPresignedObjectUrlArgs.builder()
                         .method(io.minio.http.Method.GET)
@@ -81,16 +84,20 @@ public class FileStorageService {
                         .build());
     }
 
+    /**
+     * Helper to extract the object name (filename) from a storage URL.
+     */
     public String extractObjectNameFromUrl(String url, String bucketName) {
         if (url == null || !url.contains(bucketName))
             return null;
-        // Example: http://minio:9000/documents/uuid.jpg
-        // bucketName = documents
-        // We want uuid.jpg
+
         String afterBucket = url.substring(url.indexOf(bucketName) + bucketName.length() + 1);
         return afterBucket;
     }
 
+    /**
+     * Retrieves an input stream for a specific object in the storage.
+     */
     @SneakyThrows
     public InputStream getFile(String bucketName, String objectName) {
         return minioClient.getObject(
@@ -100,6 +107,9 @@ public class FileStorageService {
                         .build());
     }
 
+    /**
+     * Extracts the file extension from a filename.
+     */
     private String getExtension(String filename) {
         if (filename == null || !filename.contains(".")) {
             return "bin";

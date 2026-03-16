@@ -18,63 +18,59 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filter for manual JWT authentication validation.
+ * Note: Primarily used for internal testing or fallback when Gateway is
+ * bypassed.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userDetailsService; // ❗️ Наш бін з SecurityConfig
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
 
-        // 1. Перевірка: чи є заголовок і чи починається він з "Bearer "
+        // Verify Bearer token presence
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response); // Якщо ні - передаємо далі
+            filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7); // Вирізаємо "Bearer "
+        jwt = authHeader.substring(7);
 
         try {
-            userEmail = jwtService.extractUsername(jwt); // Витягуємо email з токена
+            userEmail = jwtService.extractUsername(jwt);
 
-            // 2. Перевірка: чи є email і чи *ще немає* автентифікації в SecurityContext
+            // Validate user and token if not already authenticated in context
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                // 3. Завантажуємо UserDetails (йдемо в базу через наш userDetailsService)
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                // 4. Перевіряємо валідність токена
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    // 5. ❗️ СТВОРЮЄМО "ТУРНІКЕТ" - кладемо юзера в SecurityContext
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
-                            null, // Пароль нам тут не потрібен
-                            userDetails.getAuthorities()
-                    );
+                            null,
+                            userDetails.getAuthorities());
                     authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    // Оновлюємо SecurityContext
+                            new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    log.info("User {} authenticated successfully", userEmail);
+                    log.info("User {} authenticated successfully via JWT", userEmail);
                 }
             }
         } catch (Exception e) {
-            log.warn("Cannot set user authentication: {}", e.getMessage());
+            log.warn("Authentication failed: {}", e.getMessage());
         }
 
-        // 6. Передаємо запит далі по ланцюжку фільтрів
         filterChain.doFilter(request, response);
     }
 }

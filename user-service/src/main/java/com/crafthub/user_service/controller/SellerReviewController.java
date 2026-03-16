@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+/**
+ * Controller for managing reviews submitted by buyers for sellers.
+ */
 @RestController
 @RequestMapping("/api/v1/seller-reviews")
 @RequiredArgsConstructor
@@ -20,16 +23,21 @@ public class SellerReviewController {
 
     private final SellerReviewService reviewService;
 
+    /**
+     * Submits a new review for a seller.
+     */
     @PostMapping
     public ResponseEntity<SellerReviewResponseDTO> addReview(@RequestBody SellerReviewRequestDTO request) {
         return ResponseEntity.ok(reviewService.addReview(request));
     }
 
+    /**
+     * Retrieves a paginated list of reviews for a specified seller.
+     */
     @GetMapping("/seller/{sellerId}")
     public ResponseEntity<Page<SellerReviewResponseDTO>> getReviews(
             @PathVariable UUID sellerId,
-            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reviewService.getReviewsBySeller(sellerId, pageable));
     }
 }

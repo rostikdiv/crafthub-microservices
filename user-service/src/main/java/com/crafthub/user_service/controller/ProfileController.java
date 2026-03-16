@@ -2,15 +2,14 @@ package com.crafthub.user_service.controller;
 
 import com.crafthub.user_service.dto.profile.MilitaryProfileRequestDTO;
 import com.crafthub.user_service.dto.profile.SellerProfileRequestDTO;
-import com.crafthub.user_service.dto.profile.VerificationDocRequestDTO;
-import com.crafthub.user_service.entity.VerificationDoc;
 import com.crafthub.user_service.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+/**
+ * Controller for managing user-specific profiles (Seller and Military).
+ */
 @RestController
 @RequestMapping("/api/v1/users/me")
 @RequiredArgsConstructor
@@ -18,12 +17,18 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
+    /**
+     * Submits a request to create a seller profile for the current user.
+     */
     @PostMapping("/seller-profile")
     public ResponseEntity<String> createSellerProfile(@RequestBody SellerProfileRequestDTO dto) {
         profileService.createSellerProfile(dto);
         return ResponseEntity.ok("Seller profile created");
     }
 
+    /**
+     * Submits a request to create a military profile for the current user.
+     */
     @PostMapping("/military-profile")
     public ResponseEntity<String> createMilitaryProfile(@RequestBody MilitaryProfileRequestDTO dto) {
         profileService.createMilitaryProfile(dto);

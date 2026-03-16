@@ -1,5 +1,5 @@
 # ======================================================
-# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# === GENERAL CONFIGURATION ===
 # ======================================================
 server:
   port: 8081
@@ -8,7 +8,7 @@ spring:
   application:
     name: user-service
   profiles:
-    active: local # ❗️ Профіль за замовчуванням
+    active: local # Default active profile
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -27,12 +27,11 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     producer:
-      # Серіалізація ключа (String) та значення (JSON)
+      # Serialization for key (String) and value (JSON)
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        # Важливо: вимикаємо передачу типів класів у заголовках,
-        # бо DTO в різних сервісах лежать у різних пакетах
+        # Disable type headers to avoid package mismatches between microservices
         spring.json.add.type.headers: false
 
   servlet:
@@ -63,14 +62,14 @@ resilience4j:
     configs:
       default:
         registerHealthIndicator: true
-        slidingWindowSize: 10          # Кількість запитів для аналізу (останні 10)
-        minimumNumberOfCalls: 5        # Починаємо рахувати статистику після 5 запитів
-        permittedNumberOfCallsInHalfOpenState: 3 # Скільки пробних запитів пропустити, коли сервіс "оживає"
+        slidingWindowSize: 10          # Number of requests to analyze
+        minimumNumberOfCalls: 5        # Start counting statistics after 5 requests
+        permittedNumberOfCallsInHalfOpenState: 3 # Probing requests allowed in half-open state
         automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 5s    # Час блокування (5 секунд), перш ніж спробувати знову
-        failureRateThreshold: 50       # Якщо 50% запитів впали - відкриваємо Circuit Breaker
+        waitDurationInOpenState: 5s    # Block duration before retry
+        failureRateThreshold: 50       # Open if 50% of requests fail
         eventConsumerBufferSize: 10
-        ignoreExceptions:              # Помилки, які не вважаються збоєм сервісу
+        ignoreExceptions:              # Exceptions not counted as service failures
           - feign.FeignException.NotFound
           - feign.FeignException.BadRequest
           - com.crafthub.user_service.exception.ResourceNotFoundException
@@ -81,7 +80,7 @@ resilience4j:
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "local" (Zipkin) ===
+# === PROFILE: "local" (Zipkin) ===
 # ======================================================
 spring:
   config:
@@ -109,11 +108,11 @@ management:
 
 aws:
   xray:
-    enabled: false # ❗️ Вимикаємо X-Ray
+    enabled: false # X-Ray disabled for local profiling
 
 ---
 # ======================================================
-# === ПРОФІЛЬ "aws" (X-Ray) ===
+# === PROFILE: "aws" (X-Ray) ===
 # ======================================================
 spring:
   config:
@@ -128,11 +127,11 @@ spring:
 
   cloud:
     discovery:
-      enabled: false # ❗️ Вимикаємо
+      enabled: false
 aws:
   xray:
-    enabled: true # ❗️ Вмикаємо X-Ray
+    enabled: true # Enable X-Ray for AWS deployment
 
 management:
   tracing:
-    enabled: false # ❗️ Вимикаємо Micrometer/Zipkin, щоб уникнути конфлікту
+    enabled: false # Disable Micrometer/Zipkin to prevent conflict with X-Ray
