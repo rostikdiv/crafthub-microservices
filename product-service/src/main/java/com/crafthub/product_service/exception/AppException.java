@@ -3,6 +3,9 @@ package com.crafthub.product_service.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * Base application exception class.
+ */
 @Getter
 public class AppException extends RuntimeException {
     private final HttpStatus status;

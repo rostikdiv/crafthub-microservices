@@ -1,9 +1,10 @@
 package com.crafthub.payment_service.exception;
 
-import org.springframework.http.HttpStatus;
-
-public class ResourceNotFoundException extends AppException {
+/**
+ * Exception thrown when a payment-related resource is not found.
+ */
+public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND);
+        super(message);
     }
 }

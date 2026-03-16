@@ -1,9 +1,10 @@
 package com.crafthub.payment_service.exception;
 
-import org.springframework.http.HttpStatus;
-
-public class BusinessException extends AppException {
+/**
+ * Exception thrown for business logic violations in the Payment Service.
+ */
+public class BusinessException extends RuntimeException {
     public BusinessException(String message) {
-        super(message, HttpStatus.CONFLICT);
+        super(message);
     }
 }

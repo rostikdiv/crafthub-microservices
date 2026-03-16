@@ -23,33 +23,34 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
-        return buildResponse(HttpStatus.FORBIDDEN, "Відмовлено в доступі", request.getRequestURI(), null);
+        return buildResponse(HttpStatus.FORBIDDEN, "Access Denied", request.getRequestURI(), null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         return buildResponse(HttpStatus.BAD_REQUEST, "Validation Error", request.getRequestURI(), errors);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex, HttpServletRequest request) {
         ex.printStackTrace();
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error: " + ex.getMessage(), request.getRequestURI(), null);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error: " + ex.getMessage(),
+                request.getRequestURI(), null);
     }
 
-    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, String path, Map<String, String> errors) {
+    private ResponseEntity<ErrorResponse> buildResponse(HttpStatus status, String message, String path,
+            Map<String, String> errors) {
         ErrorResponse response = new ErrorResponse(
                 LocalDateTime.now(),
                 status.value(),
                 status.getReasonPhrase(),
                 message,
                 path,
-                errors
-        );
+                errors);
         return new ResponseEntity<>(response, status);
     }
 }

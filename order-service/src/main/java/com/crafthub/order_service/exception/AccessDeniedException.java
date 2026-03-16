@@ -1,6 +1,8 @@
 package com.crafthub.order_service.exception;
 
-// Кастомна помилка для заборони доступу
+/**
+ * Custom exception for access denial scenarios.
+ */
 public class AccessDeniedException extends RuntimeException {
     public AccessDeniedException(String message) {
         super(message);

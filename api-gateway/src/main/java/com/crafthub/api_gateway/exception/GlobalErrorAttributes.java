@@ -10,6 +10,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+/**
+ * Custom error attribute provider to standardize error responses across the API
+ * Gateway.
+ */
 @Component
 public class GlobalErrorAttributes extends DefaultErrorAttributes {
 
@@ -17,24 +21,22 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
         Map<String, Object> map = super.getErrorAttributes(request, options);
 
-        // Стандартні поля Spring Error
         Throwable error = getError(request);
 
         map.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         map.put("path", request.path());
         map.put("message", error.getMessage());
 
-        // Визначаємо правильний статус
+        // Determine the HTTP status code based on the exception type
         int status = (int) map.getOrDefault("status", 500);
 
         if (error instanceof org.springframework.web.server.ResponseStatusException) {
             status = ((org.springframework.web.server.ResponseStatusException) error).getStatusCode().value();
-        }
-        else if (error.getMessage() != null && (error.getMessage().contains("Unauthorized") || error.getMessage().contains("Jwt"))) {
+        } else if (error.getMessage() != null
+                && (error.getMessage().contains("Unauthorized") || error.getMessage().contains("Jwt"))) {
             status = HttpStatus.UNAUTHORIZED.value();
             map.put("error", "Unauthorized");
-        }
-        else if (error instanceof java.net.ConnectException) {
+        } else if (error instanceof java.net.ConnectException) {
             status = HttpStatus.SERVICE_UNAVAILABLE.value();
             map.put("error", "Service Unavailable");
             map.put("message", "Microservice is down or unreachable");
@@ -42,7 +44,7 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
 
         map.put("status", status);
 
-        // Прибираємо зайве технічне сміття
+        // Remove technical/internal metadata from the response
         map.remove("requestId");
         map.remove("trace");
 
