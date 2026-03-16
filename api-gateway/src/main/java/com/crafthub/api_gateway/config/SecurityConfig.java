@@ -1,5 +1,6 @@
 package com.crafthub.api_gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -9,7 +10,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Security configuration for the API Gateway using Spring Security WebFlux.
@@ -17,6 +20,13 @@ import java.util.List;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
+    /**
+     * Comma-separated list of allowed CORS origins.
+     * Defaults to localhost:5173 if the environment variable is not set.
+     */
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}")
+    private String corsAllowedOrigins;
 
     /**
      * Configures the security web filter chain.
@@ -38,11 +48,16 @@ public class SecurityConfig {
 
     /**
      * Configures CORS (Cross-Origin Resource Sharing) settings.
+     * Reads allowed origins from the CORS_ALLOWED_ORIGINS environment variable.
      */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -52,4 +67,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-}
+}
