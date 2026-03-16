@@ -9,6 +9,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Entity representing a document submitted for user verification purposes.
+ */
 @Entity
 @Table(name = "verification_docs")
 @Getter
@@ -30,7 +33,7 @@ public class VerificationDoc {
     @Enumerated(EnumType.STRING)
     private DocumentType documentType;
 
-    private String docUrl; // Шлях до файлу в S3/MinIO
+    private String docUrl;
 
     @Enumerated(EnumType.STRING)
     private VerificationStatus status;

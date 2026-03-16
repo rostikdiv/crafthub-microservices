@@ -1,8 +1,20 @@
 package com.crafthub.user_service.dto.profile;
 
-public record MilitaryProfileRequestDTO(
-        String unitNumber,     // "А1234"
-        String edrpou,         // Код частини
-        String commanderName,  // ПІБ командира
-        String officialAddress // Адреса ППД
-) {}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Data Transfer Object for requesting the creation of a military profile.
+ */
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class MilitaryProfileRequestDTO {
+        private String unitNumber;
+        private String edrpou;
+        private String commanderName;
+        private String officialAddress;
+}

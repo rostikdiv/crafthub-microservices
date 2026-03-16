@@ -10,26 +10,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller for managing user verification documents (e.g., ID, certificates).
+ */
 @RestController
-@RequestMapping("/api/v1/users/me/verification-docs") // Винесли в окремий URL
+@RequestMapping("/api/v1/users/me/verification-docs")
 @RequiredArgsConstructor
 public class VerificationDocController {
 
     private final VerificationDocService docService;
 
-    // [C] Додати документ
+    /**
+     * Uploads a new verification document for the current user.
+     */
     @PostMapping
     public ResponseEntity<VerificationResponseDTO> uploadDoc(@RequestBody VerificationDocRequestDTO dto) {
         return ResponseEntity.ok(docService.uploadDocument(dto));
     }
 
-    // [R] Отримати список моїх документів
+    /**
+     * Retrieves all verification documents submitted by the current user.
+     */
     @GetMapping
     public ResponseEntity<List<VerificationResponseDTO>> getMyDocs() {
         return ResponseEntity.ok(docService.getMyDocuments());
     }
 
-    // [D] Видалити документ (наприклад, якщо завантажив помилково)
+    /**
+     * Deletes a specific verification document by its ID.
+     */
     @DeleteMapping("/{docId}")
     public ResponseEntity<Void> deleteDoc(@PathVariable UUID docId) {
         docService.deleteDocument(docId);

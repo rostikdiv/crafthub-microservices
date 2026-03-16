@@ -5,6 +5,10 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.UUID;
 
+/**
+ * Entity representing the extended profile information for a system user
+ * registered as military personnel.
+ */
 @Entity
 @Table(name = "military_profiles")
 @Getter
@@ -24,12 +28,12 @@ public class MilitaryProfile {
     private User user;
 
     @Column(nullable = false)
-    private String unitNumber; // Наприклад, "А1234"
+    private String unitNumber;
 
     @Column(nullable = false)
-    private String edrpou; // Код ЄДРПОУ частини
+    private String edrpou;
 
-    private String commanderName; // ПІБ командира
+    private String commanderName;
 
-    private String officialAddress; // Адреса ППД
+    private String officialAddress;
 }
