@@ -4,21 +4,21 @@ import com.crafthub.user_service.dto.profile.MilitaryProfileRequestDTO;
 import com.crafthub.user_service.dto.profile.SellerProfileRequestDTO;
 import com.crafthub.user_service.dto.profile.VerificationDocRequestDTO;
 import com.crafthub.user_service.entity.*;
-import com.crafthub.user_service.entity.enums.Role;
 import com.crafthub.user_service.entity.enums.VerificationStatus;
 import com.crafthub.user_service.exception.BusinessException;
 import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service for managing specialized user profiles (Seller, Military) and
+ * supporting documents.
+ */
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
@@ -28,8 +28,11 @@ public class ProfileService {
     private final MilitaryProfileRepository militaryProfileRepository;
     private final VerificationDocRepository verificationDocRepository;
 
+    /**
+     * Extracts the current authenticated user from the security context.
+     * User ID is typically provided as a principal string.
+     */
     private User getCurrentUser() {
-        // Оскільки в SecurityContext тепер лежить ID (String), а не UserDetails
         String userIdStr = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UUID userId = UUID.fromString(userIdStr);
 
@@ -37,7 +40,10 @@ public class ProfileService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    // --- 1. Створення профілю Продавця ---
+    /**
+     * Creates a new seller profile for the current user.
+     * Throws an exception if a profile already exists for this user.
+     */
     @Transactional
     public void createSellerProfile(SellerProfileRequestDTO dto) {
         User user = getCurrentUser();
@@ -48,17 +54,20 @@ public class ProfileService {
 
         SellerProfile profile = SellerProfile.builder()
                 .user(user)
-                .companyName(dto.companyName())
-                .description(dto.description())
-                .taxId(dto.taxId())
-                .logoUrl(dto.logoUrl())
+                .companyName(dto.getCompanyName())
+                .description(dto.getDescription())
+                .taxId(dto.getTaxId())
+                .logoUrl(dto.getLogoUrl())
                 .rating(0.0f)
                 .build();
 
         sellerProfileRepository.save(profile);
     }
 
-    // --- 2. Створення профілю Військового ---
+    /**
+     * Creates a new military profile for the current user.
+     * Throws an exception if a military profile already exists.
+     */
     @Transactional
     public void createMilitaryProfile(MilitaryProfileRequestDTO dto) {
         User user = getCurrentUser();
@@ -69,15 +78,18 @@ public class ProfileService {
 
         MilitaryProfile profile = MilitaryProfile.builder()
                 .user(user)
-                .unitNumber(dto.unitNumber())
-                .edrpou(dto.edrpou())
-                .commanderName(dto.commanderName())
-                .officialAddress(dto.officialAddress())
+                .unitNumber(dto.getUnitNumber())
+                .edrpou(dto.getEdrpou())
+                .commanderName(dto.getCommanderName())
+                .officialAddress(dto.getOfficialAddress())
                 .build();
 
         militaryProfileRepository.save(profile);
     }
 
+    /**
+     * Updates specific fields of an existing seller profile.
+     */
     @Transactional
     public void updateSellerProfile(SellerProfileRequestDTO dto) {
         User user = getCurrentUser();
@@ -87,16 +99,18 @@ public class ProfileService {
             throw new ResourceNotFoundException("Seller profile not created yet");
         }
 
-        // Оновлюємо дозволені поля
-        profile.setCompanyName(dto.companyName());
-        profile.setDescription(dto.description());
-        profile.setLogoUrl(dto.logoUrl());
-        // taxId зазвичай не змінюють просто так, бо це вимагає нової верифікації
+        profile.setCompanyName(dto.getCompanyName());
+        profile.setDescription(dto.getDescription());
+        profile.setLogoUrl(dto.getLogoUrl());
+        // Tax ID is usually immutable without further verification
 
         sellerProfileRepository.save(profile);
     }
 
-    // --- 4. Завантаження документів верифікації ---
+    /**
+     * Adds a verification document (e.g., ID, certificate) linked to the current
+     * user.
+     */
     @Transactional
     public void addVerificationDocument(VerificationDocRequestDTO dto) {
         User user = getCurrentUser();

@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
+/**
+ * Entity representing an address saved by a user for future deliveries.
+ */
 @Entity
 @Table(name = "saved_addresses")
 @Getter
@@ -25,7 +28,7 @@ public class SavedAddress {
     @JsonIgnore
     private User user;
 
-    private String title; // "Дім", "Робота"
+    private String title; // e.g., "Home", "Work"
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -35,16 +38,16 @@ public class SavedAddress {
     @Column(nullable = false)
     private DeliveryType deliveryType;
 
-    // Дані локації (копіюємо з Delivery Service)
+    // Location details
     private String cityRef;
     private String cityName;
     private String region;
 
-    // Для відділення
+    // Branch-specific details
     private String branchRef;
     private String branchName;
 
-    // Для кур'єра
+    // Courier delivery details
     private String streetName;
     private String building;
     private String apartment;

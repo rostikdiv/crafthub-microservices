@@ -2,22 +2,25 @@ package com.crafthub.user_service.dto.address;
 
 import java.util.UUID;
 
+/**
+ * Data Transfer Object representing a seller's physical pickup point.
+ */
 public record SellerPointDTO(
-        UUID id,
-        String name,        // "Майстерня на Подолі"
+                UUID id,
+                String name,
 
-        // --- Географія (Уніфікована з AddressDTO) ---
-        String cityRef,     // "ref-lviv-np" (або інший ID)
-        String cityName,    // "Львів"
-        String region,      // "Львівська область"
+                // Geographical details
+                String cityRef,
+                String cityName,
+                String region,
 
-        // --- Адресна частина ---
-        String streetName,  // "вул. Спаська"
-        String building,    // "10"
-        String apartment,   // "офіс 5" (опціонально)
-        String zipCode,     // "04070"
+                // Physical address details
+                String streetName,
+                String building,
+                String apartment,
+                String zipCode,
 
-        // --- Контакти ---
-        String phone,
-        String instructions // "Код домофону 123"
-) {}
+                // Contact information
+                String phone,
+                String instructions) {
+}

@@ -10,7 +10,7 @@ import com.crafthub.user_service.exception.BusinessException;
 import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.SavedAddressRepository;
 import com.crafthub.user_service.repository.SellerPointRepository;
-import com.crafthub.user_service.repository.UserRepository; // Якщо потрібно
+import com.crafthub.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service for managing user delivery addresses and seller pickup locations.
+ */
 @Service
 @RequiredArgsConstructor
 public class AddressService {
@@ -27,6 +30,9 @@ public class AddressService {
     private final SellerPointRepository sellerPointRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Helper to retrieve the current user from the SecurityContext.
+     */
     private User getCurrentUser() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
@@ -37,11 +43,15 @@ public class AddressService {
         return userRepository.findById(UUID.fromString(userIdStr))
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
-    // --- Методи для ПОКУПЦЯ (Мої адреси) ---
 
+    // --- Buyer Address Operations ---
+
+    /**
+     * Saves a new delivery address for the buyer.
+     */
     @Transactional
     public AddressDTO saveAddress(AddressDTO dto) {
-        User user = getCurrentUser(); // Автоматично беремо поточного юзера
+        User user = getCurrentUser();
 
         SavedAddress address = SavedAddress.builder()
                 .user(user)
@@ -58,27 +68,32 @@ public class AddressService {
         return mapToDTO(address);
     }
 
+    /**
+     * Retrieves all saved addresses for the current buyer.
+     */
     public List<AddressDTO> getMyAddresses() {
         User user = getCurrentUser();
         return addressRepository.findAllByUserId(user.getId()).stream()
                 .map(this::mapToDTO).toList();
     }
 
-    // --- Методи для ПРОДАВЦЯ (Мої точки видачі) ---
+    // --- Seller Point Operations ---
 
+    /**
+     * Adds a new pickup point for a seller profile.
+     */
     @Transactional
     public SellerPointDTO addSellerPoint(SellerPointDTO dto) {
         User user = getCurrentUser();
 
         SellerProfile sellerProfile = user.getSellerProfile();
         if (sellerProfile == null) {
-            throw new RuntimeException("User is not a seller");
+            throw new BusinessException("User is not a seller");
         }
 
         SellerPoint point = SellerPoint.builder()
                 .sellerProfile(sellerProfile)
                 .name(dto.name())
-                // ✅ Мапимо нові поля
                 .cityRef(dto.cityRef())
                 .cityName(dto.cityName())
                 .region(dto.region())
@@ -86,7 +101,6 @@ public class AddressService {
                 .building(dto.building())
                 .apartment(dto.apartment())
                 .zipCode(dto.zipCode())
-                // Контакти
                 .phone(dto.phone())
                 .instructions(dto.instructions())
                 .build();
@@ -95,11 +109,13 @@ public class AddressService {
         return mapToSellerPointDTO(point);
     }
 
+    /**
+     * Retrieves all points belonging to the current seller.
+     */
     @Transactional(readOnly = true)
     public List<SellerPointDTO> getMySellerPoints() {
         User user = getCurrentUser();
 
-        // Якщо у користувача немає профілю продавця, повертаємо порожній список
         if (user.getSellerProfile() == null) {
             return List.of();
         }
@@ -110,15 +126,14 @@ public class AddressService {
                 .toList();
     }
 
+    // --- Mappers ---
 
-    // Мапери
     private AddressDTO mapToDTO(SavedAddress a) {
         return new AddressDTO(
                 a.getId(), a.getTitle(), a.getProvider(), a.getDeliveryType(),
                 a.getCityRef(), a.getCityName(), a.getRegion(),
                 a.getBranchRef(), a.getBranchName(),
-                a.getStreetName(), a.getBuilding(), a.getApartment(), a.getZipCode()
-        );
+                a.getStreetName(), a.getBuilding(), a.getApartment(), a.getZipCode());
     }
 
     private SellerPointDTO mapToSellerPointDTO(SellerPoint p) {
@@ -128,7 +143,6 @@ public class AddressService {
                 p.getCityRef(), p.getCityName(), p.getRegion(),
                 p.getStreetName(), p.getBuilding(), p.getApartment(), p.getZipCode(),
                 p.getPhone(),
-                p.getInstructions()
-        );
+                p.getInstructions());
     }
 }
