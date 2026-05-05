@@ -42,10 +42,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             // Check if the route requires authentication
             if (validator.isSecured.test(request)) {
-                System.out.println("🔒 SECURED REQUEST: " + request.getURI());
+                System.out.println("SECURED REQUEST: " + request.getURI());
 
                 if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                    System.out.println("❌ MISSING AUTH HEADER");
+                    System.out.println("MISSING AUTH HEADER");
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing authorization header");
                 }
 
@@ -53,7 +53,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
                     authHeader = authHeader.substring(7);
                 } else {
-                    System.out.println("❌ INVALID AUTH HEADER FORMAT");
+                    System.out.println("INVALID AUTH HEADER FORMAT");
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Authorization header format");
                 }
 
@@ -81,8 +81,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     String permissionsStr = String.join(",", permissions);
                     String isVerified = String.valueOf(claims.get("isVerified"));
 
-                    System.out.println("✅ TOKEN VALID. User: " + email + ", Role: " + role);
-                    System.out.println("👉 ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions (length="
+                    System.out.println("TOKEN VALID. User: " + email + ", Role: " + role);
+                    System.out.println("ADDING HEADERS: X-User-Id=" + userId + ", X-User-Permissions (length="
                             + permissionsStr.length() + ")");
 
                     // Mutate the request to include user identity headers
@@ -97,11 +97,11 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
                 } catch (Exception e) {
-                    System.out.println("❌ UNAUTHORIZED: " + e.getMessage());
+                    System.out.println("UNAUTHORIZED: " + e.getMessage());
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access");
                 }
             } else {
-                System.out.println("🔓 OPEN REQUEST: " + request.getURI());
+                System.out.println("OPEN REQUEST: " + request.getURI());
             }
 
             return chain.filter(exchange);

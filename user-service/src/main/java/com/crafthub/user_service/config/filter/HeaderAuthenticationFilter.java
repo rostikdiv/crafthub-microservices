@@ -30,6 +30,7 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         // Read identifiers and permissions from custom headers
         String userId = request.getHeader("X-User-Id");
         String permissionsHeader = request.getHeader("X-User-Permissions");
+        String path = request.getRequestURI();
 
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             List<SimpleGrantedAuthority> authorities = Collections.emptyList();
