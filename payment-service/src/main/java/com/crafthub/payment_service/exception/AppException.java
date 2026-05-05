@@ -1,10 +1,14 @@
 package com.crafthub.payment_service.exception;
 
-/**
- * Base exception for the Payment Service.
- */
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
 public class AppException extends RuntimeException {
-    public AppException(String message) {
+    private final HttpStatus status;
+
+    public AppException(String message, HttpStatus status) {
         super(message);
+        this.status = status;
     }
 }

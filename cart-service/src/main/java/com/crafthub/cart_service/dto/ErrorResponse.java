@@ -12,5 +12,5 @@ public record ErrorResponse(
                 String error,
                 String message,
                 String path,
-                Map<String, String> errors) {
+                Map<String, String> validationErrors) {
 }

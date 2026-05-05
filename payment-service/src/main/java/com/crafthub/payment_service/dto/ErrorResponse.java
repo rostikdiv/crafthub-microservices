@@ -1,21 +1,13 @@
 package com.crafthub.payment_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
+import java.util.Map;
 
-/**
- * Data Transfer Object for standardized error responses.
- */
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ErrorResponse {
-        private String message;
-        private int status;
-        private LocalDateTime timestamp;
-}
+public record ErrorResponse(
+        LocalDateTime timestamp,
+        int status,
+        String error,
+        String message,
+        String path,
+        Map<String, String> validationErrors
+) {}
