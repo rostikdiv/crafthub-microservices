@@ -28,14 +28,14 @@ public class PaymentEventListener {
     @KafkaListener(topics = "payment-success-topic", groupId = "order-service-group")
     public void handlePaymentSuccess(String message) {
         try {
-            log.info("📨 Received payment success event: {}", message);
+            log.info("Received payment success event: {}", message);
             PaymentSuccessEventDTO event = objectMapper.readValue(message, PaymentSuccessEventDTO.class);
 
             // Trigger order confirmation
             orderService.confirmOrderPayment(event.orderId());
 
         } catch (Exception e) {
-            log.error("❌ Error processing payment event", e);
+            log.error("Error processing payment event", e);
         }
     }
 }

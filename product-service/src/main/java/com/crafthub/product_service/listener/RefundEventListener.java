@@ -31,10 +31,10 @@ public class RefundEventListener {
 
             productService.restoreStock(event.productId(), event.quantity());
 
-            log.info("✅ Stock restored successfully");
+            log.info("Stock restored successfully");
 
         } catch (Exception e) {
-            log.error("❌ Failed to process refund event: {}", message, e);
+            log.error("Failed to process refund event: {}", message, e);
         }
     }
 }

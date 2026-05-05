@@ -27,10 +27,10 @@ public class CartKafkaListener {
      */
     @KafkaListener(topics = "order-placed-topic", groupId = "cart-service-group")
     public void handleOrderPlaced(OrderPlacedEventDTO event) {
-        log.info("🔔 Received OrderPlacedEvent: Order #{}", event.orderId());
+        log.info("Received OrderPlacedEvent: Order #{}", event.orderId());
 
         if (event.productIds() != null && !event.productIds().isEmpty()) {
-            log.info("🛒 Cleaning up cart for user: {}. Removing {} items...", event.userId(),
+            log.info("Cleaning up cart for user: {}. Removing {} items...", event.userId(),
                     event.productIds().size());
 
             // Iterate over each purchased product ID and remove it from the cart
@@ -38,12 +38,12 @@ public class CartKafkaListener {
                 try {
                     cartService.removeItemFromCart(event.userId(), productId.toString());
                 } catch (Exception e) {
-                    log.error("⚠️ Failed to remove item {} from cart for user {}", productId, event.userId(), e);
+                    log.error("Failed to remove item {} from cart for user {}", productId, event.userId(), e);
                 }
             }
-            log.info("✅ Cart cleanup completed for user: {}", event.userId());
+            log.info("Cart cleanup completed for user: {}", event.userId());
         } else {
-            log.warn("⚠️ Received order event without product IDs. Skipping cart cleanup.");
+            log.warn("Received order event without product IDs. Skipping cart cleanup.");
         }
     }
 }

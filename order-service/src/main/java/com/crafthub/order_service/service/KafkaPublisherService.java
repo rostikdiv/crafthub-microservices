@@ -1,6 +1,6 @@
 package com.crafthub.order_service.service;
 
-import com.crafthub.order_service.dto.event.OrderPlacedEventDTO; // ✅
+import com.crafthub.order_service.dto.event.OrderPlacedEventDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -31,14 +31,14 @@ public class KafkaPublisherService {
      * @param event The OrderPlacedEventDTO to be sent.
      */
     public void sendOrderPlacedEvent(OrderPlacedEventDTO event) {
-        log.info("📤 Sending order event to Kafka topic '{}': {}", TOPIC_NAME, event.orderId());
+        log.info("Sending order event to Kafka topic '{}': {}", TOPIC_NAME, event.orderId());
 
         try {
             // Send message with orderId as key (to guarantee ordering)
             kafkaTemplate.send(TOPIC_NAME, event.orderId().toString(), event);
-            log.info("✅ Event sent successfully");
+            log.info("Event sent successfully");
         } catch (Exception e) {
-            log.error("❌ Failed to send Kafka event: {}", e.getMessage());
+            log.error("Failed to send Kafka event: {}", e.getMessage());
             // TODO: Add outbox table logic if Kafka is down
         }
     }
@@ -50,12 +50,12 @@ public class KafkaPublisherService {
      * @param event The RefundApprovedEventDTO to be sent.
      */
     public void sendRefundApprovedEvent(com.crafthub.order_service.dto.event.RefundApprovedEventDTO event) {
-        log.info("📤 Sending refund event to Kafka topic '{}': {}", REFUND_TOPIC, event.orderId());
+        log.info("Sending refund event to Kafka topic '{}': {}", REFUND_TOPIC, event.orderId());
         try {
             kafkaTemplate.send(REFUND_TOPIC, event.orderId().toString(), event);
-            log.info("✅ Refund Event sent successfully");
+            log.info("Refund Event sent successfully");
         } catch (Exception e) {
-            log.error("❌ Failed to send Refund Kafka event", e);
+            log.error("Failed to send Refund Kafka event", e);
         }
     }
 }

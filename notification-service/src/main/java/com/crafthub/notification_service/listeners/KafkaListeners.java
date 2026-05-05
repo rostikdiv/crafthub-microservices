@@ -30,7 +30,7 @@ public class KafkaListeners {
     public void handleOrderPlaced(String message) {
         try {
             OrderPlacedEventDTO event = objectMapper.readValue(message, OrderPlacedEventDTO.class);
-            log.info("🔔 Notification: Order placed #{}", event.orderId());
+            log.info("Notification: Order placed #{}", event.orderId());
 
             String email = event.userEmail() != null ? event.userEmail() : "unknown@user.com";
             emailService.sendOrderConfirmation(email, event.orderId().toString(), event.totalPrice(),
@@ -47,7 +47,7 @@ public class KafkaListeners {
     public void handlePaymentSuccess(String message) {
         try {
             PaymentSuccessEventDTO event = objectMapper.readValue(message, PaymentSuccessEventDTO.class);
-            log.info("💰 Notification: Payment success for order #{}", event.orderId());
+            log.info("Notification: Payment success for order #{}", event.orderId());
 
             // In a real scenario, email would be fetched from User Service if not present
             // in event
@@ -66,7 +66,7 @@ public class KafkaListeners {
     public void handleDeliveryUpdate(String message) {
         try {
             DeliveryStatusChangedEvent event = objectMapper.readValue(message, DeliveryStatusChangedEvent.class);
-            log.info("🚚 Notification: Delivery update for order #{} -> {}", event.orderId(), event.status());
+            log.info("Notification: Delivery update for order #{} -> {}", event.orderId(), event.status());
 
             // Placeholder email; should be fetched from context or event
             emailService.sendDeliveryUpdate("user@example.com", event.orderId().toString(), event.status());
@@ -82,7 +82,7 @@ public class KafkaListeners {
     public void handleUserVerification(String message) {
         try {
             UserVerificationEvent event = objectMapper.readValue(message, UserVerificationEvent.class);
-            log.info("👤 Notification: Verification event for {} -> verified={}", event.email(), event.isVerified());
+            log.info("Notification: Verification event for {} -> verified={}", event.email(), event.isVerified());
 
             if (event.isVerified()) {
                 emailService.sendVerificationApproved(event.email());
