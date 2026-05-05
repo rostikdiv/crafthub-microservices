@@ -49,12 +49,16 @@ public class SellerReviewService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (userId.equals(request.sellerId())) {
+            System.err.println(
+                    "Review Error: User " + userId + " tried to review self (Seller " + request.sellerId() + ")");
             throw new BusinessException("You cannot review yourself");
         }
 
         // Verification of purchase via communication with Order Service
         Boolean hasBought = orderServiceIntegration.checkSellerPurchase(userId, request.sellerId());
         if (!Boolean.TRUE.equals(hasBought)) {
+            System.err.println("Review Error: Purchase verification failed for User " + userId + " and Seller "
+                    + request.sellerId());
             throw new BusinessException("You can only review sellers you have purchased from (delivered orders).");
         }
 

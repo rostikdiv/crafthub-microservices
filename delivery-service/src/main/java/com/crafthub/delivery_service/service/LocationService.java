@@ -73,7 +73,6 @@ public class LocationService {
      */
     @Transactional
     public void importLocations(List<LocationCreateDTO> dtos) {
-        // Import logic...
         for (var dto : dtos) {
             Location location = Location.builder()
                     .provider(dto.provider())

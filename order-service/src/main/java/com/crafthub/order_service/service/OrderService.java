@@ -191,7 +191,7 @@ public class OrderService {
 
     public OrderResponseDTO getOrderById(UUID orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
         return mapToOrderResponseDTO(order);
     }
 
@@ -400,7 +400,7 @@ public class OrderService {
     public void confirmOrderPayment(UUID orderId) {
         log.info("Payment confirmation received for Order: {}", orderId);
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + orderId));
 
         if (order.getStatus() == OrderStatus.PAID || order.getStatus() == OrderStatus.DELIVERED
                 || order.getStatus() == OrderStatus.PENDING_CONFIRMATION) {

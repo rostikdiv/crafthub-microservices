@@ -14,5 +14,6 @@ public record VerificationResponseDTO(
         DocumentType documentType,
         String docUrl,
         VerificationStatus status,
-        LocalDateTime createdAt) {
+                LocalDateTime createdAt // Was uploadedAt
+) {
 }

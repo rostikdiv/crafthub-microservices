@@ -122,4 +122,15 @@ public class AdminService {
                 user.getCreatedAt().toLocalDateTime(),
                 pendingCount);
     }
+
+    private VerificationResponseDTO mapToDocDTO(VerificationDoc doc) {
+        String proxyUrl = "/api/v1/documents/" + doc.getId();
+        return new VerificationResponseDTO(
+                doc.getId(),
+                doc.getUser().getId(),
+                doc.getDocumentType(),
+                proxyUrl,
+                doc.getStatus(),
+                doc.getCreatedAt());
+    }
 }
