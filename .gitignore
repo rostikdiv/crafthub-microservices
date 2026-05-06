@@ -7,3 +7,6 @@ minio_data/
 .DS_Store
 *.class
 *.jar
+
+# Secrets
+.env

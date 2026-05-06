@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://postgres-delivery-db:5432/delivery_service_db
     username: crafthub
-    password: password
+    password: ${DB_PASS:password}
   kafka:
     bootstrap-servers: kafka:9092
   zipkin:

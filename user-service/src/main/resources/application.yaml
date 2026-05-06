@@ -43,7 +43,7 @@ spring:
 minio:
   url: http://localhost:9000
   access-key: minioadmin
-  secret-key: minioadmin
+  secret-key: ${MINIO_ROOT_PASSWORD:minioadmin}
 
 
 management:
