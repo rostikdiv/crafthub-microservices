@@ -30,6 +30,7 @@ public enum Role {
                         PRODUCT_CREATE,
                         PRODUCT_UPDATE,
                         PRODUCT_DELETE,
+                        ORDER_CREATE,
                         ORDER_READ_MY, // Seller sees orders for their products
                         ORDER_UPDATE_STATUS, // Change status (e.g., "Shipped")
                         PROFILE_UPDATE)),
