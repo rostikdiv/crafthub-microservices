@@ -34,4 +34,13 @@ public class ProfileController {
         profileService.createMilitaryProfile(dto);
         return ResponseEntity.ok("Military profile created");
     }
+
+    /**
+     * Submits a request to update an existing military profile.
+     */
+    @PutMapping("/military-profile")
+    public ResponseEntity<String> updateMilitaryProfile(@RequestBody MilitaryProfileRequestDTO dto) {
+        profileService.updateMilitaryProfile(dto);
+        return ResponseEntity.ok("Military profile updated successfully");
+    }
 }

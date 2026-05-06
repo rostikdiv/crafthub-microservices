@@ -5,6 +5,7 @@ import com.crafthub.user_service.dto.profile.SellerProfileRequestDTO;
 import com.crafthub.user_service.dto.profile.VerificationDocRequestDTO;
 import com.crafthub.user_service.entity.*;
 import com.crafthub.user_service.entity.enums.VerificationStatus;
+import com.crafthub.user_service.entity.enums.Role;
 import com.crafthub.user_service.exception.BusinessException;
 import com.crafthub.user_service.exception.ResourceNotFoundException;
 import com.crafthub.user_service.repository.*;
@@ -105,6 +106,47 @@ public class ProfileService {
         // Tax ID is usually immutable without further verification
 
         sellerProfileRepository.save(profile);
+    }
+
+    /**
+     * Updates an existing military profile and resets verification.
+     */
+    @Transactional
+    public void updateMilitaryProfile(MilitaryProfileRequestDTO dto) {
+        User user = getCurrentUser();
+        MilitaryProfile profile = user.getMilitaryProfile();
+
+        if (profile == null) {
+            throw new ResourceNotFoundException("Military profile not created yet");
+        }
+
+        boolean hasChanges = false;
+
+        if (!java.util.Objects.equals(profile.getUnitNumber(), dto.getUnitNumber())) {
+            profile.setUnitNumber(dto.getUnitNumber());
+            hasChanges = true;
+        }
+        if (!java.util.Objects.equals(profile.getEdrpou(), dto.getEdrpou())) {
+            profile.setEdrpou(dto.getEdrpou());
+            hasChanges = true;
+        }
+        if (!java.util.Objects.equals(profile.getCommanderName(), dto.getCommanderName())) {
+            profile.setCommanderName(dto.getCommanderName());
+            hasChanges = true;
+        }
+        if (!java.util.Objects.equals(profile.getOfficialAddress(), dto.getOfficialAddress())) {
+            profile.setOfficialAddress(dto.getOfficialAddress());
+            hasChanges = true;
+        }
+
+        if (hasChanges) {
+            militaryProfileRepository.save(profile);
+
+            // Reset verification and downgrade role since the profile data changed
+            user.setIsVerified(false);
+            user.setRole(Role.BUYER);
+            userRepository.save(user);
+        }
     }
 
     /**
