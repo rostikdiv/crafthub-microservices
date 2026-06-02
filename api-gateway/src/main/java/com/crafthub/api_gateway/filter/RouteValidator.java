@@ -41,7 +41,9 @@ public class RouteValidator {
             if (path.contains("/api/v1/products") ||
                 path.contains("/api/v1/categories") ||
                 path.contains("/api/v1/sellers") ||
-                path.contains("/api/v1/seller-reviews")) {
+                path.contains("/api/v1/seller-reviews") ||
+                path.contains("/seller-info") ||
+                path.contains("/api/v1/reviews/product")) {
                 return false;
             }
         }
