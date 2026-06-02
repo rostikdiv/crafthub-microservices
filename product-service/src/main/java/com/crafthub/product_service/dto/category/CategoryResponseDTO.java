@@ -2,6 +2,8 @@ package com.crafthub.product_service.dto.category;
 
 import lombok.Builder;
 
+import java.util.List;
+
 /**
  * Response DTO containing category details.
  */
@@ -9,5 +11,7 @@ import lombok.Builder;
 public record CategoryResponseDTO(
         Long id,
         String name,
-        String description) {
+        String description,
+        Long parentId,
+        List<CategoryResponseDTO> subCategories) {
 }

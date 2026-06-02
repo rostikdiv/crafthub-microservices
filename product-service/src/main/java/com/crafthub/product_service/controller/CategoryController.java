@@ -38,10 +38,17 @@ public class CategoryController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Category already exists");
         }
 
+        Category parent = null;
+        if (request.parentId() != null) {
+            parent = categoryRepository.findById(request.parentId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Parent category not found"));
+        }
+
         // 2. Map DTO -> Entity
         Category category = Category.builder()
                 .name(request.name())
                 .description(request.description())
+                .parent(parent)
                 .build();
 
         // 3. Save to database
@@ -60,6 +67,7 @@ public class CategoryController {
     @GetMapping("/")
     public List<CategoryResponseDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
+                .filter(c -> c.getParent() == null) // Only root categories
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -77,12 +85,20 @@ public class CategoryController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found")));
     }
 
-    // Helper method for mapping
     private CategoryResponseDTO mapToResponse(Category category) {
+        List<CategoryResponseDTO> subCats = null;
+        if (category.getSubCategories() != null && !category.getSubCategories().isEmpty()) {
+            subCats = category.getSubCategories().stream()
+                    .map(this::mapToResponse)
+                    .collect(Collectors.toList());
+        }
+
         return CategoryResponseDTO.builder()
                 .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
+                .parentId(category.getParent() != null ? category.getParent().getId() : null)
+                .subCategories(subCats)
                 .build();
     }
 }

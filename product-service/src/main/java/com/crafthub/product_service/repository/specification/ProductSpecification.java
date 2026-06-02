@@ -23,9 +23,17 @@ public class ProductSpecification {
     ) {
         Specification<Product> spec = (root, query, cb) -> cb.conjunction();
 
-        // 1. Filter by category
+        // 1. Filter by category (including subcategories)
         if (categoryId != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("category").get("id"), categoryId));
+            spec = spec.and((root, query, cb) -> {
+                jakarta.persistence.criteria.Path<Object> categoryPath = root.get("category");
+                jakarta.persistence.criteria.Predicate isCategory = cb.equal(categoryPath.get("id"), categoryId);
+                
+                jakarta.persistence.criteria.Path<Object> parentPath = categoryPath.get("parent");
+                jakarta.persistence.criteria.Predicate isParentCategory = cb.equal(parentPath.get("id"), categoryId);
+                
+                return cb.or(isCategory, isParentCategory);
+            });
         }
 
         // 2. Minimum price
