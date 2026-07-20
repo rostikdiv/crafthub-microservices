@@ -11,6 +11,7 @@ services:
       - "8761:8761"
     environment:
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
 
@@ -26,6 +27,7 @@ services:
       - EUREKA_SERVER_ADDRESS=http://service-discovery:8761/eureka
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - CORS_ALLOWED_ORIGINS=http://localhost:5173,https://rachell-diaphanometric-viva.ngrok-free.app,https://rachell-diaphanometric-viva.ngrok-free.dev
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -119,6 +121,7 @@ services:
       - DB_PASS=${DB_PASS}
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -139,6 +142,7 @@ services:
       - REDIS_HOST=redis
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -160,6 +164,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -207,6 +212,7 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -229,6 +235,7 @@ services:
       - SPRING_DATA_MONGODB_HOST=mongo
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -250,6 +257,7 @@ services:
       - DB_PASS=${DB_PASS}
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -271,6 +279,7 @@ services:
       - DB_PASS=${DB_PASS}
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
       - crafthub-net
     depends_on:
@@ -366,6 +375,31 @@ services:
       - crafthub-net
     depends_on:
       - nginx
+      
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - crafthub-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - crafthub-net
+    depends_on:
+      - prometheus
 
 networks:
   crafthub-net:
