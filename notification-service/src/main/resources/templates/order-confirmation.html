@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Замовлення створено</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .header { text-align: center; padding-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+        .header h1 { color: #f97316; margin: 0; font-size: 24px; }
+        .content { padding: 20px 0; }
+        .footer { text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
+        .highlight { font-weight: bold; color: #111827; }
+        .btn { display: inline-block; padding: 12px 24px; background-color: #f97316; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CraftHub</h1>
+        </div>
+        <div class="content">
+            <h2>Замовлення #<span th:text="${orderId}"></span> створено!</h2>
+            <p>Дякуємо за покупку на CraftHub. Ми вже працюємо над вашим замовленням.</p>
+            
+            <p><strong>Товари:</strong> <span th:text="${products}"></span></p>
+            <p><strong>Загальна сума:</strong> <span class="highlight" th:text="${amount} + ' UAH'"></span></p>
+            
+            <p>Будь ласка, перейдіть до оплати, якщо ви цього ще не зробили.</p>
+            
+            <div style="text-align: center;">
+                <a href="#" class="btn">Перейти до замовлення</a>
+            </div>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 CraftHub. Всі права захищені.</p>
+        </div>
+    </div>
+</body>
+</html>

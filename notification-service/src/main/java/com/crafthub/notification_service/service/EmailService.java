@@ -4,10 +4,15 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.math.BigDecimal;
 
@@ -17,56 +22,67 @@ import java.math.BigDecimal;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final TemplateEngine templateEngine;
 
     @Async
-    public void sendEmail(String to, String subject, String htmlContent) {
+    @Retryable(
+            retryFor = {MessagingException.class, MailException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000, multiplier = 2)
+    )
+    public void sendEmail(String to, String subject, String htmlContent) throws MessagingException {
+        log.info("Sending email to: {} with subject: {}", to, subject);
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setFrom("no-reply@crafthub.com");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+        log.info("Email sent successfully to {}", to);
+    }
+
+    public void sendOrderConfirmation(String toEmail, String orderId, BigDecimal amount, String products) {
+        Context context = new Context();
+        context.setVariable("orderId", orderId);
+        context.setVariable("products", products);
+        context.setVariable("amount", amount);
+
+        String html = templateEngine.process("order-confirmation", context);
         try {
-            log.info("Sending email to: {}", to);
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setFrom("no-reply@crafthub.com");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            mailSender.send(message);
-            log.info("Email sent successfully to {}", to);
-        } catch (MessagingException e) {
-            log.error("Failed to send email to {}", to, e);
+            sendEmail(toEmail, "CraftHub: Замовлення #" + orderId, html);
+        } catch (Exception e) {
+            log.error("Failed to queue email for order {}", orderId, e);
         }
     }
 
-    // 1. Замовлення створено
-    public void sendOrderConfirmation(String toEmail, String orderId, BigDecimal amount, String products) {
-        String html = """
-                <h2>Замовлення #%s створено!</h2>
-                <p>Дякуємо за покупку.</p>
-                <p><strong>Товари:</strong> %s</p>
-                <p><strong>Сума:</strong> %s UAH</p>
-                <p>Будь ласка, перейдіть до оплати, якщо ви цього ще не зробили.</p>
-                """.formatted(orderId, products, amount);
-        sendEmail(toEmail, "CraftHub: Замовлення #" + orderId, html);
-    }
-
-    // 2. Оплата успішна
     public void sendPaymentSuccess(String toEmail, String orderId, BigDecimal amount) {
-        String html = """
-                <h2 style="color: green;">Оплата успішна! ✅</h2>
-                <p>Ваше замовлення #%s на суму <strong>%s UAH</strong> успішно оплачено.</p>
-                <p>Ми починаємо комплектацію.</p>
-                """.formatted(orderId, amount);
-        sendEmail(toEmail, "CraftHub: Оплата зарахована #" + orderId, html);
+        Context context = new Context();
+        context.setVariable("orderId", orderId);
+        context.setVariable("amount", amount);
+
+        String html = templateEngine.process("payment-success", context);
+        try {
+            sendEmail(toEmail, "CraftHub: Оплата зарахована #" + orderId, html);
+        } catch (Exception e) {
+            log.error("Failed to queue email for payment success {}", orderId, e);
+        }
     }
 
-    // 3. Зміна статусу доставки
     public void sendDeliveryUpdate(String toEmail, String orderId, String status) {
         String statusText = translateStatus(status);
-        String html = """
-                <h2>Оновлення статусу доставки 🚚</h2>
-                <p>Статус вашого замовлення #%s змінився на: <strong>%s</strong></p>
-                """.formatted(orderId, statusText);
-        sendEmail(toEmail, "CraftHub: Оновлення замовлення #" + orderId, html);
+        Context context = new Context();
+        context.setVariable("orderId", orderId);
+        context.setVariable("statusText", statusText);
+
+        String html = templateEngine.process("delivery-update", context);
+        try {
+            sendEmail(toEmail, "CraftHub: Оновлення замовлення #" + orderId, html);
+        } catch (Exception e) {
+            log.error("Failed to queue email for delivery update {}", orderId, e);
+        }
     }
 
     private String translateStatus(String status) {
@@ -80,22 +96,24 @@ public class EmailService {
     }
 
     public void sendVerificationApproved(String toEmail) {
-        String html = """
-                <h2 style="color: green;">Вітаємо! Ваш акаунт підтверджено ✅</h2>
-                <p>Ваші документи успішно пройшли перевірку.</p>
-                <p>Тепер ви маєте повний доступ до функціоналу продавця або військового підрозділу.</p>
-                <p>Бажаємо успішної роботи на платформі CraftHub!</p>
-                """;
-        sendEmail(toEmail, "CraftHub: Акаунт верифіковано", html);
+        Context context = new Context();
+        String html = templateEngine.process("verification-approved", context);
+        try {
+            sendEmail(toEmail, "CraftHub: Акаунт верифіковано", html);
+        } catch (Exception e) {
+            log.error("Failed to queue email for verification approved", e);
+        }
     }
 
     public void sendVerificationRejected(String toEmail, String reason) {
-        String html = """
-                <h2 style="color: red;">Верифікацію відхилено ❌</h2>
-                <p>На жаль, ми не змогли підтвердити ваш акаунт.</p>
-                <p><strong>Причина:</strong> %s</p>
-                <p>Будь ласка, виправте недоліки та завантажте документи повторно в особистому кабінеті.</p>
-                """.formatted(reason != null ? reason : "Причина не вказана");
-        sendEmail(toEmail, "CraftHub: Відмова у верифікації", html);
+        Context context = new Context();
+        context.setVariable("reason", reason != null ? reason : "Причина не вказана");
+
+        String html = templateEngine.process("verification-rejected", context);
+        try {
+            sendEmail(toEmail, "CraftHub: Відмова у верифікації", html);
+        } catch (Exception e) {
+            log.error("Failed to queue email for verification rejected", e);
+        }
     }
 }

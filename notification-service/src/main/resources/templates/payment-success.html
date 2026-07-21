@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Оплата успішна</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #10b981; }
+        .header { text-align: center; padding-bottom: 20px; border-bottom: 2px solid #e5e7eb; }
+        .header h1 { color: #10b981; margin: 0; font-size: 24px; }
+        .content { padding: 20px 0; text-align: center; }
+        .footer { text-align: center; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; }
+        .highlight { font-weight: bold; color: #111827; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Оплата успішна! ✅</h1>
+        </div>
+        <div class="content">
+            <p>Ваше замовлення #<span th:text="${orderId}"></span> на суму <span class="highlight" th:text="${amount} + ' UAH'"></span> успішно оплачено.</p>
+            <p>Продавець вже отримав сповіщення і починає комплектацію вашого замовлення.</p>
+            <p>Ви можете відстежувати статус замовлення в особистому кабінеті.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2026 CraftHub. Дякуємо, що підтримуєте українських майстрів.</p>
+        </div>
+    </div>
+</body>
+</html>
