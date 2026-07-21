@@ -29,6 +29,11 @@ class OutboxSchedulerTest {
     @InjectMocks
     private OutboxScheduler outboxScheduler;
 
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        org.springframework.test.util.ReflectionTestUtils.setField(outboxScheduler, "kafkaPublisherService", kafkaPublisherService);
+    }
+
     @Test
     void processOutboxEvents_ShouldPublishAndMarkProcessed() {
         // Arrange
