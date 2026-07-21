@@ -54,7 +54,7 @@ public class Product {
     @Column(nullable = false)
     private String previewImageUrl;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
     private List<String> imageUrls;
@@ -66,7 +66,7 @@ public class Product {
     @Column(nullable = false)
     private UUID sellerId;
 
-    @ManyToOne(fetch = FetchType.EAGER) // Always fetch category for product details
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

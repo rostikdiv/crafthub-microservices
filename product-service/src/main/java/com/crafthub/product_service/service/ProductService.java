@@ -1,6 +1,6 @@
 package com.crafthub.product_service.service;
 
-import com.crafthub.product_service.client.UserServiceClient;
+
 import com.crafthub.product_service.dto.product.ProductRequestDTO;
 import com.crafthub.product_service.dto.product.ProductResponseDTO;
 import com.crafthub.product_service.dto.SellerInfoDTO;
@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +45,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final UserContextService userContext;
-    private final UserServiceClient userServiceClient;
+    private final ProductValidatorService productValidatorService;
 
     /**
      * Creates a new product for a seller.
@@ -56,17 +58,7 @@ public class ProductService {
     public ProductResponseDTO createProduct(ProductRequestDTO request) {
         UUID userId = userContext.getUserId();
 
-        SellerInfoDTO sellerInfo;
-        try {
-            // Direct call. If User Service is down, we want to fail rather than save
-            // "Unknown"
-            sellerInfo = userServiceClient.getSellerInfo(userId);
-        } catch (Exception e) {
-            log.error("Failed to fetch seller info during product creation for user {}: {}", userId, e.getMessage());
-            // Return a user-friendly error
-            throw new BusinessException(
-                    "Unable to create product: failed to retrieve seller profile. Please try again later.");
-        }
+        SellerInfoDTO sellerInfo = productValidatorService.validateAndGetSellerInfo(userId);
 
         // Check (optional): is the seller verified/allowed to post
         // if (!sellerInfo.isVerified()) { ... }
@@ -84,14 +76,7 @@ public class ProductService {
     public List<ProductResponseDTO> createProducts(List<ProductRequestDTO> requests) {
         UUID userId = userContext.getUserId();
 
-        SellerInfoDTO sellerInfo;
-        try {
-            // Same check for batch creation
-            sellerInfo = userServiceClient.getSellerInfo(userId);
-        } catch (Exception e) {
-            log.error("Batch creation failed. User Service unavailable for user {}", userId);
-            throw new BusinessException("Unable to create products: user service is unavailable.");
-        }
+        SellerInfoDTO sellerInfo = productValidatorService.validateAndGetSellerInfo(userId);
 
         log.info("Batch creating {} products for User ID: {}", requests.size(), userId);
 
@@ -201,6 +186,7 @@ public class ProductService {
     /**
      * Retrieves a specific product by its identifier.
      */
+    @Cacheable(value = "products", key = "#id")
     public ProductResponseDTO getProductById(UUID id) {
         return productRepository.findById(id)
                 .map(this::mapToProductResponse)
@@ -220,6 +206,7 @@ public class ProductService {
      * Updates an existing product's details.
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public ProductResponseDTO updateProduct(UUID productId, ProductRequestDTO request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -272,7 +259,7 @@ public class ProductService {
             product.setCategory(category);
         }
 
-        productRepository.save(product);
+        // productRepository.save(product); // Removed to rely on Hibernate Dirty Checking
         return mapToProductResponse(product);
     }
 
@@ -289,7 +276,7 @@ public class ProductService {
         }
 
         product.setQuantity(product.getQuantity() - quantity);
-        productRepository.save(product);
+        // productRepository.save(product); // Removed to rely on Hibernate Dirty Checking
     }
 
     /**
@@ -301,7 +288,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         product.setQuantity(product.getQuantity() + quantity);
-        productRepository.save(product);
+        // productRepository.save(product); // Removed to rely on Hibernate Dirty Checking
     }
 
     /**
