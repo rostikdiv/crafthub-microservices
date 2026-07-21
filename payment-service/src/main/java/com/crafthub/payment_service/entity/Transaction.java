@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.persistence.Version;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,6 +39,12 @@ public class Transaction {
     private TransactionStatus status;
 
     private String provider; // e.g., STRIPE, LIQPAY, MOCK_PAY
+
+    @Column(unique = true)
+    private String idempotencyKey;
+
+    @Version
+    private Long version;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

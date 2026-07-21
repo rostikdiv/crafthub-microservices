@@ -10,8 +10,14 @@ import com.crafthub.payment_service.exception.ResourceNotFoundException;
 import com.crafthub.payment_service.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +34,7 @@ public class PaymentService {
 
     private final TransactionRepository repository;
     private final KafkaProducerService kafkaProducerService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * Retrieves a payment transaction for a specific order.
@@ -47,6 +54,16 @@ public class PaymentService {
      * Starts with PENDING status and provides a mock payment URL.
      */
     public PaymentResponseDTO initPayment(PaymentRequestDTO request) {
+        if (request.idempotencyKey() != null) {
+            var existingTx = repository.findByIdempotencyKey(request.idempotencyKey());
+            if (existingTx.isPresent()) {
+                log.info("Idempotent request: returning existing transaction for key {}", request.idempotencyKey());
+                Transaction tx = existingTx.get();
+                String url = "http://localhost:8086/api/v1/payments/webhook/" + tx.getId() + "?status=SUCCESS";
+                return new PaymentResponseDTO(tx.getId(), tx.getStatus().name(), url);
+            }
+        }
+
         if (repository.findByOrderId(request.orderId()).isPresent()) {
             log.warn("Transaction for order {} already exists", request.orderId());
         }
@@ -59,9 +76,18 @@ public class PaymentService {
                 .amount(request.amount())
                 .status(TransactionStatus.PENDING)
                 .provider("MOCK_PAY")
+                .idempotencyKey(request.idempotencyKey())
                 .build();
 
-        repository.save(transaction);
+        try {
+            repository.saveAndFlush(transaction);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("Concurrent payment initialization detected for key: {}", request.idempotencyKey());
+            Transaction tx = repository.findByIdempotencyKey(request.idempotencyKey())
+                    .orElseThrow(() -> new IllegalStateException("Failed to retrieve idempotency key"));
+            String url = "http://localhost:8086/api/v1/payments/webhook/" + tx.getId() + "?status=SUCCESS";
+            return new PaymentResponseDTO(tx.getId(), tx.getStatus().name(), url);
+        }
 
         String mockUrl = "http://localhost:8086/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
 
@@ -72,6 +98,7 @@ public class PaymentService {
      * Processes payment status updates from external webhooks.
      * Triggers a success event via Kafka if the payment is confirmed.
      */
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 5, backoff = @org.springframework.retry.annotation.Backoff(delay = 100, maxDelay = 500, random = true))
     @Transactional
     public void processWebhook(UUID transactionId, String status) {
         log.info("Processing webhook: Transaction={}, Status={}", transactionId, status);
@@ -93,13 +120,22 @@ public class PaymentService {
                     transaction.getOrderId(),
                     "user@placeholder.com", // Fetch from context or User Service in production
                     transaction.getAmount());
-            kafkaProducerService.sendPaymentSuccessEvent(event);
+            eventPublisher.publishEvent(event);
             log.info("✅ Payment confirmed for transaction {}", transactionId);
         } else {
             transaction.setStatus(TransactionStatus.FAILED);
             repository.save(transaction);
             log.warn("❌ Payment failed for transaction {}", transactionId);
         }
+    }
+
+    /**
+     * Listener that sends the Kafka event ONLY after the transaction is successfully committed.
+     * This prevents duplicate Kafka events if OptimisticLockingFailureException causes a retry.
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handlePaymentSuccessEvent(PaymentSuccessEventDTO event) {
+        kafkaProducerService.sendPaymentSuccessEvent(event);
     }
 
     /**
@@ -110,12 +146,16 @@ public class PaymentService {
     public void refundPayment(UUID orderId, BigDecimal amount) {
         log.info("Processing refund for Order: {}, Amount: {}", orderId, amount);
 
+        Transaction originalTx = repository.findByOrderId(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for order: " + orderId));
+
         Transaction refundTransaction = Transaction.builder()
                 .orderId(orderId)
-                .userId(UUID.randomUUID()) // Placeholder userId
+                .userId(originalTx.getUserId())
                 .amount(amount.negate())
                 .status(TransactionStatus.REFUNDED)
                 .provider("MOCK_PAY")
+                .idempotencyKey("REFUND_" + orderId)
                 .build();
 
         repository.save(refundTransaction);

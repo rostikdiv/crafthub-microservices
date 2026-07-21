@@ -15,4 +15,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
      * Finds a transaction associated with a specific order ID.
      */
     Optional<Transaction> findByOrderId(UUID orderId);
+
+    /**
+     * Finds a transaction associated with a specific idempotency key.
+     */
+    Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
 }
