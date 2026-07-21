@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Version;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,6 +29,9 @@ public class Cart {
      */
     @Id
     private UUID userId;
+
+    @Version
+    private Long version;
 
     /**
      * List of cart sections, grouped by seller.

@@ -11,6 +11,9 @@ import com.crafthub.cart_service.repository.CartRepository;
 import com.crafthub.cart_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -83,6 +86,7 @@ public class CartService {
      * @param userId The unique ID of the user.
      * @return The synchronized cart.
      */
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 10, backoff = @org.springframework.retry.annotation.Backoff(delay = 50, maxDelay = 300, random = true))
     public Cart getCart(UUID userId) {
         Cart cart = cartRepository.findById(userId)
                 .orElse(Cart.builder()
@@ -191,6 +195,7 @@ public class CartService {
      * @param itemDto The requested item details.
      * @return The updated cart.
      */
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 10, backoff = @org.springframework.retry.annotation.Backoff(delay = 50, maxDelay = 300, random = true))
     public Cart addItemToCart(UUID userId, CartItemRequestDTO itemDto) {
         ProductResponseDTO product;
         try {
@@ -235,7 +240,11 @@ public class CartService {
 
         if (existingItem.isPresent()) {
             CartItem item = existingItem.get();
-            item.setQuantity(itemDto.quantity());
+            int newQuantity = item.getQuantity() + itemDto.quantity();
+            if (product.quantity() < newQuantity) {
+                throw new BusinessException("Not enough stock. Available: " + product.quantity());
+            }
+            item.setQuantity(newQuantity);
             item.setPrice(product.price());
         } else {
             CartItem newItem = new CartItem(
@@ -258,6 +267,7 @@ public class CartService {
      * @param productIdStr Product UUID string.
      * @return The updated cart.
      */
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 10, backoff = @org.springframework.retry.annotation.Backoff(delay = 50, maxDelay = 300, random = true))
     public Cart removeItemFromCart(UUID userId, String productIdStr) {
         UUID productId = UUID.fromString(productIdStr);
         Cart cart = cartRepository.findById(userId)
@@ -291,6 +301,7 @@ public class CartService {
      *
      * @param userId The user's unique ID.
      */
+    @Retryable(retryFor = OptimisticLockingFailureException.class, maxAttempts = 10, backoff = @org.springframework.retry.annotation.Backoff(delay = 50, maxDelay = 300, random = true))
     public void clearCart(UUID userId) {
         if (cartRepository.existsById(userId)) {
             cartRepository.deleteById(userId);

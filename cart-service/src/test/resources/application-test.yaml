@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: cart-service
+  data:
+    mongodb:
+      # host, port, username, password are intentionally omitted.
+      # Flapdoodle Embedded MongoDB auto-configures the connection URI via
+      # DynamicPropertySource, which overrides these at test startup.
+      database: test_cart_db
+
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 6.0.5
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+    instances:
+      productService:
+        baseConfig: default
+
+eureka:
+  client:
+    enabled: false
+
+kafka:
+  consumer:
+    auto-startup: false
