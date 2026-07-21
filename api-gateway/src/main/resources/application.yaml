@@ -10,6 +10,11 @@ spring:
   profiles:
     active: local
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   cloud:
     gateway:
       server:
@@ -26,6 +31,11 @@ spring:
                 - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/sellers/**, /api/v1/seller-reviews/**, /api/v1/documents/**, /api/v1/military/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 
             # Route for Product Service (Catalog, Reviews)
             - id: product_service_route
@@ -34,6 +44,11 @@ spring:
                 - Path=/api/v1/products/**, /api/v1/categories/**, /api/v1/reviews/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 15
+                    redis-rate-limiter.burstCapacity: 30
+                    key-resolver: "#{@ipKeyResolver}"
 
             # Route for Order Service
             - id: order_service_route
@@ -42,6 +57,11 @@ spring:
                 - Path=/api/v1/orders/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 
             # Route for Cart Service
             - id: cart_service_route
@@ -50,6 +70,11 @@ spring:
                 - Path=/api/v1/cart/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 20
+                    redis-rate-limiter.burstCapacity: 40
+                    key-resolver: "#{@ipKeyResolver}"
 
             # Route for Payment Service
             - id: payment_service_route
@@ -58,6 +83,11 @@ spring:
                 - Path=/api/v1/payments/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 5
+                    redis-rate-limiter.burstCapacity: 10
+                    key-resolver: "#{@ipKeyResolver}"
 
             # Route for Delivery Service
             - id: delivery_service_route
@@ -66,6 +96,11 @@ spring:
                 - Path=/api/v1/delivery/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 
 management:
   tracing:
@@ -170,6 +205,11 @@ spring:
                 - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/sellers/**, /api/v1/seller-reviews/**, /api/v1/documents/**, /api/v1/military/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 
             - id: product_service_route
               uri: http://product-service.crafthub.internal:8082
@@ -177,6 +217,11 @@ spring:
                 - Path=/api/v1/products/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 15
+                    redis-rate-limiter.burstCapacity: 30
+                    key-resolver: "#{@ipKeyResolver}"
 
             - id: order_service_route
               uri: http://order-service.crafthub.internal:8083
@@ -184,6 +229,11 @@ spring:
                 - Path=/api/v1/orders/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 10
+                    redis-rate-limiter.burstCapacity: 20
+                    key-resolver: "#{@ipKeyResolver}"
 
             - id: cart_service_route
               uri: http://cart-service.crafthub.internal:8085
@@ -191,6 +241,11 @@ spring:
                 - Path=/api/v1/cart/**
               filters:
                 - AuthenticationFilter
+                - name: RequestRateLimiter
+                  args:
+                    redis-rate-limiter.replenishRate: 20
+                    redis-rate-limiter.burstCapacity: 40
+                    key-resolver: "#{@ipKeyResolver}"
 aws:
   xray:
     enabled: true
