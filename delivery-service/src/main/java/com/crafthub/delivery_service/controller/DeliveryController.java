@@ -57,4 +57,15 @@ public class DeliveryController {
         shipmentService.updateShipmentStatus(id, newStatus);
         return ResponseEntity.ok("Status updated to " + newStatus);
     }
+
+    /**
+     * Webhook endpoint for logistics providers (e.g. Nova Poshta, Ukrposhta)
+     * to push real-time status updates.
+     */
+    @PostMapping("/webhook")
+    public ResponseEntity<String> processExternalWebhook(
+            @RequestBody com.crafthub.delivery_service.dto.request.WebhookDTO request) {
+        shipmentService.processExternalWebhook(request.provider(), request.trackingNumber(), request.rawStatus());
+        return ResponseEntity.ok("Webhook processed successfully");
+    }
 }

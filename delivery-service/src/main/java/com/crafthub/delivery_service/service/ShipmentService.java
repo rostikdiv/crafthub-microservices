@@ -6,6 +6,8 @@ import com.crafthub.delivery_service.dto.external.OrderResponseDTO;
 import com.crafthub.delivery_service.dto.response.ShipmentResponseDTO;
 import com.crafthub.delivery_service.entity.DeliveryStatus;
 import com.crafthub.delivery_service.entity.Shipment;
+import com.crafthub.delivery_service.converter.LogisticsStatusMapper;
+import com.crafthub.delivery_service.entity.DeliveryProvider;
 import com.crafthub.delivery_service.exception.BusinessException; // ✅
 import com.crafthub.delivery_service.exception.ResourceNotFoundException; // ✅
 import com.crafthub.delivery_service.repository.ShipmentRepository;
@@ -32,6 +34,7 @@ public class ShipmentService {
     private final ShipmentRepository shipmentRepository;
     private final OrderServiceClient orderServiceClient;
     private final KafkaTemplate<String, DeliveryStatusChangedEvent> kafkaTemplate;
+    private final LogisticsStatusMapper statusMapper;
 
     @Transactional
     public void createShipment(UUID orderId) {
@@ -101,6 +104,28 @@ public class ShipmentService {
         kafkaTemplate.send("delivery-status-topic", shipment.getOrderId().toString(), event);
     }
 
+    /**
+     * Processes an external webhook from a logistics provider.
+     * Uses LogisticsStatusMapper to translate external statuses.
+     */
+    @Transactional
+    public void processExternalWebhook(DeliveryProvider provider, String trackingNumber, String rawStatus) {
+        log.info("Received webhook from {}: trackingNumber={}, rawStatus='{}'", provider, trackingNumber, rawStatus);
+
+        Shipment shipment = shipmentRepository.findByTrackingNumber(trackingNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipment not found for tracking number: " + trackingNumber));
+
+        DeliveryStatus mappedStatus = statusMapper.mapStatus(provider, rawStatus);
+
+        if (mappedStatus == null) {
+            log.warn("Could not map external status '{}' from provider {}. Shipment status remains: {}", 
+                    rawStatus, provider, shipment.getStatus());
+            return;
+        }
+
+        updateShipmentStatus(shipment.getId(), mappedStatus);
+    }
+
     private ShipmentResponseDTO mapToDTO(Shipment shipment) {
         return ShipmentResponseDTO.builder()
                 .id(shipment.getId())
@@ -134,12 +159,11 @@ public class ShipmentService {
         shipmentRepository.save(shipment);
         log.info("✅ Return shipment created: {}", shipment.getId());
 
-        // 2. Розрахунок вартості (Тимчасова логіка)
-        java.math.BigDecimal shippingCost = java.math.BigDecimal.valueOf(70.0); // Базова ціна
+        // 2. Calculate shipping cost (Temporary logic)
+        java.math.BigDecimal shippingCost = java.math.BigDecimal.valueOf(70.0); // Base price
         if (request.weight() != null && request.weight() > 2.0) {
-            shippingCost = shippingCost.add(java.math.BigDecimal.valueOf((request.weight() - 2.0) * 10)); // +10 грн за
-                                                                                                          // кожен кг
-                                                                                                          // понад 2 кг
+            shippingCost = shippingCost.add(java.math.BigDecimal.valueOf((request.weight() - 2.0) * 10)); // +10 UAH per kg
+                                                                                                          // over 2 kg
         }
 
         // 3. Start delivery simulation
