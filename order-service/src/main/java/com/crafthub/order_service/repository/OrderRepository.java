@@ -4,6 +4,7 @@ import com.crafthub.order_service.entity.Order;
 import com.crafthub.order_service.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
@@ -25,6 +26,7 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * @param pageable Pagination information.
      * @return A page of orders.
      */
+    @EntityGraph(attributePaths = {"items"})
     Page<Order> findAllByUserId(UUID userId, Pageable pageable);
 
     /**

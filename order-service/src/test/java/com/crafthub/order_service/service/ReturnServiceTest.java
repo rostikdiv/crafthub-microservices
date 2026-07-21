@@ -51,7 +51,7 @@ class ReturnServiceTest {
     @Mock
     private PaymentIntegrationService paymentIntegrationService;
     @Mock
-    private KafkaPublisherService kafkaPublisherService;
+    private NotificationIntegrationService notificationIntegrationService;
 
     @InjectMocks
     private ReturnService returnService;
@@ -87,7 +87,7 @@ class ReturnServiceTest {
         order.setItems(List.of(orderItem));
         orderItem.setOrder(order);
         
-        org.springframework.test.util.ReflectionTestUtils.setField(returnService, "kafkaPublisherService", kafkaPublisherService);
+        // no kafkaPublisherService needed anymore
     }
 
     private void mockUserContext() {
@@ -222,9 +222,8 @@ class ReturnServiceTest {
         assertThat(response.status()).isEqualTo("REFUNDED");
 
         verify(paymentIntegrationService).refundPayment(orderId, BigDecimal.valueOf(150));
-        
-        verify(kafkaPublisherService).sendRefundApprovedEvent(refundEventCaptor.capture());
-        assertThat(refundEventCaptor.getValue().orderId()).isEqualTo(orderId);
+        verify(notificationIntegrationService).publishRefundApprovedEvent(
+                eq(orderId), eq(orderItem.getProductId()), eq(2), eq(ReturnReason.CHANGED_MIND.name()));
 
         verify(orderRepository).save(orderCaptor.capture());
         assertThat(orderCaptor.getValue().getStatus()).isEqualTo(OrderStatus.REFUNDED);

@@ -39,8 +39,7 @@ public class ReturnService {
     private final UserContextService userContextService;
     private final PaymentIntegrationService paymentIntegrationService;
 
-    @Autowired(required = false)
-    private KafkaPublisherService kafkaPublisherService;
+    private final NotificationIntegrationService notificationIntegrationService;
 
     @Transactional
     public ReturnResponseDTO requestReturn(UUID orderId, ReturnRequestDTO request) {
@@ -162,16 +161,11 @@ public class ReturnService {
             orderReturn.setStatus(ReturnStatus.REFUNDED);
             log.info("💰 Refund processed for return: {}", returnId);
 
-            // 2. Send event to restore stock
-            com.crafthub.order_service.dto.event.RefundApprovedEventDTO event = new com.crafthub.order_service.dto.event.RefundApprovedEventDTO(
+            notificationIntegrationService.publishRefundApprovedEvent(
                     orderReturn.getOrder().getId(),
                     orderReturn.getProductId(),
                     orderReturn.getQuantity(),
                     orderReturn.getReason().name());
-
-            if (kafkaPublisherService != null) {
-                kafkaPublisherService.sendRefundApprovedEvent(event);
-            }
 
             // 3. Update order status (simplified to REFUNDED for MVP)
             orderReturn.getOrder().setStatus(OrderStatus.REFUNDED);

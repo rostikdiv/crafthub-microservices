@@ -58,4 +58,18 @@ public class KafkaPublisherService {
             log.error("Failed to send Refund Kafka event", e);
         }
     }
+
+    /**
+     * Sends a generic JSON event from the Outbox table.
+     */
+    public void sendJsonEvent(String topic, String key, String jsonPayload) {
+        log.info("Sending generic JSON event to Kafka topic '{}': {}", topic, key);
+        try {
+            kafkaTemplate.send(topic, key, jsonPayload);
+            log.info("Generic Event sent successfully");
+        } catch (Exception e) {
+            log.error("Failed to send generic Kafka event", e);
+            throw new RuntimeException("Kafka send failed", e); // Re-throw to prevent Outbox from marking as processed
+        }
+    }
 }

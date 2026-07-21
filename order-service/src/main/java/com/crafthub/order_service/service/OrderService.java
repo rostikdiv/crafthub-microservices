@@ -47,12 +47,14 @@ public class OrderService {
     private final PaymentIntegrationService paymentIntegrationService;
     private final UserContextService userContext;
     private final com.crafthub.order_service.client.UserServiceClient userServiceClient;
+    private final NotificationIntegrationService notificationIntegrationService;
+    private final InventoryIntegrationService inventoryIntegrationService;
+    private final java.util.List<com.crafthub.order_service.service.strategy.OrderStatusStrategy> statusStrategies;
+    private final com.crafthub.order_service.service.strategy.DefaultOrderStatusStrategy defaultStatusStrategy;
 
-    // Optional beans for Kafka/SQS (depending on which is connected)
-    @Autowired(required = false)
-    private KafkaPublisherService kafkaPublisherService;
-    @Autowired(required = false)
-    private SqsPublisherService sqsPublisherService;
+    @org.springframework.context.annotation.Lazy
+    @Autowired
+    private OrderService self;
 
     @Transactional
     public PaymentResponseDTO createOrder(OrderRequestDTO request) {
@@ -202,27 +204,13 @@ public class OrderService {
                 .map(this::mapToOrderResponseDTO);
     }
 
-    public List<OrderResponseDTO> getAllOrders() {
-        return orderRepository.findAll().stream()
-                .map(this::mapToOrderResponseDTO)
-                .toList();
+    public Page<OrderResponseDTO> getAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable)
+                .map(this::mapToOrderResponseDTO);
     }
 
     private void sendNotification(Order order, List<String> productNames, String userEmail, List<UUID> productIds) {
-        String summary = String.join(", ", productNames);
-        OrderPlacedEventDTO event = new OrderPlacedEventDTO(
-                order.getId(),
-                order.getUserId(),
-                userEmail,
-                order.getTotalPrice(),
-                summary,
-                productIds);
-
-        if (kafkaPublisherService != null) {
-            kafkaPublisherService.sendOrderPlacedEvent(event);
-        } else if (sqsPublisherService != null) {
-            sqsPublisherService.sendOrderToQueue(event);
-        }
+        notificationIntegrationService.publishOrderPlacedEvent(order, productNames, userEmail, productIds);
     }
 
     // --- Other methods remain unchanged ---
@@ -463,7 +451,7 @@ public class OrderService {
         }
 
         log.info("Order {} cancelled by user {}. Reason: {}", orderId, userId, reason);
-        updateOrderStatus(order, OrderStatus.CANCELLED);
+        self.updateOrderStatus(order, OrderStatus.CANCELLED);
 
         // Restore stock if it was reserved
         restoreStock(order);
@@ -486,7 +474,7 @@ public class OrderService {
 
         log.info("Return requested for Order {} by User {}. Reason: {}", orderId, userId, reason);
         order.setReturnReason(reason);
-        updateOrderStatus(order, OrderStatus.RETURN_REQUESTED);
+        self.updateOrderStatus(order, OrderStatus.RETURN_REQUESTED);
     }
 
     @Transactional
@@ -506,7 +494,7 @@ public class OrderService {
         OrderStatus newStatus = approved ? OrderStatus.RETURN_APPROVED : OrderStatus.RETURN_REJECTED;
         log.info("Seller {} processed return for Order {}. Decision: {}", sellerId, orderId, newStatus);
 
-        updateOrderStatus(order, newStatus);
+        self.updateOrderStatus(order, newStatus);
     }
 
     @Transactional
@@ -524,14 +512,20 @@ public class OrderService {
         }
 
         log.info("Seller {} completing return for Order {}. Status -> REFUNDED.", sellerId, orderId);
-        updateOrderStatus(order, OrderStatus.REFUNDED);
+        self.updateOrderStatus(order, OrderStatus.REFUNDED);
 
         // Restore stock since item is returned
         restoreStock(order);
     }
 
-    private void updateOrderStatus(Order order, OrderStatus newStatus) {
-        order.setStatus(newStatus);
+    @Transactional
+    public void updateOrderStatus(Order order, OrderStatus newStatus) {
+        com.crafthub.order_service.service.strategy.OrderStatusStrategy strategy = statusStrategies.stream()
+                .filter(s -> s.supports(newStatus))
+                .findFirst()
+                .orElse(defaultStatusStrategy);
+        
+        strategy.applyStatusChange(order, newStatus);
         orderRepository.save(order);
     }
 }

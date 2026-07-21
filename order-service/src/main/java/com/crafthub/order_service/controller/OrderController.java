@@ -116,8 +116,9 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasAuthority('order:read:all')")
-    public ResponseEntity<List<OrderResponseDTO>> getAllOrders() {
-        return ResponseEntity.ok(orderService.getAllOrders());
+    public ResponseEntity<Page<OrderResponseDTO>> getAllOrders(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(orderService.getAllOrders(pageable));
     }
 
     @GetMapping("/{id}")

@@ -2,12 +2,14 @@ package com.crafthub.order_service.service;
 
 import com.crafthub.order_service.client.ProductServiceClient;
 import com.crafthub.order_service.dto.external.ProductResponseDTO;
+import com.crafthub.order_service.dto.order.OrderItemRequestDTO;
 import com.crafthub.order_service.exception.BusinessException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -72,5 +74,10 @@ public class ProductIntegrationService {
                 productId, quantity, t.getMessage());
         // TODO: Ideally send a "stock-release-retry" event to Kafka for later
         // processing
+    }
+
+    public void restoreStock(List<OrderItemRequestDTO> itemsToRestore) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'restoreStock'");
     }
 }

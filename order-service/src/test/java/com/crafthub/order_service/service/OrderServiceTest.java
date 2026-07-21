@@ -27,6 +27,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -35,6 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -63,7 +65,13 @@ class OrderServiceTest {
     @Mock
     private UserServiceClient userServiceClient;
     @Mock
-    private KafkaPublisherService kafkaPublisherService;
+    private NotificationIntegrationService notificationIntegrationService;
+    @Mock
+    private InventoryIntegrationService inventoryIntegrationService;
+    @Mock
+    private java.util.List<com.crafthub.order_service.service.strategy.OrderStatusStrategy> statusStrategies;
+    @Spy
+    private com.crafthub.order_service.service.strategy.DefaultOrderStatusStrategy defaultStatusStrategy;
 
     @InjectMocks
     private OrderService orderService;
@@ -94,8 +102,8 @@ class OrderServiceTest {
                 .cityRef("city1")
                 .branchRef("branch1")
                 .build();
-                
-        org.springframework.test.util.ReflectionTestUtils.setField(orderService, "kafkaPublisherService", kafkaPublisherService);
+
+        ReflectionTestUtils.setField(orderService, "self", orderService);
     }
 
     private void setupSecurityContext(String... authorities) {
@@ -123,7 +131,8 @@ class OrderServiceTest {
         OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 2);
         OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), validDeliveryDetails, PaymentMethod.CARD);
 
-        ProductResponseDTO product = new ProductResponseDTO(productId, "Test Product", BigDecimal.valueOf(100), "PUBLIC", 10, sellerId);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Test Product", BigDecimal.valueOf(100),
+                "PUBLIC", 10, sellerId);
         when(productIntegrationService.getProductById(productId)).thenReturn(product);
 
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> {
@@ -141,14 +150,14 @@ class OrderServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.status()).isEqualTo("PENDING");
-        
+
         verify(productIntegrationService).reduceStock(productId, 2);
         verify(orderRepository).save(orderCaptor.capture());
         Order capturedOrder = orderCaptor.getValue();
         assertThat(capturedOrder.getStatus()).isEqualTo(OrderStatus.PENDING_PAYMENT);
         assertThat(capturedOrder.getPaymentMethod()).isEqualTo(PaymentMethod.CARD);
-        
-        verify(kafkaPublisherService).sendOrderPlacedEvent(any());
+
+        verify(notificationIntegrationService).publishOrderPlacedEvent(any(), any(), any(), any());
     }
 
     @Test
@@ -159,9 +168,10 @@ class OrderServiceTest {
         OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
         OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), validDeliveryDetails, PaymentMethod.COD);
 
-        ProductResponseDTO product = new ProductResponseDTO(productId, "Test Product", BigDecimal.valueOf(150), "PUBLIC", 5, sellerId);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Test Product", BigDecimal.valueOf(150),
+                "PUBLIC", 5, sellerId);
         when(productIntegrationService.getProductById(productId)).thenReturn(product);
-        
+
         Order savedOrder = new Order();
         savedOrder.setId(UUID.randomUUID());
         when(orderRepository.save(any(Order.class))).thenReturn(savedOrder);
@@ -170,7 +180,7 @@ class OrderServiceTest {
 
         assertThat(result).isNotNull();
         assertThat(result.status()).isEqualTo("PENDING_CONFIRMATION");
-        
+
         verify(orderRepository).save(orderCaptor.capture());
         assertThat(orderCaptor.getValue().getStatus()).isEqualTo(OrderStatus.PENDING_CONFIRMATION);
     }
@@ -178,7 +188,8 @@ class OrderServiceTest {
     @Test
     void createOrder_ProductNotFound_ThrowsException() {
         mockUserContext(true);
-        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)), validDeliveryDetails, PaymentMethod.CARD);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)),
+                validDeliveryDetails, PaymentMethod.CARD);
         when(productIntegrationService.getProductById(productId)).thenReturn(null);
 
         assertThatThrownBy(() -> orderService.createOrder(request))
@@ -196,11 +207,9 @@ class OrderServiceTest {
                 validDeliveryDetails, PaymentMethod.CARD);
 
         when(productIntegrationService.getProductById(productId)).thenReturn(
-                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "PUBLIC", 10, sellerId)
-        );
+                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "PUBLIC", 10, sellerId));
         when(productIntegrationService.getProductById(productId2)).thenReturn(
-                new ProductResponseDTO(productId2, "P2", BigDecimal.TEN, "PUBLIC", 10, sellerId2)
-        );
+                new ProductResponseDTO(productId2, "P2", BigDecimal.TEN, "PUBLIC", 10, sellerId2));
 
         assertThatThrownBy(() -> orderService.createOrder(request))
                 .isInstanceOf(BusinessException.class)
@@ -211,11 +220,11 @@ class OrderServiceTest {
     void createOrder_RestrictedAccessDenied_ThrowsException() {
         mockUserContext(true);
         setupSecurityContext("order:create");
-        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)), validDeliveryDetails, PaymentMethod.CARD);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)),
+                validDeliveryDetails, PaymentMethod.CARD);
 
         when(productIntegrationService.getProductById(productId)).thenReturn(
-                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "RESTRICTED", 10, sellerId)
-        );
+                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "RESTRICTED", 10, sellerId));
 
         assertThatThrownBy(() -> orderService.createOrder(request))
                 .isInstanceOf(AccessDeniedException.class)
@@ -226,11 +235,11 @@ class OrderServiceTest {
     void createOrder_RestrictedUnverified_ThrowsException() {
         mockUserContext(false);
         setupSecurityContext("order:create", "product:buy:restricted");
-        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)), validDeliveryDetails, PaymentMethod.CARD);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)),
+                validDeliveryDetails, PaymentMethod.CARD);
 
         when(productIntegrationService.getProductById(productId)).thenReturn(
-                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "RESTRICTED", 10, sellerId)
-        );
+                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "RESTRICTED", 10, sellerId));
 
         assertThatThrownBy(() -> orderService.createOrder(request))
                 .isInstanceOf(AccessDeniedException.class)
@@ -241,12 +250,12 @@ class OrderServiceTest {
     void createOrder_StockRollbackOnFailure() {
         mockUserContext(true);
         setupSecurityContext("order:create");
-        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 2)), validDeliveryDetails, PaymentMethod.CARD);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 2)),
+                validDeliveryDetails, PaymentMethod.CARD);
 
         when(productIntegrationService.getProductById(productId)).thenReturn(
-                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "PUBLIC", 10, sellerId)
-        );
-        
+                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "PUBLIC", 10, sellerId));
+
         when(orderRepository.save(any(Order.class))).thenThrow(new RuntimeException("DB Error"));
 
         assertThatThrownBy(() -> orderService.createOrder(request))
@@ -259,7 +268,8 @@ class OrderServiceTest {
     @Test
     void createOrder_InvalidDeliveryDetails() {
         mockUserContext(true);
-        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)), null, PaymentMethod.CARD);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(new OrderItemRequestDTO(productId, 1)), null,
+                PaymentMethod.CARD);
 
         assertThatThrownBy(() -> orderService.createOrder(request))
                 .isInstanceOf(BusinessException.class)
@@ -355,7 +365,7 @@ class OrderServiceTest {
     void updateOrderStatusBySeller_Success() {
         userId = sellerId;
         mockUserContext(true);
-        
+
         UUID orderId = UUID.randomUUID();
         Order order = new Order();
         order.setId(orderId);
@@ -376,7 +386,7 @@ class OrderServiceTest {
     @Test
     void updateOrderStatusBySeller_NotOwner_ThrowsException() {
         mockUserContext(true);
-        
+
         UUID orderId = UUID.randomUUID();
         Order order = new Order();
         order.setId(orderId);
@@ -412,7 +422,7 @@ class OrderServiceTest {
     void processReturn_Approved() {
         userId = sellerId;
         mockUserContext(true);
-        
+
         UUID orderId = UUID.randomUUID();
         Order order = new Order();
         order.setId(orderId);
@@ -426,12 +436,12 @@ class OrderServiceTest {
         verify(orderRepository).save(orderCaptor.capture());
         assertThat(orderCaptor.getValue().getStatus()).isEqualTo(OrderStatus.RETURN_APPROVED);
     }
-    
+
     @Test
     void completeReturn_Success() {
         userId = sellerId;
         mockUserContext(true);
-        
+
         UUID orderId = UUID.randomUUID();
         Order order = new Order();
         order.setId(orderId);
@@ -507,7 +517,7 @@ class OrderServiceTest {
     void getMyOrders_ReturnsPage() {
         mockUserContext(true);
         Pageable pageable = PageRequest.of(0, 10);
-        
+
         Order order = new Order();
         order.setId(UUID.randomUUID());
         order.setItems(List.of());
@@ -529,8 +539,7 @@ class OrderServiceTest {
                 validDeliveryDetails, PaymentMethod.CARD);
 
         when(productIntegrationService.getProductById(productId)).thenReturn(
-                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "PUBLIC", 10, null)
-        );
+                new ProductResponseDTO(productId, "P1", BigDecimal.TEN, "PUBLIC", 10, null));
 
         assertThatThrownBy(() -> orderService.createOrder(request))
                 .isInstanceOf(BusinessException.class)
@@ -595,7 +604,7 @@ class OrderServiceTest {
     @Test
     void sellerUpdateStatus_NotSeller_ThrowsException() {
         lenient().when(userContext.getUserId()).thenReturn(UUID.randomUUID());
-        
+
         Order order = new Order();
         order.setSellerId(sellerId);
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -629,9 +638,9 @@ class OrderServiceTest {
         Order order = new Order();
         order.setId(orderId);
         order.setItems(List.of());
-        when(orderRepository.findAll()).thenReturn(List.of(order));
+        when(orderRepository.findAll(any(org.springframework.data.domain.Pageable.class))).thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(order)));
 
-        List<OrderResponseDTO> result = orderService.getAllOrders();
+        var result = orderService.getAllOrders(org.springframework.data.domain.Pageable.unpaged());
 
         assertThat(result).hasSize(1);
     }
