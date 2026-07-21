@@ -37,8 +37,8 @@ public class UserController {
     @PreAuthorize("hasAuthority('user:ban')")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(
-                userRepository.findAll().stream()
-                        .map(user -> userService.getUserByIdWithProfiles(user.getId()))
+                userRepository.findAllWithProfiles().stream()
+                        .map(userService::mapToResponseDTO)
                         .toList());
     }
 
@@ -70,7 +70,7 @@ public class UserController {
      */
     @GetMapping("/{userId}/seller-info")
     public ResponseEntity<SellerInfoDTO> getSellerInfo(@PathVariable UUID userId) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdWithProfiles(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
 
         if (user.getSellerProfile() == null) {

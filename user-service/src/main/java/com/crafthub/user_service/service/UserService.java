@@ -53,7 +53,8 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public UserResponseDTO getUserByIdWithProfiles(UUID userId) {
-        User user = getUserById(userId);
+        User user = userRepository.findByIdWithProfiles(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
         return mapToResponseDTO(user);
     }
 
@@ -61,7 +62,7 @@ public class UserService {
      * Maps user entity and its sub-profiles to a comprehensive Data Transfer
      * Object.
      */
-    private UserResponseDTO mapToResponseDTO(User user) {
+    public UserResponseDTO mapToResponseDTO(User user) {
         SellerProfileDTO sellerDTO = null;
         if (user.getSellerProfile() != null) {
             var s = user.getSellerProfile();
