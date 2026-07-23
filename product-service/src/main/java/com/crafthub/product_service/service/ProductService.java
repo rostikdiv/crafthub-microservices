@@ -180,7 +180,7 @@ public class ProductService {
                 product.getWidth(),
                 product.getHeight(),
                 product.getPreviewImageUrl(),
-                product.getImageUrls());
+                product.getImageUrls() != null ? new ArrayList<>(product.getImageUrls()) : new ArrayList<>());
     }
 
     /**
