@@ -134,4 +134,16 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
         userRepository.save(user);
     }
+
+    /**
+     * Promotes an existing user to ADMIN status.
+     * Only an existing ADMIN should be able to call this.
+     */
+    @Transactional
+    public User promoteUserToAdmin(UUID userId) {
+        User user = getUserById(userId);
+        user.setRole(com.crafthub.user_service.entity.enums.Role.ADMIN);
+        user.setIsVerified(true);
+        return userRepository.save(user);
+    }
 }

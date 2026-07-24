@@ -1,3 +1,12 @@
+# ==============================================================================
+# AWS ECS DEPLOYMENT PIPELINE
+# 
+# NOTE: This entire workflow is currently commented out because the project
+# is in the local development/testing phase. It should be uncommented only 
+# when the platform is ready to be deployed to the live AWS ECS environment.
+# No secrets or keys are hardcoded; everything uses GitHub Secrets.
+# ==============================================================================
+
 # name: Deploy to Amazon ECS
 # on:
 #   push:

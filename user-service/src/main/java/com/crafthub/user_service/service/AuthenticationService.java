@@ -40,7 +40,12 @@ public class AuthenticationService {
         }
 
         var role = request.getRole() == null ? Role.BUYER : request.getRole();
-        // Buyers are auto-verified; sellers and admins require offline verification
+        
+        if (role == Role.ADMIN) {
+            throw new BusinessException("Cannot self-register as an administrator.");
+        }
+
+        // Buyers are auto-verified; sellers require offline verification
         boolean isVerified = role == Role.BUYER;
 
         var user = User.builder()

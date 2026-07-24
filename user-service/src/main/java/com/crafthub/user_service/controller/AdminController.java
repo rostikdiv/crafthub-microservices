@@ -1,9 +1,10 @@
 package com.crafthub.user_service.controller;
 
-import com.crafthub.user_service.dto.admin.VerificationRequestResponseDTO; // 👈 Імпорт нового DTO
+import com.crafthub.user_service.dto.admin.VerificationRequestResponseDTO;
 import com.crafthub.user_service.dto.admin.VerificationResponseDTO;
 import com.crafthub.user_service.service.AdminService;
 import com.crafthub.user_service.service.VerificationDocService;
+import com.crafthub.user_service.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ public class AdminController {
 
     private final AdminService adminService;
     private final VerificationDocService docService;
+    private final UserService userService;
 
     @GetMapping("/verifications")
     @PreAuthorize("hasAuthority('user:verify')")
@@ -26,7 +28,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getPendingVerifications());
     }
 
-    // ✅ Цей метод приймає коментар (для емейлу)
+    
     @PatchMapping("/users/{id}/verify")
     @PreAuthorize("hasAuthority('user:verify')")
     public ResponseEntity<String> verifyUser(
@@ -38,21 +40,28 @@ public class AdminController {
         return ResponseEntity.ok("User verification status updated");
     }
 
-    // Оновлений метод: використовує docService
+   
     @PatchMapping("/docs/{id}/verify")
     @PreAuthorize("hasAuthority('user:verify')")
     public ResponseEntity<String> verifyDoc(
             @PathVariable UUID id,
             @RequestParam boolean isApproved
     ) {
-        docService.updateDocumentStatus(id, isApproved); // 👈 Виклик нового сервісу
+        docService.updateDocumentStatus(id, isApproved); 
         return ResponseEntity.ok("Document status updated");
     }
 
-    // Оновлений метод: використовує docService
+    
     @GetMapping("/users/{userId}/documents")
     @PreAuthorize("hasAuthority('user:verify')")
     public ResponseEntity<List<VerificationResponseDTO>> getUserDocuments(@PathVariable UUID userId) {
-        return ResponseEntity.ok(docService.getDocumentsByUserId(userId)); // 👈 Виклик нового сервісу
+        return ResponseEntity.ok(docService.getDocumentsByUserId(userId));
+    }
+
+    @PostMapping("/users/{userId}/promote")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<com.crafthub.user_service.dto.user.UserResponseDTO> promoteToAdmin(@PathVariable UUID userId) {
+        com.crafthub.user_service.entity.User updatedUser = userService.promoteUserToAdmin(userId);
+        return ResponseEntity.ok(userService.mapToResponseDTO(updatedUser));
     }
 }
