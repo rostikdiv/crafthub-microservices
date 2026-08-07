@@ -86,7 +86,8 @@ public class UserController {
                 user.getIsVerified(),
                 profile.getRating(),
                 profile.getReviewCount(),
-                profile.getTotalSales()));
+                profile.getTotalSales(),
+                profile.getAutoConfirmOrders()));
     }
 
     /**

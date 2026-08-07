@@ -17,4 +17,5 @@ public class SellerProfileRequestDTO {
         private String description;
         private String logoUrl;
         private String taxId;
+        private Boolean autoConfirmOrders;
 }

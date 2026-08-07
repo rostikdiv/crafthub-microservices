@@ -104,4 +104,14 @@ public class SellerService {
                 profile.setTotalSales(profile.getTotalSales() + 1);
                 sellerProfileRepository.save(profile);
         }
+
+        /**
+         * Retrieves the auto-confirm setting for a given seller.
+         */
+        @Transactional(readOnly = true)
+        public Boolean getAutoConfirm(UUID sellerId) {
+                return sellerProfileRepository.findByUserId(sellerId)
+                        .map(SellerProfile::getAutoConfirmOrders)
+                        .orElse(true);
+        }
 }

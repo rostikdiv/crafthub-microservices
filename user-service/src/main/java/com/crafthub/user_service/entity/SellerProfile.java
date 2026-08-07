@@ -48,6 +48,10 @@ public class SellerProfile {
     @Builder.Default
     private Integer totalSales = 0;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean autoConfirmOrders = true;
+
     @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<SellerPoint> pickupPoints;
 }

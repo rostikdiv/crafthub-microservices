@@ -1,6 +1,7 @@
 package com.crafthub.order_service.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -14,4 +15,7 @@ public interface UserServiceClient {
 
     @PostMapping("/internal/{id}/sales/increment")
     void incrementSales(@PathVariable("id") UUID id);
+
+    @GetMapping("/internal/{id}/auto-confirm")
+    Boolean getAutoConfirm(@PathVariable("id") UUID id);
 }

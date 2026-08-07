@@ -12,5 +12,6 @@ public record SellerInfoDTO(
         Boolean isVerified,
         Float rating,
         Integer reviewCount,
-        Integer totalSales) {
+        Integer totalSales,
+        Boolean autoConfirmOrders) {
 }

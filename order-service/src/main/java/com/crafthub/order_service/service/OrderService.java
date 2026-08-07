@@ -163,6 +163,19 @@ public class OrderService {
 
             // If Cash on Delivery (COD) - return success without payment redirect
             if (request.paymentMethod() == PaymentMethod.COD) {
+                Boolean autoConfirm = null;
+                try {
+                    autoConfirm = userServiceClient.getAutoConfirm(commonSellerId);
+                } catch (Exception e) {
+                    log.error("Failed to fetch auto-confirm config for seller {}", commonSellerId, e);
+                }
+
+                if (autoConfirm != null && autoConfirm) {
+                    scheduleAutoConfirm(order.getId());
+                } else {
+                    checkAndScheduleDelivery(order);
+                }
+
                 return new PaymentResponseDTO(
                         null,
                         "PENDING_CONFIRMATION",
@@ -383,6 +396,25 @@ public class OrderService {
         }).start();
     }
 
+    private void scheduleAutoConfirm(UUID orderId) {
+        new Thread(() -> {
+            try {
+                log.info("Simulation: Auto-confirming order {} in 3 seconds...", orderId);
+                Thread.sleep(3000); // 3 seconds
+                
+                Order order = orderRepository.findById(orderId).orElse(null);
+                if (order != null && order.getStatus() == OrderStatus.PENDING_CONFIRMATION) {
+                    order.setStatus(OrderStatus.CONFIRMED);
+                    orderRepository.save(order);
+                    log.info("Simulation: Order {} AUTO-CONFIRMED", orderId);
+                    checkAndScheduleDelivery(order);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
+    }
+
     // Updated confirmOrderPayment to check for simulation
     @Transactional
     public void confirmOrderPayment(UUID orderId) {
@@ -395,11 +427,23 @@ public class OrderService {
             return;
         }
 
-        // Changed from PAID to PENDING_CONFIRMATION to unify workflow with COD
         order.setStatus(OrderStatus.PENDING_CONFIRMATION);
         orderRepository.save(order);
 
         log.info("Order {} payment confirmed. Status updated to PENDING_CONFIRMATION", orderId);
+
+        Boolean autoConfirm = null;
+        try {
+            autoConfirm = userServiceClient.getAutoConfirm(order.getSellerId());
+        } catch (Exception e) {
+            log.error("Failed to fetch auto-confirm config for seller {}", order.getSellerId(), e);
+        }
+        
+        if (autoConfirm != null && autoConfirm) {
+            scheduleAutoConfirm(orderId);
+        } else {
+            checkAndScheduleDelivery(order);
+        }
     }
 
     // ... validateDeliveryDetails ...

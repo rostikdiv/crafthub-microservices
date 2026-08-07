@@ -60,6 +60,7 @@ public class ProfileService {
                 .taxId(dto.getTaxId())
                 .logoUrl(dto.getLogoUrl())
                 .rating(0.0f)
+                .autoConfirmOrders(dto.getAutoConfirmOrders() != null ? dto.getAutoConfirmOrders() : true)
                 .build();
 
         sellerProfileRepository.save(profile);
@@ -103,6 +104,9 @@ public class ProfileService {
         profile.setCompanyName(dto.getCompanyName());
         profile.setDescription(dto.getDescription());
         profile.setLogoUrl(dto.getLogoUrl());
+        if (dto.getAutoConfirmOrders() != null) {
+            profile.setAutoConfirmOrders(dto.getAutoConfirmOrders());
+        }
         // Tax ID is usually immutable without further verification
 
         sellerProfileRepository.save(profile);

@@ -73,4 +73,12 @@ public class SellerController {
         sellerService.incrementSales(id);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * Internal endpoint used by order-service to get seller auto-confirm config.
+     */
+    @GetMapping("/internal/{id}/auto-confirm")
+    public ResponseEntity<Boolean> getAutoConfirm(@PathVariable UUID id) {
+        return ResponseEntity.ok(sellerService.getAutoConfirm(id));
+    }
 }
