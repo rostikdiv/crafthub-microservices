@@ -11,8 +11,8 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.crafthub</groupId>
-    <artifactId>crafthub-microservices</artifactId>
+    <groupId>com.milhub</groupId>
+    <artifactId>milhub-microservices</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 

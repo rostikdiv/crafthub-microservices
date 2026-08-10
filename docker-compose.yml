@@ -13,7 +13,7 @@ services:
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
 
   # 2. API Gateway
   api-gateway:
@@ -29,7 +29,7 @@ services:
       - CORS_ALLOWED_ORIGINS=http://localhost:5173,https://rachell-diaphanometric-viva.ngrok-free.app,https://rachell-diaphanometric-viva.ngrok-free.dev
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
 
@@ -44,7 +44,7 @@ services:
     volumes:
       - postgres-user-data:/var/lib/postgresql/data
     networks:
-      - crafthub-net
+      - milhub-net
     ports:
       - "5431:5432"
 
@@ -59,7 +59,7 @@ services:
     volumes:
       - postgres-product-data:/var/lib/postgresql/data
     networks:
-      - crafthub-net
+      - milhub-net
     ports:
       - "5434:5432"
 
@@ -74,7 +74,7 @@ services:
     volumes:
       - postgres-order-data:/var/lib/postgresql/data
     networks:
-      - crafthub-net
+      - milhub-net
     ports:
       - "5433:5432"
 
@@ -89,7 +89,7 @@ services:
     volumes:
       - postgres-payment-data:/var/lib/postgresql/data
     networks:
-      - crafthub-net
+      - milhub-net
     ports:
       - "5435:5432"
 
@@ -104,7 +104,7 @@ services:
     volumes:
       - postgres-delivery-data:/var/lib/postgresql/data
     networks:
-      - crafthub-net
+      - milhub-net
     ports:
       - "5436:5432"
 
@@ -123,7 +123,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - postgres-user-db
@@ -144,7 +144,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - postgres-product-db
@@ -166,7 +166,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - postgres-order-db
@@ -181,7 +181,7 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - crafthub-net
+      - milhub-net
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
@@ -199,7 +199,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     networks:
-      - crafthub-net
+      - milhub-net
 
   # 11. Notification Service
   notification-service:
@@ -214,7 +214,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - kafka
@@ -237,7 +237,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - mongo
@@ -259,7 +259,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - postgres-payment-db
@@ -281,7 +281,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - service-discovery
       - postgres-delivery-db
@@ -293,7 +293,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - crafthub-net
+      - milhub-net
     volumes:
       - redis-data:/data
 
@@ -304,7 +304,7 @@ services:
     ports:
       - "27017:27017"
     networks:
-      - crafthub-net
+      - milhub-net
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -319,11 +319,11 @@ services:
     ports:
       - "9411:9411"
     networks:
-      - crafthub-net
+      - milhub-net
 
   minio:
     image: minio/minio:latest
-    container_name: crafthub-minio
+    container_name: milhub-minio
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -334,7 +334,7 @@ services:
       - ./minio_data:/data
     command: server /data --console-address ":9001"
     networks:
-      - crafthub-net
+      - milhub-net
 
   createbuckets:
     image: minio/mc
@@ -346,18 +346,18 @@ services:
         sleep 1;
       done; echo 'MinIO is UP! Creating buckets...'; /usr/bin/mc mb --ignore-existing myminio/products; /usr/bin/mc anonymous set public myminio/products; /usr/bin/mc mb --ignore-existing myminio/avatars; /usr/bin/mc anonymous set public myminio/avatars; /usr/bin/mc mb --ignore-existing myminio/documents; /usr/bin/mc anonymous set private myminio/documents; echo 'All buckets created successfully!'; exit 0; "
     networks:
-      - crafthub-net
+      - milhub-net
 
   # Nginx Reverse Proxy (Routes both Backend and Frontend)
   nginx:
     image: nginx:alpine
-    container_name: crafthub-nginx
+    container_name: milhub-nginx
     ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - api-gateway
 
@@ -372,7 +372,7 @@ services:
       - "--domain=rachell-diaphanometric-viva.ngrok-free.dev"
       - "nginx:80"
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - nginx
       
@@ -384,7 +384,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - crafthub-net
+      - milhub-net
 
   grafana:
     image: grafana/grafana:latest
@@ -397,12 +397,12 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/var/lib/grafana/dashboards
     networks:
-      - crafthub-net
+      - milhub-net
     depends_on:
       - prometheus
 
 networks:
-  crafthub-net:
+  milhub-net:
     driver: bridge
 
 volumes:

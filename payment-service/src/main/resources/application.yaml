@@ -11,7 +11,7 @@ spring:
   datasource:
     # Database connection settings
     url: ${DB_URL:jdbc:postgresql://localhost:5435/payment_service_db}
-    username: ${DB_USER:crafthub}
+    username: ${DB_USER:milhub}
     password: ${DB_PASS:password}
     driver-class-name: org.postgresql.Driver
 

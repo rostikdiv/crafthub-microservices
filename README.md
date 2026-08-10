@@ -1,8 +1,8 @@
-# CraftHub Microservices Platform
+# MilHub Microservices Platform
 
-*Looking for the frontend? The React UI repository can be found here: [CraftHub Frontend](https://github.com/rostikdiv/crafthub-frontend.git)*
+*Looking for the frontend? The React UI repository can be found here: [MilHub Frontend](https://github.com/rostikdiv/milhub-frontend.git)*
 
-CraftHub is a robust, enterprise-grade handmade marketplace built using a microservices architecture. It is designed to demonstrate advanced backend capabilities including distributed systems, event-driven architecture, and modern deployment strategies.
+MilHub is a robust, enterprise-grade handmade marketplace built using a microservices architecture. It is designed to demonstrate advanced backend capabilities including distributed systems, event-driven architecture, and modern deployment strategies.
 
 ## 🛠️ Tech Stack
 - **Core**: Java 17, Spring Boot 3.5.7, Spring Cloud
@@ -122,11 +122,11 @@ The platform implements **Stateless JWT Authentication**.
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "admin@crafthub.com", "password": "password123"}'
+  -d '{"email": "admin@milhub.com", "password": "password123"}'
 ```
 *Copy the `token` from the response and use it as an `Authorization: Bearer <token>` header in subsequent requests.*
 
-> **⚠️ IMPORTANT:** The `admin@crafthub.com` account is a Master Admin automatically initialized upon startup for testing purposes. **You must change this default password immediately** in a production environment.
+> **⚠️ IMPORTANT:** The `admin@milhub.com` account is a Master Admin automatically initialized upon startup for testing purposes. **You must change this default password immediately** in a production environment.
 
 ## 🛡️ Fault Tolerance (Resilience4j)
 
@@ -168,7 +168,7 @@ I strictly adhere to the 12-Factor App methodology. **No secrets are hardcoded i
 
 ## 🚀 Getting Started (Local Deployment)
 
-To run the entire CraftHub platform locally, you will need Docker and Docker Compose.
+To run the entire MilHub platform locally, you will need Docker and Docker Compose.
 
 ### 1. Start the Infrastructure
 Use Docker Compose to bring up all infrastructure containers (Databases, Kafka, Zookeeper, Redis, MinIO, Zipkin, Prometheus, Grafana):

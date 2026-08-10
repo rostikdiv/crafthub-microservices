@@ -1,7 +1,7 @@
 {
   "family": "cart-service-task-def",
   "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/milhub-ecs-task-role",
   "networkMode": "awsvpc",
   "cpu": "512",
   "memory": "1024",
@@ -12,7 +12,7 @@
   "containerDefinitions": [
     {
       "name": "cart-service",
-      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/cart-service:latest",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/milhub/cart-service:latest",
       "cpu": 0,
       "essential": true,
       "portMappings": [
@@ -45,11 +45,11 @@
       "secrets": [
         {
           "name": "MONGO_PASS",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/mongo-password-P0pPqM"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/mongo-password-P0pPqM"
         },
         {
           "name": "MONGO_USER",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/mongo-username-Fid2WC"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/mongo-username-Fid2WC"
         }
       ],
       "logConfiguration": {

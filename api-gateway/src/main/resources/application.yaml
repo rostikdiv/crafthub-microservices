@@ -111,7 +111,7 @@ logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.web.reactive: DEBUG
-    com.crafthub.api_gateway: DEBUG
+    com.milhub.api_gateway: DEBUG
 
 application:
   security:
@@ -200,7 +200,7 @@ spring:
               enabled: false
           routes:
             - id: user_service_route
-              uri: http://user-service.crafthub.internal:8081
+              uri: http://user-service.milhub.internal:8081
               predicates:
                 - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/sellers/**, /api/v1/seller-reviews/**, /api/v1/documents/**, /api/v1/military/**
               filters:
@@ -212,7 +212,7 @@ spring:
                     key-resolver: "#{@ipKeyResolver}"
 
             - id: product_service_route
-              uri: http://product-service.crafthub.internal:8082
+              uri: http://product-service.milhub.internal:8082
               predicates:
                 - Path=/api/v1/products/**
               filters:
@@ -224,7 +224,7 @@ spring:
                     key-resolver: "#{@ipKeyResolver}"
 
             - id: order_service_route
-              uri: http://order-service.crafthub.internal:8083
+              uri: http://order-service.milhub.internal:8083
               predicates:
                 - Path=/api/v1/orders/**
               filters:
@@ -236,7 +236,7 @@ spring:
                     key-resolver: "#{@ipKeyResolver}"
 
             - id: cart_service_route
-              uri: http://cart-service.crafthub.internal:8085
+              uri: http://cart-service.milhub.internal:8085
               predicates:
                 - Path=/api/v1/cart/**
               filters:

@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.crafthub</groupId>
-		<artifactId>crafthub-microservices</artifactId>
+		<groupId>com.milhub</groupId>
+		<artifactId>milhub-microservices</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<groupId>com.crafthub</groupId>
+	<groupId>com.milhub</groupId>
 	<artifactId>payment-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>payment-service</name>
@@ -100,7 +100,7 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+	    </dependencies>
 
 	<dependencyManagement>
 		<dependencies>
@@ -111,7 +111,7 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-		</dependencies>
+</dependencies>
 	</dependencyManagement>
 
 	<build>

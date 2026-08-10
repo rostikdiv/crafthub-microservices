@@ -13,7 +13,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5433/order_service_db}
-    username: ${DB_USER:crafthub}
+    username: ${DB_USER:milhub}
     password: ${DB_PASS:password}
   jpa:
     hibernate:
@@ -42,8 +42,8 @@ resilience4j:
         failureRateThreshold: 50       # Failure threshold (50%)
         eventConsumerBufferSize: 10
         ignoreExceptions:              # Do not count these as service failures
-          - com.crafthub.order_service.exception.ResourceNotFoundException
-          - com.crafthub.order_service.exception.BusinessException
+          - com.milhub.order_service.exception.ResourceNotFoundException
+          - com.milhub.order_service.exception.BusinessException
           - feign.FeignException.NotFound
           - feign.FeignException.BadRequest
 ---
@@ -133,7 +133,7 @@ feign:
         readTimeout: 5000
       product-service:
         # Ensure correct indentation (2 spaces)
-        url: http://product-service.crafthub.internal:8082
+        url: http://product-service.milhub.internal:8082
 
 application:
   sqs:

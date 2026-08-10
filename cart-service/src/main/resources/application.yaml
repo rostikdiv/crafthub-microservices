@@ -16,7 +16,7 @@ spring:
       host: ${MONGO_HOST:localhost}
       port: ${MONGO_PORT:27017}
       database: ${MONGO_DB:cart_db}
-      username: ${MONGO_USER:crafthub}
+      username: ${MONGO_USER:milhub}
       password: ${MONGO_PASS:password}
       authentication-database: admin
 

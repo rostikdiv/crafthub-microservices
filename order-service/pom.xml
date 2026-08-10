@@ -4,14 +4,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.crafthub</groupId>
-		<artifactId>crafthub-microservices</artifactId>
+		<groupId>com.milhub</groupId>
+		<artifactId>milhub-microservices</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath> </parent>
 
 	<artifactId>order-service</artifactId>
 	<name>order-service</name>
-	<description>Order Service for CraftHub</description>
+	<description>Order Service for MilHub</description>
 
 	<dependencies>
 		<dependency>
@@ -139,7 +139,7 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
-	</dependencies>
+	    </dependencies>
 
 	<build>
 		<plugins>

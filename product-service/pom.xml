@@ -4,15 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.crafthub</groupId>
-        <artifactId>crafthub-microservices</artifactId>
+        <groupId>com.milhub</groupId>
+        <artifactId>milhub-microservices</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>product-service</artifactId>
     <name>product-service</name>
-    <description>Product Service for CraftHub</description>
+    <description>Product Service for MilHub</description>
 
     <dependencies>
         <dependency>
@@ -136,7 +136,7 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+        </dependencies>
 
     <build>
         <plugins>

@@ -1,0 +1,18 @@
+package com.milhub.delivery_service.client;
+
+import com.milhub.delivery_service.dto.external.OrderResponseDTO;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.UUID;
+
+/**
+ * Feign client for interacting with the Order Service.
+ */
+@FeignClient(name = "order-service", url = "${application.config.order-url:http://localhost:8083}") // Order Service URL
+public interface OrderServiceClient {
+
+    @GetMapping("/api/v1/orders/{id}")
+    OrderResponseDTO getOrderById(@PathVariable("id") UUID id);
+}

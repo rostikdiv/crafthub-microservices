@@ -13,7 +13,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5434/product_service_db}
-    username: ${DB_USER:crafthub}
+    username: ${DB_USER:milhub}
     password: ${DB_PASS:password}
 
   jpa:

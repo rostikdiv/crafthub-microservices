@@ -1,7 +1,7 @@
 {
   "family": "notification-service-task-def",
   "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/milhub-ecs-task-role",
   "networkMode": "awsvpc",
   "cpu": "512",
   "memory": "1024",
@@ -12,7 +12,7 @@
   "containerDefinitions": [
     {
       "name": "notification-service",
-      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/notification-service:latest",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/milhub/notification-service:latest",
       "cpu": 0,
       "essential": true,
       "portMappings": [

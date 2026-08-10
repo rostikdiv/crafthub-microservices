@@ -13,7 +13,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: ${DB_URL:jdbc:postgresql://localhost:5431/user_service_db}
-    username: ${DB_USER:crafthub}
+    username: ${DB_USER:milhub}
     password: ${DB_PASS:password}
   jpa:
     hibernate:
@@ -72,8 +72,8 @@ resilience4j:
         ignoreExceptions:              # Exceptions not counted as service failures
           - feign.FeignException.NotFound
           - feign.FeignException.BadRequest
-          - com.crafthub.user_service.exception.ResourceNotFoundException
-          - com.crafthub.user_service.exception.BusinessException
+          - com.milhub.user_service.exception.ResourceNotFoundException
+          - com.milhub.user_service.exception.BusinessException
     instances:
       orderService:
         baseConfig: default

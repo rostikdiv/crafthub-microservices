@@ -16,7 +16,7 @@
 
 # env:
 #   AWS_REGION: eu-north-1
-#   ECS_CLUSTER: crafthub-cluster
+#   ECS_CLUSTER: milhub-cluster
 #   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com
 
 # jobs:
@@ -84,9 +84,9 @@
 #           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #           IMAGE_TAG: ${{ github.sha }}
 #         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/crafthub/api-gateway:$IMAGE_TAG -f ./api-gateway/Dockerfile .
-#           docker push $ECR_REGISTRY/crafthub/api-gateway:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/crafthub/api-gateway:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#           docker build --no-cache -t $ECR_REGISTRY/milhub/api-gateway:$IMAGE_TAG -f ./api-gateway/Dockerfile .
+#           docker push $ECR_REGISTRY/milhub/api-gateway:$IMAGE_TAG
+#           echo "image=$ECR_REGISTRY/milhub/api-gateway:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #       - name: Fill in the new image ID in the Amazon ECS task definition
 #         id: task-def
@@ -133,9 +133,9 @@
 #           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #           IMAGE_TAG: ${{ github.sha }}
 #         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/crafthub/order-service:$IMAGE_TAG -f ./order-service/Dockerfile .
-#           docker push $ECR_REGISTRY/crafthub/order-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/crafthub/order-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#           docker build --no-cache -t $ECR_REGISTRY/milhub/order-service:$IMAGE_TAG -f ./order-service/Dockerfile .
+#           docker push $ECR_REGISTRY/milhub/order-service:$IMAGE_TAG
+#           echo "image=$ECR_REGISTRY/milhub/order-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #       - name: Fill in the new image ID in the Amazon ECS task definition
 #         id: task-def
@@ -182,9 +182,9 @@
 #           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #           IMAGE_TAG: ${{ github.sha }}
 #         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/crafthub/cart-service:$IMAGE_TAG -f ./cart-service/Dockerfile .
-#           docker push $ECR_REGISTRY/crafthub/cart-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/crafthub/cart-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#           docker build --no-cache -t $ECR_REGISTRY/milhub/cart-service:$IMAGE_TAG -f ./cart-service/Dockerfile .
+#           docker push $ECR_REGISTRY/milhub/cart-service:$IMAGE_TAG
+#           echo "image=$ECR_REGISTRY/milhub/cart-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #       - name: Fill in the new image ID in the Amazon ECS task definition
 #         id: task-def
@@ -231,9 +231,9 @@
 #           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #           IMAGE_TAG: ${{ github.sha }}
 #         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/crafthub/product-service:$IMAGE_TAG -f ./product-service/Dockerfile .
-#           docker push $ECR_REGISTRY/crafthub/product-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/crafthub/product-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#           docker build --no-cache -t $ECR_REGISTRY/milhub/product-service:$IMAGE_TAG -f ./product-service/Dockerfile .
+#           docker push $ECR_REGISTRY/milhub/product-service:$IMAGE_TAG
+#           echo "image=$ECR_REGISTRY/milhub/product-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #       - name: Fill in the new image ID in the Amazon ECS task definition
 #         id: task-def
@@ -280,9 +280,9 @@
 #           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #           IMAGE_TAG: ${{ github.sha }}
 #         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/crafthub/user-service:$IMAGE_TAG -f ./user-service/Dockerfile .
-#           docker push $ECR_REGISTRY/crafthub/user-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/crafthub/user-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#           docker build --no-cache -t $ECR_REGISTRY/milhub/user-service:$IMAGE_TAG -f ./user-service/Dockerfile .
+#           docker push $ECR_REGISTRY/milhub/user-service:$IMAGE_TAG
+#           echo "image=$ECR_REGISTRY/milhub/user-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #       - name: Fill in the new image ID in the Amazon ECS task definition
 #         id: task-def
@@ -329,9 +329,9 @@
 #           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
 #           IMAGE_TAG: ${{ github.sha }}
 #         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/crafthub/notification-service:$IMAGE_TAG -f ./notification-service/Dockerfile .
-#           docker push $ECR_REGISTRY/crafthub/notification-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/crafthub/notification-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#           docker build --no-cache -t $ECR_REGISTRY/milhub/notification-service:$IMAGE_TAG -f ./notification-service/Dockerfile .
+#           docker push $ECR_REGISTRY/milhub/notification-service:$IMAGE_TAG
+#           echo "image=$ECR_REGISTRY/milhub/notification-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
 #       - name: Fill in the new image ID in the Amazon ECS task definition
 #         id: task-def

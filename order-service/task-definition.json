@@ -1,7 +1,7 @@
 {
   "family": "order-service-task-def",
   "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/milhub-ecs-task-role",
   "networkMode": "awsvpc",
   "cpu": "512",
   "memory": "1024",
@@ -12,7 +12,7 @@
   "containerDefinitions": [
     {
       "name": "order-service",
-      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/order-service:latest",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/milhub/order-service:latest",
       "cpu": 0,
       "essential": true,
       "portMappings": [
@@ -27,7 +27,7 @@
       "environment": [
         {
           "name": "DB_URL",
-          "value": "jdbc:postgresql://crafthub-order-db.cjuwam6e2uzz.eu-north-1.rds.amazonaws.com:5432/order_service_db"
+          "value": "jdbc:postgresql://milhub-order-db.cjuwam6e2uzz.eu-north-1.rds.amazonaws.com:5432/order_service_db"
         },
         {
           "name": "SPRING_PROFILES_ACTIVE",
@@ -35,17 +35,17 @@
         },
         {
           "name": "SPRING_CLOUD_OPENFEIGN_CLIENT_CONFIG_PRODUCT-SERVICE_URL",
-          "value": "http://product-service.crafthub.internal:8082"
+          "value": "http://product-service.milhub.internal:8082"
         }
       ],
       "secrets": [
         {
           "name": "DB_PASS",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-password-KVFsjZ"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/rds-password-KVFsjZ"
         },
         {
           "name": "DB_USER",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-username-iluZmg"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/rds-username-iluZmg"
         }
       ],
       "logConfiguration": {

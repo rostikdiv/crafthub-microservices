@@ -1,7 +1,7 @@
 {
   "family": "user-service-task-def",
   "executionRoleArn": "arn:aws:iam::437387546814:role/ecsTaskExecutionRole",
-  "taskRoleArn": "arn:aws:iam::437387546814:role/crafthub-ecs-task-role",
+  "taskRoleArn": "arn:aws:iam::437387546814:role/milhub-ecs-task-role",
   "networkMode": "awsvpc",
   "cpu": "512",
   "memory": "1024",
@@ -12,7 +12,7 @@
   "containerDefinitions": [
     {
       "name": "user-service",
-      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/crafthub/user-service:latest",
+      "image": "437387546814.dkr.ecr.eu-north-1.amazonaws.com/milhub/user-service:latest",
       "cpu": 0,
       "essential": true,
       "portMappings": [
@@ -27,7 +27,7 @@
       "environment": [
         {
           "name": "DB_URL",
-          "value": "jdbc:postgresql://crafthub-user-db.cjuwam6e2uzz.eu-north-1.rds.amazonaws.com:5432/user_service_db"
+          "value": "jdbc:postgresql://milhub-user-db.cjuwam6e2uzz.eu-north-1.rds.amazonaws.com:5432/user_service_db"
         },
         {
           "name": "SPRING_PROFILES_ACTIVE",
@@ -37,15 +37,15 @@
       "secrets": [
         {
           "name": "DB_PASS",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-password-KVFsjZ"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/rds-password-KVFsjZ"
         },
         {
           "name": "DB_USER",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/rds-username-iluZmg"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/rds-username-iluZmg"
         },
         {
           "name": "JWT_SECRET_KEY",
-          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:crafthub/jwt-secret-key-61dM94"
+          "valueFrom": "arn:aws:secretsmanager:eu-north-1:437387546814:secret:milhub/jwt-secret-key-61dM94"
         }
       ],
       "logConfiguration": {

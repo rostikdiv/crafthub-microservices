@@ -4,15 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.crafthub</groupId>
-		<artifactId>crafthub-microservices</artifactId>
+		<groupId>com.milhub</groupId>
+		<artifactId>milhub-microservices</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>cart-service</artifactId>
 	<name>cart-service</name>
-	<description>Cart Service for CraftHub (MongoDB)</description>
+	<description>Cart Service for MilHub (MongoDB)</description>
 
 	<dependencies>
 		<dependency>

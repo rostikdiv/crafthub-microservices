@@ -4,15 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>com.crafthub</groupId>
-		<artifactId>crafthub-microservices</artifactId>
+		<groupId>com.milhub</groupId>
+		<artifactId>milhub-microservices</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>notification-service</artifactId>
 	<name>notification-service</name>
-	<description>Notification Service for CraftHub</description>
+	<description>Notification Service for MilHub</description>
 
 	<dependencies>
 		<dependency>

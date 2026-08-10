@@ -1,7 +1,7 @@
 spring:
   datasource:
     url: jdbc:postgresql://postgres-order-db:5432/order_service_db
-    username: crafthub
+    username: milhub
     password: ${DB_PASS:password} # Check if this password matches docker-compose.yml
   kafka:
     bootstrap-servers: kafka:9092
