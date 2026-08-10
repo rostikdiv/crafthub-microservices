@@ -74,6 +74,7 @@ public class User implements UserDetails {
     @PrePersist
     protected void onCreate() {
         this.createdAt = new Timestamp(System.currentTimeMillis());
+        this.updatedAt = this.createdAt;
         if (this.isVerified == null)
             this.isVerified = false;
     }

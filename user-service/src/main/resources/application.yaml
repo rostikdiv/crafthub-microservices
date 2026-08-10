@@ -17,7 +17,7 @@ spring:
     password: ${DB_PASS:password}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
