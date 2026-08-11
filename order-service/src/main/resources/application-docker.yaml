@@ -7,15 +7,7 @@ spring:
     bootstrap-servers: kafka:9092
   zipkin:
     base-url: http://zipkin:9411
-  cloud:
-    aws:
-      sqs:
-        enabled: false
-      region:
-        static: us-east-1
-      credentials:
-        access-key: dummy
-        secret-key: dummy
+
 
 application:
   config:

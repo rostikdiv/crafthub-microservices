@@ -1,13 +1,6 @@
 spring:
-  # 1. Вимикаємо AWS (так само, як в local)
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
-  # 2. Налаштовуємо Kafka на контейнер (kafka:9092)
+  # 2. Configure Kafka for container (kafka:9092)
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
@@ -16,7 +9,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
-  # 3. Налаштування пошти (Копіюємо, бо вони потрібні і в докері)
+  # 3. Mail settings (Copied because they are needed in docker too)
   mail:
     host: sandbox.smtp.mailtrap.io
     port: 2525
@@ -29,7 +22,7 @@ spring:
           starttls:
             enable: true
 
-# 4. Сервіс діскавері (через ім'я контейнера)
+# 4. Service discovery (via container name)
 eureka:
   client:
     service-url:
@@ -37,7 +30,7 @@ eureka:
   instance:
     prefer-ip-address: true
 
-# 5. Zipkin (через ім'я контейнера)
+# 5. Zipkin (via container name)
 management:
   zipkin:
     tracing:

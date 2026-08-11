@@ -55,22 +55,7 @@ spring:
     activate:
       on-profile: local
 
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
-  cloud:
-    aws:
-      sqs:
-        enabled: false
-      region:
-        static: us-east-1
-      credentials:
-        access-key: dummy
-        secret-key: dummy
 
   # Kafka settings (local only)
   kafka:

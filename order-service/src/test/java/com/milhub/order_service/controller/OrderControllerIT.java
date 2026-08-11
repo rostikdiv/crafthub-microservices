@@ -16,7 +16,7 @@ import com.milhub.order_service.repository.OrderRepository;
 import com.milhub.order_service.service.KafkaPublisherService;
 import com.milhub.order_service.service.PaymentIntegrationService;
 import com.milhub.order_service.service.ProductIntegrationService;
-import com.milhub.order_service.service.SqsPublisherService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,8 +72,6 @@ class OrderControllerIT {
     @MockBean
     private KafkaPublisherService kafkaPublisherService;
 
-    @MockBean
-    private SqsPublisherService sqsPublisherService;
 
     private UUID userId;
     private UUID sellerId;

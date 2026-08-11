@@ -1,0 +1,508 @@
+--- USER-SERVICE ---
+Entity: MilitaryProfile -> Table: military_profiles
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private User user;
+    @JsonIgnore
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+  private String unitNumber;
+    @Column(nullable = false)
+    @JsonIgnore
+  private String edrpou;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String commanderName;
+    @Column(nullable = false)
+  private String officialAddress;
+
+Entity: SavedAddress -> Table: saved_addresses
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private User user;
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private String title; // e.g., "Home", "Work"
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+  private DeliveryProvider provider;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private DeliveryType deliveryType;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private String cityRef;
+    @Column(nullable = false)
+  private String cityName;
+  private String region;
+  private String branchRef;
+  private String branchName;
+  private String streetName;
+  private String building;
+  private String apartment;
+  private String zipCode;
+
+Entity: SellerPoint -> Table: seller_points
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private SellerProfile sellerProfile;
+    @JsonIgnore
+    @JoinColumn(name = "seller_profile_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private String name;
+    @Column(nullable = false)
+    @JsonIgnore
+  private String cityRef;
+    @Column(nullable = false)
+  private String cityName;
+  private String region;
+  private String streetName;
+  private String building;
+  private String apartment;
+  private String zipCode;
+  private String phone;
+  private String instructions;
+    @Column(columnDefinition = "TEXT")
+
+Entity: SellerProfile -> Table: seller_profiles
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private User user;
+    @JsonIgnore
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+  private String companyName;
+    @Column(nullable = false)
+    @JsonIgnore
+  private String description;
+    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false)
+  private String logoUrl;
+    @Column(columnDefinition = "TEXT")
+  private String taxId;
+    @Column(nullable = false, unique = true)
+  private Float rating;
+    @Column(nullable = false, unique = true)
+  private Integer reviewCount = 0;
+    @Builder.Default
+    @Column(nullable = false)
+  private Integer totalSales = 0;
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "integer default 0")
+  private Boolean autoConfirmOrders = true;
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default true")
+  private java.util.List<SellerPoint> pickupPoints;
+    @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+
+Entity: SellerReview -> Table: seller_reviews
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private UUID sellerId;
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID userId;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String userName;
+    @Column(nullable = false)
+  private Integer rating;
+  private String comment;
+    @Column(columnDefinition = "TEXT")
+  private String sellerReply;
+    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
+  private LocalDateTime createdAt;
+    @Column(columnDefinition = "TEXT")
+
+Entity: User -> Table: users
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private String email;
+    @Column(nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private String password;
+    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
+  private String firstName;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String lastName;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String phoneNumber;
+    @Column(nullable = false)
+  private String avatarUrl;
+  private Role role;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private Boolean isVerified = false;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Timestamp createdAt;
+    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
+  private Timestamp updatedAt;
+    @Column(nullable = false, updatable = false)
+  private MilitaryProfile militaryProfile;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private SellerProfile sellerProfile;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<VerificationDoc> documents;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private java.util.List<SavedAddress> savedAddresses;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+
+Entity: VerificationDoc -> Table: verification_docs
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private User user;
+    @JsonIgnore
+    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private DocumentType documentType;
+    @Enumerated(EnumType.STRING)
+    @JsonIgnore
+  private String docUrl;
+    @Enumerated(EnumType.STRING)
+  private VerificationStatus status;
+    @Enumerated(EnumType.STRING)
+  private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+
+
+--- PRODUCT-SERVICE ---
+Entity: Category -> Table: categories
+  private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID auto-generation (1, 2, 3...)
+    @Id
+  private String name;
+    @Column(nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // ID auto-generation (1, 2, 3...)
+  private String description;
+    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, unique = true)
+  private Category parent;
+    @JoinColumn(name = "parent_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+  private List<Category> subCategories;
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @JoinColumn(name = "parent_id")
+  private List<Product> products;
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+
+Entity: Product -> Table: products
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private String name;
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private String description;
+    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false)
+  private BigDecimal price;
+    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT")
+  private BigDecimal oldPrice;
+    @Column(name = "old_price")
+    @Column(nullable = false)
+  private Integer quantity;
+    @Column(nullable = false)
+    @Column(name = "old_price")
+  private Double weight;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Double length;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Double width;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Double height;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String previewImageUrl;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private List<String> imageUrls;
+    @Column(name = "image_url")
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @ElementCollection(fetch = FetchType.LAZY)
+  private AccessLevel accessLevel;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private UUID sellerId;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Category category;
+    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private LocalDateTime createdAt;
+    @JoinColumn(name = "category_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private LocalDateTime updatedAt;
+    @JoinColumn(name = "category_id", nullable = false)
+  private String sellerName;
+  private String sellerLogoUrl;
+  private Double averageRating = 0.0;
+    @Column(nullable = false, columnDefinition = "double precision default 0.0")
+    @Builder.Default
+  private Integer reviewCount = 0;
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    @Builder.Default
+
+Entity: ProductReview -> Table: product_reviews
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private UUID productId; // Link to the product (loose coupling, no @ManyToOne in Product)
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID userId;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String userName; // Cached user name
+    @Column(nullable = false)
+  private String userAvatarUrl; // Optional avatar URL
+    @Column(nullable = false)
+  private Integer rating; // Rating (1-5). May be null for replies.
+  private String comment;
+    @Column(columnDefinition = "TEXT")
+  private boolean isVerifiedPurchase;
+    @Column(columnDefinition = "TEXT")
+  private ProductReview parent; // Parent review if this is a reply
+    @JsonIgnore
+    @JoinColumn(name = "parent_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+  private List<ProductReview> replies = new ArrayList<>();
+    @Builder.Default
+    @OrderBy("createdAt ASC") // Sort replies chronologically
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+  private LocalDateTime createdAt;
+    @Builder.Default
+    @OrderBy("createdAt ASC") // Sort replies chronologically
+
+
+--- ORDER-SERVICE ---
+Entity: Order -> Table: orders
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private UUID userId;
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID sellerId;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private BigDecimal totalPrice;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private OrderStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+  private com.milhub.order_service.entity.enums.PaymentMethod paymentMethod;
+    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)
+  private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+  private LocalDateTime updatedAt;
+    @Enumerated(EnumType.STRING)
+  private DeliveryDetailsDTO deliveryInfo;
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+  private String returnReason;
+    @Column(length = 1000)
+    @Column(columnDefinition = "jsonb")
+  private List<OrderItem> items = new ArrayList<>();
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+
+Entity: OrderItem -> Table: order_items
+  private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+  private UUID productId;
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private String name;
+    @Column(nullable = true)
+    @Column(nullable = false)
+  private Integer quantity;
+    @Column(nullable = false)
+    @Column(nullable = true)
+  private BigDecimal pricePerUnit; // Item price at the time of purchase
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Order order;
+    @JsonIgnore
+    @JoinColumn(name = "order_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+
+Entity: OrderReturn -> Table: order_returns
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private Order order;
+    @JsonIgnore
+    @JoinColumn(name = "order_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private Long orderItemId;
+    @Column(nullable = false)
+  private UUID productId;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private Integer quantity;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private ReturnReason reason;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private ReturnStatus status;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private BigDecimal itemPriceSnapshot;
+    @Column(nullable = false)
+  private BigDecimal returnShippingCost;
+    @Column(nullable = false)
+  private BigDecimal finalRefundAmount;
+    @Column(nullable = false)
+  private boolean isShippingDeducted = false;
+    @Builder.Default
+  private String returnTrackingNumber;
+    @Builder.Default
+  private UUID returnShipmentId;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
+
+Entity: OutboxEvent -> Table: outbox_events
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+    @AllArgsConstructor
+  private String aggregateId;
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private String eventType;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String payload;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false)
+  private String status; // PENDING, PROCESSED
+    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
+  private LocalDateTime createdAt;
+    @Column(nullable = false)
+    @Column(nullable = false)
+
+
+--- PAYMENT-SERVICE ---
+Entity: Transaction -> Table: transactions
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+    @Builder
+  private UUID orderId;
+    @Column(nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID userId;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private BigDecimal amount;
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private TransactionStatus status;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private String provider; // e.g., STRIPE, LIQPAY, MOCK_PAY
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private String idempotencyKey;
+    @Column(unique = true)
+  private Long version;
+    @Version
+    @Column(unique = true)
+  private LocalDateTime createdAt;
+    @CreationTimestamp
+    @Version
+  private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    @CreationTimestamp
+
+
+--- DELIVERY-SERVICE ---
+Entity: Branch -> Table: branches
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private Location location;
+    @JsonIgnore
+    @JoinColumn(name = "location_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+  private String externalId; // Carrier branch reference ID
+    @Column(nullable = false)
+    @JsonIgnore
+  private String branchNumber; // Branch index, e.g., "1", "15-A"
+    @Column(nullable = false)
+  private String name; // Full branch name with address
+    @Column(nullable = false)
+
+Entity: Location -> Table: locations
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private DeliveryProvider provider; // Support for multiple providers
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private String externalId; // Carrier-specific ID (Reference)
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String nameUkr; // Ukrainian name of the location
+    @Column(nullable = false)
+    @Column(nullable = false)
+  private String region; // Region/Oblast name
+    @Column(nullable = false)
+  private java.util.List<Branch> branches = new java.util.ArrayList<>();
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
+
+Entity: Shipment -> Table: shipments
+  private UUID id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id
+  private UUID orderId; // Links to Order Service
+    @Column(nullable = false) // Removed unique = true to allow multiple shipments (returns)
+    @GeneratedValue(strategy = GenerationType.UUID)
+  private DeliveryStatus status; // PREPARING, SHIPPED, etc.
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private ShipmentType type = ShipmentType.OUTBOUND;
+    @Builder.Default
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+  private String trackingNumber; // Tracking number (TTN)
+    @Builder.Default
+    @Column(nullable = false)
+  private DeliveryDetailsDTO deliveryDetails;
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+  private LocalDateTime createdAt;
+    @Column(columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+  private LocalDateTime shippedAt;
+    @Column(columnDefinition = "jsonb")
+
+

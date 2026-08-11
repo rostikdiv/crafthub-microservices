@@ -24,13 +24,6 @@ spring:
     activate:
       on-profile: local
 
-  # Disable AWS autoconfiguration for local profile
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}

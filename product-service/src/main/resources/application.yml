@@ -1,5 +1,5 @@
 # ======================================================
-# === ЗАГАЛЬНІ НАЛАШТУВАННЯ ===
+# === GENERAL SETTINGS ===
 # ======================================================
 server:
   port: 8082
@@ -8,7 +8,7 @@ spring:
   application:
     name: product-service
   profiles:
-    active: local # ❗️ Профіль за замовчуванням
+    active: local # ❗️ Default profile
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -58,7 +58,7 @@ resilience4j:
         failureRateThreshold: 50
         eventConsumerBufferSize: 10
         ignoreExceptions:
-          - feign.FeignException.NotFound # Якщо користувача/замовлення немає - це не збій сервісу
+          - feign.FeignException.NotFound # If user/order is not found - this is not a service failure
     instances:
       userService:
         baseConfig: default
@@ -66,19 +66,14 @@ resilience4j:
         baseConfig: default
 ---
 # ======================================================
-# === ПРОФІЛЬ "local" (Zipkin) ===
+# === PROFILE "local" (Zipkin) ===
 # ======================================================
 spring:
   config:
     activate:
       on-profile: local
 
-  autoconfigure:
-    exclude:
-      - io.awspring.cloud.autoconfigure.core.AwsAutoConfiguration
-      - io.awspring.cloud.autoconfigure.sqs.SqsAutoConfiguration
-      - com.amazonaws.xray.spring.aop.XRayAutoConfiguration
-      - io.awspring.cloud.autoconfigure.actuator.AwsActuatorAutoConfiguration
+
 
   data:
     redis:
