@@ -39,12 +39,10 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-
 minio:
   url: http://localhost:9000
   access-key: minioadmin
   secret-key: ${MINIO_ROOT_PASSWORD:minioadmin}
-
 
 management:
   tracing:
@@ -105,33 +103,3 @@ management:
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
-
-aws:
-  xray:
-    enabled: false # X-Ray disabled for local profiling
-
----
-# ======================================================
-# === PROFILE: "aws" (X-Ray) ===
-# ======================================================
-spring:
-  config:
-    activate:
-      on-profile: aws
-
-  autoconfigure:
-    exclude:
-      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
-      - org.springframework.cloud.client.discovery.DiscoveryClientAutoConfiguration
-      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
-
-  cloud:
-    discovery:
-      enabled: false
-aws:
-  xray:
-    enabled: true # Enable X-Ray for AWS deployment
-
-management:
-  tracing:
-    enabled: false # Disable Micrometer/Zipkin to prevent conflict with X-Ray

@@ -78,36 +78,3 @@ management:
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
-
-aws:
-  xray:
-    enabled: false
-
----
-# ======================================================
-# === PROFILE "aws" (Cloud deployment with X-Ray) ===
-# ======================================================
-spring:
-  config:
-    activate:
-      on-profile: aws
-
-  # Disable discovery and Zipkin when running in AWS environment
-  autoconfigure:
-    exclude:
-      - org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration
-      - org.springframework.cloud.client.discovery.DiscoveryClientAutoConfiguration
-      - org.springframework.boot.actuate.autoconfigure.tracing.zipkin.ZipkinAutoConfiguration
-
-  cloud:
-    discovery:
-      enabled: false
-
-# AWS X-Ray Integration
-aws:
-  xray:
-    enabled: true
-
-management:
-  tracing:
-    enabled: false
