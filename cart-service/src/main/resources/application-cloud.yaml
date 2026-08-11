@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+feign:
+  client:
+    config:
+      product-service:
+        url: ${PRODUCT_SERVICE_URL}
+
+  data:
+    mongodb:
+      uri: ${MONGO_URI}

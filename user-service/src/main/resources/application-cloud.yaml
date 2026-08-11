@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+feign:
+  client:
+    config:
+      order-service:
+        url: ${ORDER_SERVICE_URL}
+
+minio:
+  url: ${MINIO_URL:https://storage.googleapis.com}

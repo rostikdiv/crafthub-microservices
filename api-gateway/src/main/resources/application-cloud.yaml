@@ -1,0 +1,82 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+      routes:
+        - id: user_service_route
+          uri: ${USER_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/sellers/**, /api/v1/seller-reviews/**, /api/v1/documents/**, /api/v1/military/**
+          filters:
+            - AuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: product_service_route
+          uri: ${PRODUCT_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/products/**, /api/v1/categories/**, /api/v1/reviews/**
+          filters:
+            - AuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 15
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: order_service_route
+          uri: ${ORDER_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/orders/**
+          filters:
+            - AuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: cart_service_route
+          uri: ${CART_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/cart/**
+          filters:
+            - AuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 20
+                redis-rate-limiter.burstCapacity: 40
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: payment_service_route
+          uri: ${PAYMENT_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - AuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: delivery_service_route
+          uri: ${DELIVERY_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/delivery/**
+          filters:
+            - AuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@ipKeyResolver}"

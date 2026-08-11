@@ -1,0 +1,23 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+feign:
+  client:
+    config:
+      user-service:
+        url: ${USER_SERVICE_URL}
+      product-service:
+        url: ${PRODUCT_SERVICE_URL}
+      delivery-service:
+        url: ${DELIVERY_SERVICE_URL}
+
+application:
+  config:
+    payment-url: ${PAYMENT_SERVICE_URL}

@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    discovery:
+      enabled: false
+  datasource:
+    hikari:
+      maximum-pool-size: 2
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
