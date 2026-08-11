@@ -3,6 +3,9 @@ spring:
     discovery:
       enabled: false
   datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME:milhub}
+    password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 2
   kafka:
@@ -11,3 +14,17 @@ spring:
 application:
   config:
     order-url: ${ORDER_SERVICE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  structured:
+    json:
+      enabled: true

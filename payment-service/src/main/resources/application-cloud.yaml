@@ -3,7 +3,24 @@ spring:
     discovery:
       enabled: false
   datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME:milhub}
+    password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 2
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  structured:
+    json:
+      enabled: true

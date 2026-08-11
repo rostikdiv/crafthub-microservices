@@ -3,6 +3,9 @@ spring:
     discovery:
       enabled: false
   datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME:milhub}
+    password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 2
   kafka:
@@ -17,4 +20,20 @@ feign:
         url: ${ORDER_SERVICE_URL}
 
 minio:
-  url: ${MINIO_URL:https://storage.googleapis.com}
+  url: ${GCS_URL:https://storage.googleapis.com}
+  access-key: ${GCS_HMAC_ACCESS_KEY}
+  secret-key: ${GCS_HMAC_SECRET_KEY}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  structured:
+    json:
+      enabled: true

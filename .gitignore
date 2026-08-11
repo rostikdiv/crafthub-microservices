@@ -10,6 +10,16 @@ minio_data/
 
 # Secrets
 .env
+*.tfvars
+*.tfvars.json
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+.terraform.lock.hcl
 
 # Seed data and generated files
 generated_accounts.json

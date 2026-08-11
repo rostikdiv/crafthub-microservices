@@ -14,3 +14,17 @@ feign:
   data:
     mongodb:
       uri: ${MONGO_URI}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  structured:
+    json:
+      enabled: true
