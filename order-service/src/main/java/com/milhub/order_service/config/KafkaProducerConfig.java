@@ -18,7 +18,6 @@ import java.util.Map;
  * Kafka producer configuration for the local profile.
  */
 @Configuration
-@Profile("local")
 public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")

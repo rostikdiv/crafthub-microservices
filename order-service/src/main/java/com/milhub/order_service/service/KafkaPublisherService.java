@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
  * This service is active only in the "local" profile.
  */
 @Service
-@Profile("local")
 @RequiredArgsConstructor
 @Slf4j
 public class KafkaPublisherService {
