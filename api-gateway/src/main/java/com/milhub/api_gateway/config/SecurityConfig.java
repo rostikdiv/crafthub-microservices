@@ -52,12 +52,19 @@ public class SecurityConfig {
      */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        // Strict production white-list for Vercel deployment and local development
         List<String> origins = Arrays.stream(corsAllowedOrigins.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
+        
+        origins.add("https://milhub-frontend.vercel.app");
+        origins.add("http://localhost:5173");
 
-        CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(origins);
+        // Allow Vercel preview deployment subdomains dynamically
+        configuration.setAllowedOriginPatterns(List.of("https://*.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type", "ngrok-skip-browser-warning", "Accept", "Origin", "X-Requested-With"));
         configuration.setAllowCredentials(true);
