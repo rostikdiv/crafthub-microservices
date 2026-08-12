@@ -32,9 +32,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, liveness, readiness, prometheus
   endpoint:
     health:
+      probes:
+        enabled: true
       show-details: never
 
 logging:

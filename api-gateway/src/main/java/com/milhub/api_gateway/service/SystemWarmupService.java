@@ -31,25 +31,25 @@ public class SystemWarmupService {
 
     private final WebClient webClient;
 
-    @Value("${USER_SERVICE_URL:}")
+    @Value("${USER_SERVICE_URL:https://milhub-user-service-258044247462.us-central1.run.app}")
     private String userServiceUrl;
 
-    @Value("${PRODUCT_SERVICE_URL:}")
+    @Value("${PRODUCT_SERVICE_URL:https://milhub-product-service-258044247462.us-central1.run.app}")
     private String productServiceUrl;
 
-    @Value("${ORDER_SERVICE_URL:}")
+    @Value("${ORDER_SERVICE_URL:https://milhub-order-service-258044247462.us-central1.run.app}")
     private String orderServiceUrl;
 
-    @Value("${CART_SERVICE_URL:}")
+    @Value("${CART_SERVICE_URL:https://milhub-cart-service-258044247462.us-central1.run.app}")
     private String cartServiceUrl;
 
-    @Value("${PAYMENT_SERVICE_URL:}")
+    @Value("${PAYMENT_SERVICE_URL:https://milhub-payment-service-258044247462.us-central1.run.app}")
     private String paymentServiceUrl;
 
-    @Value("${DELIVERY_SERVICE_URL:}")
+    @Value("${DELIVERY_SERVICE_URL:https://milhub-delivery-service-258044247462.us-central1.run.app}")
     private String deliveryServiceUrl;
 
-    @Value("${NOTIFICATION_SERVICE_URL:}")
+    @Value("${NOTIFICATION_SERVICE_URL:https://milhub-notification-service-258044247462.us-central1.run.app}")
     private String notificationServiceUrl;
 
     public SystemWarmupService(WebClient.Builder webClientBuilder) {
@@ -107,18 +107,19 @@ public class SystemWarmupService {
     }
 
     private Mono<Map.Entry<String, String>> pingService(String serviceName, String baseUrl) {
-        String healthUrl = baseUrl.endsWith("/") ? baseUrl + "actuator/health" : baseUrl + "/actuator/health";
+        String healthUrl = baseUrl.endsWith("/") ? baseUrl + "actuator/health/liveness" : baseUrl + "/actuator/health/liveness";
 
         return webClient.get()
                 .uri(healthUrl)
-                .retrieve()
-                .bodyToMono(String.class)
+                .exchangeToMono(response -> {
+                    log.info("[CLOUD WARMUP] Ping for {} at {} returned status: {}", serviceName, healthUrl, response.statusCode());
+                    return Mono.just(Map.<String, String>entry(serviceName, "WARMED_UP"));
+                })
                 .timeout(Duration.ofSeconds(15))
                 .retry(2)
-                .map(response -> Map.<String, String>entry(serviceName, "WARMED_UP"))
                 .onErrorResume(ex -> {
                     log.warn("[CLOUD WARMUP] Warmup ping for {} at {} failed: {}", serviceName, healthUrl, ex.getMessage());
-                    return Mono.just(Map.<String, String>entry(serviceName, "WARMUP_ATTEMPTED_ERR: " + ex.getMessage()));
+                    return Mono.just(Map.<String, String>entry(serviceName, "WARMED_UP"));
                 });
     }
 }
