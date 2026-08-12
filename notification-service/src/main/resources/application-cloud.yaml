@@ -1,9 +1,23 @@
+server:
+  port: 8080
+
 spring:
   cloud:
     discovery:
       enabled: false
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.0.0.3:9092}
+  mail:
+    host: ${SPRING_MAIL_HOST:sandbox.smtp.mailtrap.io}
+    port: ${SPRING_MAIL_PORT:2525}
+    username: ${SPRING_MAIL_USERNAME:${MAILTRAP_USER:dummy}}
+    password: ${SPRING_MAIL_PASSWORD:${MAILTRAP_PASS:dummy}}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 management:
   endpoints:

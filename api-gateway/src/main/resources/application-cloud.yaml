@@ -1,4 +1,9 @@
 spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:10.0.0.3}
+      port: ${REDIS_PORT:6379}
+
   cloud:
     discovery:
       enabled: false
@@ -10,7 +15,7 @@ spring:
               enabled: false
       routes:
         - id: user_service_route
-          uri: ${USER_SERVICE_URL}
+          uri: ${USER_SERVICE_URL:https://milhub-user-service-tq7l7y43iq-uc.a.run.app}
           predicates:
             - Path=/api/v1/users/**, /api/v1/admin/**, /api/v1/auth/**, /api/v1/sellers/**, /api/v1/seller-reviews/**, /api/v1/documents/**, /api/v1/military/**
           filters:
@@ -22,7 +27,7 @@ spring:
                 key-resolver: "#{@ipKeyResolver}"
 
         - id: product_service_route
-          uri: ${PRODUCT_SERVICE_URL}
+          uri: ${PRODUCT_SERVICE_URL:https://milhub-product-service-tq7l7y43iq-uc.a.run.app}
           predicates:
             - Path=/api/v1/products/**, /api/v1/categories/**, /api/v1/reviews/**
           filters:
@@ -34,7 +39,7 @@ spring:
                 key-resolver: "#{@ipKeyResolver}"
 
         - id: order_service_route
-          uri: ${ORDER_SERVICE_URL}
+          uri: ${ORDER_SERVICE_URL:https://milhub-order-service-tq7l7y43iq-uc.a.run.app}
           predicates:
             - Path=/api/v1/orders/**
           filters:
@@ -46,7 +51,7 @@ spring:
                 key-resolver: "#{@ipKeyResolver}"
 
         - id: cart_service_route
-          uri: ${CART_SERVICE_URL}
+          uri: ${CART_SERVICE_URL:https://milhub-cart-service-tq7l7y43iq-uc.a.run.app}
           predicates:
             - Path=/api/v1/cart/**
           filters:
@@ -58,7 +63,7 @@ spring:
                 key-resolver: "#{@ipKeyResolver}"
 
         - id: payment_service_route
-          uri: ${PAYMENT_SERVICE_URL}
+          uri: ${PAYMENT_SERVICE_URL:https://milhub-payment-service-tq7l7y43iq-uc.a.run.app}
           predicates:
             - Path=/api/v1/payments/**
           filters:
@@ -70,7 +75,7 @@ spring:
                 key-resolver: "#{@ipKeyResolver}"
 
         - id: delivery_service_route
-          uri: ${DELIVERY_SERVICE_URL}
+          uri: ${DELIVERY_SERVICE_URL:https://milhub-delivery-service-tq7l7y43iq-uc.a.run.app}
           predicates:
             - Path=/api/v1/delivery/**
           filters:

@@ -1,19 +1,22 @@
+server:
+  port: 8080
+
 spring:
   cloud:
     discovery:
       enabled: false
   datasource:
-    url: ${DB_URL}
+    url: ${DB_URL:jdbc:postgresql://10.140.95.3:5432/delivery_service_db}
     username: ${DB_USERNAME:milhub}
-    password: ${DB_PASSWORD}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD}}
     hikari:
       maximum-pool-size: 2
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.0.0.3:9092}
 
 application:
   config:
-    order-url: ${ORDER_SERVICE_URL}
+    order-url: ${ORDER_SERVICE_URL:https://milhub-order-service-tq7l7y43iq-uc.a.run.app}
 
 management:
   endpoints:
