@@ -1,350 +1,274 @@
-# ==============================================================================
-# AWS ECS DEPLOYMENT PIPELINE
-# 
-# NOTE: This entire workflow is currently commented out because the project
-# is in the local development/testing phase. It should be uncommented only 
-# when the platform is ready to be deployed to the live AWS ECS environment.
-# No secrets or keys are hardcoded; everything uses GitHub Secrets.
-# ==============================================================================
+# GitHub Actions Workflow: Automated Deployment of MilHub Microservices to GCP Cloud Run
+# Triggers on push to the 'main' branch or manual workflow execution via 'workflow_dispatch'.
 
-# name: Deploy to Amazon ECS
-# on:
-#   push:
-#     branches:
-#       - main
-#   workflow_dispatch:
+name: Deploy MilHub Microservices to GCP Cloud Run
 
-# env:
-#   AWS_REGION: eu-north-1
-#   ECS_CLUSTER: milhub-cluster
-#   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-north-1.amazonaws.com
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-# jobs:
-#   # ------------------------------------------------------------------
-#   # ЕТАП 1: ВИЗНАЧЕННЯ ЗМІН
-#   # ------------------------------------------------------------------
-#   detect-changes:
-#     runs-on: ubuntu-latest
-#     outputs:
-#       api-gateway: ${{ steps.filter.outputs.api-gateway }}
-#       user-service: ${{ steps.filter.outputs.user-service }}
-#       product-service: ${{ steps.filter.outputs.product-service }}
-#       order-service: ${{ steps.filter.outputs.order-service }}
-#       cart-service: ${{ steps.filter.outputs.cart-service }}
-#       notification-service: ${{ steps.filter.outputs.notification-service }}
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: dorny/paths-filter@v3
-#         id: filter
-#         with:
-#           filters: |
-#             api-gateway:
-#               - 'api-gateway/**'
-#             user-service:
-#               - 'user-service/**'
-#             product-service:
-#               - 'product-service/**'
-#             order-service:
-#               - 'order-service/**'
-#             cart-service:
-#               - 'cart-service/**'
-#             notification-service:
-#               - 'notification-service/**'
+# Permissions required for OIDC authentication via Workload Identity Federation
+permissions:
+  contents: read
+  id-token: write
 
-#   # ------------------------------------------------------------------
-#   # ЕТАП 2: ДЕПЛОЙ СЕРВІСІВ
-#   # ------------------------------------------------------------------
+# Global environment variables used across deployment steps
+env:
+  GCP_REGION: us-central1
+  GAR_LOCATION: us-central1-docker.pkg.dev
+  GAR_REPOSITORY: milhub-repo
+  VPC_NETWORK: parkflow-vpc
+  VPC_SUBNET: parkflow-subnet
+  KAFKA_BOOTSTRAP: 10.0.0.3:9092
+  DB_HOST: 10.140.95.3
 
-#   # === API GATEWAY ===
-#   deploy-api-gateway:
-#     needs: detect-changes
-#     if: ${{ needs.detect-changes.outputs.api-gateway == 'true' || github.event_name == 'workflow_dispatch' }}
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: maven
-#       - uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-#       - uses: aws-actions/amazon-ecr-login@v2
-#         id: login-ecr
+jobs:
+  # Job 1: Detect which microservices have code changes to optimize build and deployment time
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api-gateway: ${{ steps.filter.outputs.api-gateway }}
+      user-service: ${{ steps.filter.outputs.user-service }}
+      product-service: ${{ steps.filter.outputs.product-service }}
+      order-service: ${{ steps.filter.outputs.order-service }}
+      cart-service: ${{ steps.filter.outputs.cart-service }}
+      notification-service: ${{ steps.filter.outputs.notification-service }}
+      payment-service: ${{ steps.filter.outputs.payment-service }}
+      delivery-service: ${{ steps.filter.outputs.delivery-service }}
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-#       - name: Build JAR
-#         run: mvn clean package -pl api-gateway -am -DskipTests
+      # Paths filter to detect modifications in specific microservice directories
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api-gateway:
+              - 'api-gateway/**'
+              - '.github/workflows/deploy.yml'
+            user-service:
+              - 'user-service/**'
+              - '.github/workflows/deploy.yml'
+            product-service:
+              - 'product-service/**'
+              - '.github/workflows/deploy.yml'
+            order-service:
+              - 'order-service/**'
+              - '.github/workflows/deploy.yml'
+            cart-service:
+              - 'cart-service/**'
+              - '.github/workflows/deploy.yml'
+            notification-service:
+              - 'notification-service/**'
+              - '.github/workflows/deploy.yml'
+            payment-service:
+              - 'payment-service/**'
+              - '.github/workflows/deploy.yml'
+            delivery-service:
+              - 'delivery-service/**'
+              - '.github/workflows/deploy.yml'
 
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/milhub/api-gateway:$IMAGE_TAG -f ./api-gateway/Dockerfile .
-#           docker push $ECR_REGISTRY/milhub/api-gateway:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/milhub/api-gateway:$IMAGE_TAG" >> $GITHUB_OUTPUT
+  # Job 2: Build JAR packages, containerize with Docker, push to Artifact Registry, and deploy to Cloud Run
+  deploy-services:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: api-gateway/task-definition.json
-#           container-name: api-gateway
-#           image: ${{ steps.build-image.outputs.image }}
+      - name: Set up Java JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
 
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: api-gateway
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: false
+      # Authenticate securely to Google Cloud using Workload Identity Federation (keyless auth)
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
-#   # === ORDER SERVICE ===
-#   deploy-order-service:
-#     needs: detect-changes
-#     if: ${{ needs.detect-changes.outputs.order-service == 'true' || github.event_name == 'workflow_dispatch' }}
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: maven
-#       - uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-#       - uses: aws-actions/amazon-ecr-login@v2
-#         id: login-ecr
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
 
-#       - name: Build JAR
-#         run: mvn clean package -pl order-service -am -DskipTests
+      # Authenticate Docker CLI to GCP Artifact Registry
+      - name: Configure Docker authentication for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }} --quiet
 
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/milhub/order-service:$IMAGE_TAG -f ./order-service/Dockerfile .
-#           docker push $ECR_REGISTRY/milhub/order-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/milhub/order-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      # Compile and package all Spring Boot microservices into JAR files
+      - name: Build All Microservices JARs
+        run: mvn clean package -DskipTests
 
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: order-service/task-definition.json
-#           container-name: order-service
-#           image: ${{ steps.build-image.outputs.image }}
+      # -----------------------------------------------------------------------
+      # 1. API Gateway Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy API Gateway
+        if: ${{ needs.detect-changes.outputs.api-gateway == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/api-gateway:${{ github.sha }}"
+          docker build -t $IMAGE -f ./api-gateway/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-api-gateway \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }}" \
+            --set-secrets "JWT_SECRET=milhub-jwt-secret:latest"
 
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: order-service
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: false
+      # -----------------------------------------------------------------------
+      # 2. User Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy User Service
+        if: ${{ needs.detect-changes.outputs.user-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/user-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./user-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-user-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }},DB_URL=jdbc:postgresql://${{ env.DB_HOST }}:5432/user_service_db" \
+            --set-secrets "SPRING_DATASOURCE_PASSWORD=milhub-db-password:latest,JWT_SECRET=milhub-jwt-secret:latest,GCS_HMAC_ACCESS_KEY=gcs-hmac-access-key:latest,GCS_HMAC_SECRET_KEY=gcs-hmac-secret-key:latest"
 
-#   # === CART SERVICE ===
-#   deploy-cart-service:
-#     needs: detect-changes
-#     if: ${{ needs.detect-changes.outputs.cart-service == 'true' || github.event_name == 'workflow_dispatch' }}
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: maven
-#       - uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-#       - uses: aws-actions/amazon-ecr-login@v2
-#         id: login-ecr
+      # -----------------------------------------------------------------------
+      # 3. Product Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy Product Service
+        if: ${{ needs.detect-changes.outputs.product-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/product-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./product-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-product-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }},DB_URL=jdbc:postgresql://${{ env.DB_HOST }}:5432/product_service_db" \
+            --set-secrets "SPRING_DATASOURCE_PASSWORD=milhub-db-password:latest,JWT_SECRET=milhub-jwt-secret:latest,GCS_HMAC_ACCESS_KEY=gcs-hmac-access-key:latest,GCS_HMAC_SECRET_KEY=gcs-hmac-secret-key:latest"
 
-#       - name: Build JAR
-#         run: mvn clean package -pl cart-service -am -DskipTests
+      # -----------------------------------------------------------------------
+      # 4. Order Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy Order Service
+        if: ${{ needs.detect-changes.outputs.order-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/order-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./order-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-order-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }},DB_URL=jdbc:postgresql://${{ env.DB_HOST }}:5432/order_service_db" \
+            --set-secrets "SPRING_DATASOURCE_PASSWORD=milhub-db-password:latest,JWT_SECRET=milhub-jwt-secret:latest"
 
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/milhub/cart-service:$IMAGE_TAG -f ./cart-service/Dockerfile .
-#           docker push $ECR_REGISTRY/milhub/cart-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/milhub/cart-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
+      # -----------------------------------------------------------------------
+      # 5. Cart Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy Cart Service
+        if: ${{ needs.detect-changes.outputs.cart-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/cart-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./cart-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-cart-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }}" \
+            --set-secrets "JWT_SECRET=milhub-jwt-secret:latest,SPRING_DATA_MONGODB_URI=milhub-mongo-uri:latest"
 
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: cart-service/task-definition.json
-#           container-name: cart-service
-#           image: ${{ steps.build-image.outputs.image }}
+      # -----------------------------------------------------------------------
+      # 6. Notification Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy Notification Service
+        if: ${{ needs.detect-changes.outputs.notification-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/notification-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./notification-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-notification-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }}" \
+            --set-secrets "JWT_SECRET=milhub-jwt-secret:latest"
 
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: cart-service
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: false
+      # -----------------------------------------------------------------------
+      # 7. Payment Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy Payment Service
+        if: ${{ needs.detect-changes.outputs.payment-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/payment-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./payment-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-payment-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }},DB_URL=jdbc:postgresql://${{ env.DB_HOST }}:5432/payment_service_db" \
+            --set-secrets "SPRING_DATASOURCE_PASSWORD=milhub-db-password:latest,JWT_SECRET=milhub-jwt-secret:latest"
 
-#   # === PRODUCT SERVICE ===
-#   deploy-product-service:
-#     needs: detect-changes
-#     if: ${{ needs.detect-changes.outputs.product-service == 'true' || github.event_name == 'workflow_dispatch' }}
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: maven
-#       - uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-#       - uses: aws-actions/amazon-ecr-login@v2
-#         id: login-ecr
-
-#       - name: Build JAR
-#         run: mvn clean package -pl product-service -am -DskipTests
-
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/milhub/product-service:$IMAGE_TAG -f ./product-service/Dockerfile .
-#           docker push $ECR_REGISTRY/milhub/product-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/milhub/product-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: product-service/task-definition.json
-#           container-name: product-service
-#           image: ${{ steps.build-image.outputs.image }}
-
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: product-service
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: false
-
-#   # === USER SERVICE ===
-#   deploy-user-service:
-#     needs: detect-changes
-#     if: ${{ needs.detect-changes.outputs.user-service == 'true' || github.event_name == 'workflow_dispatch' }}
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: maven
-#       - uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-#       - uses: aws-actions/amazon-ecr-login@v2
-#         id: login-ecr
-
-#       - name: Build JAR
-#         run: mvn clean package -pl user-service -am -DskipTests
-
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/milhub/user-service:$IMAGE_TAG -f ./user-service/Dockerfile .
-#           docker push $ECR_REGISTRY/milhub/user-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/milhub/user-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: user-service/task-definition.json
-#           container-name: user-service
-#           image: ${{ steps.build-image.outputs.image }}
-
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: user-service
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: false
-
-#   # === NOTIFICATION SERVICE ===
-#   deploy-notification-service:
-#     needs: detect-changes
-#     if: ${{ needs.detect-changes.outputs.notification-service == 'true' || github.event_name == 'workflow_dispatch' }}
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#       - uses: actions/setup-java@v4
-#         with:
-#           java-version: '17'
-#           distribution: 'temurin'
-#           cache: maven
-#       - uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ${{ env.AWS_REGION }}
-#       - uses: aws-actions/amazon-ecr-login@v2
-#         id: login-ecr
-
-#       - name: Build JAR
-#         run: mvn clean package -pl notification-service -am -DskipTests
-
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           IMAGE_TAG: ${{ github.sha }}
-#         run: |
-#           docker build --no-cache -t $ECR_REGISTRY/milhub/notification-service:$IMAGE_TAG -f ./notification-service/Dockerfile .
-#           docker push $ECR_REGISTRY/milhub/notification-service:$IMAGE_TAG
-#           echo "image=$ECR_REGISTRY/milhub/notification-service:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: notification-service/task-definition.json
-#           container-name: notification-service
-#           image: ${{ steps.build-image.outputs.image }}
-
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: notification-service
-#           cluster: ${{ env.ECS_CLUSTER }}
-#           wait-for-service-stability: false
+      # -----------------------------------------------------------------------
+      # 8. Delivery Service Deployment
+      # -----------------------------------------------------------------------
+      - name: Build & Deploy Delivery Service
+        if: ${{ needs.detect-changes.outputs.delivery-service == 'true' || github.event_name == 'workflow_dispatch' }}
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ secrets.GCP_PROJECT_ID }}/${{ env.GAR_REPOSITORY }}/delivery-service:${{ github.sha }}"
+          docker build -t $IMAGE -f ./delivery-service/Dockerfile .
+          docker push $IMAGE
+          gcloud run deploy milhub-delivery-service \
+            --image $IMAGE \
+            --region ${{ env.GCP_REGION }} \
+            --platform managed \
+            --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
+            --allow-unauthenticated \
+            --network=${{ env.VPC_NETWORK }} \
+            --subnet=${{ env.VPC_SUBNET }} \
+            --vpc-egress=private-ranges-only \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }},DB_URL=jdbc:postgresql://${{ env.DB_HOST }}:5432/delivery_service_db" \
+            --set-secrets "SPRING_DATASOURCE_PASSWORD=milhub-db-password:latest,JWT_SECRET=milhub-jwt-secret:latest"
