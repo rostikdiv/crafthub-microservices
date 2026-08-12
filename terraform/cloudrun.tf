@@ -27,7 +27,8 @@ resource "google_cloud_run_v2_service" "api_gateway" {
     }
 
     containers {
-      image = "us-central1-docker.pkg.dev/${var.project_id}/${var.gar_repository_name}/api-gateway:latest"
+      # Use official Google hello container for initial Terraform bootstrapping
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
 
       resources {
         limits = {
