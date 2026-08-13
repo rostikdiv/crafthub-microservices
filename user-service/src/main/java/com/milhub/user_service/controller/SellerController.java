@@ -69,7 +69,7 @@ public class SellerController {
      * @return A standard success response.
      */
     @PostMapping("/internal/{id}/sales/increment")
-    public ResponseEntity<Void> incrementSales(@PathVariable UUID id) {
+    public ResponseEntity<Void> incrementSales(@PathVariable UUID id, @RequestBody(required = false) String body) {
         sellerService.incrementSales(id);
         return ResponseEntity.ok().build();
     }

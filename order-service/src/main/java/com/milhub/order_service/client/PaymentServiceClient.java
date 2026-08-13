@@ -21,5 +21,6 @@ public interface PaymentServiceClient {
 
     @PostMapping("/api/v1/payments/refund")
     String refundPayment(@RequestParam("orderId") UUID orderId,
-            @RequestParam("amount") BigDecimal amount);
+            @RequestParam("amount") BigDecimal amount,
+            @RequestBody(required = false) String body);
 }

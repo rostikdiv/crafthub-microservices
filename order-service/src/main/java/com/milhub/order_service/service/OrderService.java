@@ -156,7 +156,7 @@ public class OrderService {
             sendNotification(order, productNames, userEmail, purchasedProductIds);
 
             try {
-                userServiceClient.incrementSales(commonSellerId);
+                userServiceClient.incrementSales(commonSellerId, "");
             } catch (Exception e) {
                 log.error("Failed to increment sales for seller {}", commonSellerId, e);
             }

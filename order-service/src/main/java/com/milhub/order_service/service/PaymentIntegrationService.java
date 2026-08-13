@@ -32,7 +32,7 @@ public class PaymentIntegrationService {
 
     @CircuitBreaker(name = "paymentService", fallbackMethod = "refundPaymentFallback")
     public void refundPayment(UUID orderId, java.math.BigDecimal amount) {
-        paymentServiceClient.refundPayment(orderId, amount);
+        paymentServiceClient.refundPayment(orderId, amount, "");
     }
 
     public void refundPaymentFallback(UUID orderId, java.math.BigDecimal amount, Throwable t) {

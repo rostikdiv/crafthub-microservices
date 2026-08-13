@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface UserServiceClient {
 
     @PostMapping("/internal/{id}/sales/increment")
-    void incrementSales(@PathVariable("id") UUID id);
+    void incrementSales(@PathVariable("id") UUID id, @org.springframework.web.bind.annotation.RequestBody(required = false) String body);
 
     @GetMapping("/internal/{id}/auto-confirm")
     Boolean getAutoConfirm(@PathVariable("id") UUID id);

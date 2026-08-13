@@ -75,7 +75,8 @@ public class PaymentController {
     @PreAuthorize("hasAuthority('order:update:status')")
     public ResponseEntity<String> refundPayment(
             @RequestParam UUID orderId,
-            @RequestParam BigDecimal amount) {
+            @RequestParam BigDecimal amount,
+            @RequestBody(required = false) String body) {
         paymentService.refundPayment(orderId, amount);
         return ResponseEntity.ok("Refund processed");
     }
