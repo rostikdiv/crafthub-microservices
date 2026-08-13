@@ -21,19 +21,28 @@ public class DataInitializer {
     @EventListener(ApplicationReadyEvent.class)
     public void seedAdminOnStartup() {
         try {
-            if (userRepository.findByEmail("admin@milhub.ua").isEmpty()) {
-                User admin = User.builder()
-                        .firstName("System")
-                        .lastName("Admin")
-                        .email("admin@milhub.ua")
-                        .password(passwordEncoder.encode("Password123!"))
-                        .phoneNumber("+380000000000")
-                        .role(Role.ADMIN)
-                        .isVerified(true)
-                        .build();
-                userRepository.save(admin);
-                log.info("✅ Auto-seeded Admin user: admin@milhub.ua");
-            }
+            userRepository.findByEmail("admin@milhub.ua").ifPresentOrElse(
+                admin -> {
+                    admin.setPassword(passwordEncoder.encode("Password123!"));
+                    admin.setRole(Role.ADMIN);
+                    admin.setIsVerified(true);
+                    userRepository.save(admin);
+                    log.info("✅ Updated Admin user password & role: admin@milhub.ua");
+                },
+                () -> {
+                    User admin = User.builder()
+                            .firstName("System")
+                            .lastName("Admin")
+                            .email("admin@milhub.ua")
+                            .password(passwordEncoder.encode("Password123!"))
+                            .phoneNumber("+380000000000")
+                            .role(Role.ADMIN)
+                            .isVerified(true)
+                            .build();
+                    userRepository.save(admin);
+                    log.info("✅ Created Admin user: admin@milhub.ua");
+                }
+            );
         } catch (Exception e) {
             log.error("Failed to auto-seed Admin user: {}", e.getMessage());
         }
