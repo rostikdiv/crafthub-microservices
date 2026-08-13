@@ -11,12 +11,18 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD}}
     hikari:
       maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 20000
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.0.0.3:9092}
 
-application:
-  config:
-    order-url: ${ORDER_SERVICE_URL:https://milhub-order-service-tq7l7y43iq-uc.a.run.app}
+feign:
+  client:
+    config:
+      order-service:
+        url: ${ORDER_SERVICE_URL:https://milhub-order-service-258044247462.us-central1.run.app}
 
 management:
   endpoints:

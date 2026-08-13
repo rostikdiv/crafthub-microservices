@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Feign client for interacting with the Order Service.
  */
-@FeignClient(name = "order-service") // Service name in Eureka
+@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:http://localhost:8083}") // Service name in Eureka
 public interface OrderServiceClient {
 
     @GetMapping("/api/v1/orders/check-purchase")

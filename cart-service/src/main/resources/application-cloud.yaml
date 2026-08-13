@@ -15,7 +15,7 @@ feign:
   client:
     config:
       product-service:
-        url: ${PRODUCT_SERVICE_URL:https://milhub-product-service-tq7l7y43iq-uc.a.run.app}
+        url: ${PRODUCT_SERVICE_URL:https://milhub-product-service-258044247462.us-central1.run.app}
 
 management:
   endpoints:

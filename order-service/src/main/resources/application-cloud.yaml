@@ -11,6 +11,10 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD}}
     hikari:
       maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 30000
+      max-lifetime: 60000
+      connection-timeout: 20000
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.0.0.3:9092}
 
@@ -18,15 +22,15 @@ feign:
   client:
     config:
       user-service:
-        url: ${USER_SERVICE_URL:https://milhub-user-service-tq7l7y43iq-uc.a.run.app}
+        url: ${USER_SERVICE_URL:https://milhub-user-service-258044247462.us-central1.run.app}
       product-service:
-        url: ${PRODUCT_SERVICE_URL:https://milhub-product-service-tq7l7y43iq-uc.a.run.app}
+        url: ${PRODUCT_SERVICE_URL:https://milhub-product-service-258044247462.us-central1.run.app}
       delivery-service:
-        url: ${DELIVERY_SERVICE_URL:https://milhub-delivery-service-tq7l7y43iq-uc.a.run.app}
+        url: ${DELIVERY_SERVICE_URL:https://milhub-delivery-service-258044247462.us-central1.run.app}
 
-application:
-  config:
-    payment-url: ${PAYMENT_SERVICE_URL:https://milhub-payment-service-tq7l7y43iq-uc.a.run.app}
+services:
+  payment-service:
+    payment-url: ${PAYMENT_SERVICE_URL:https://milhub-payment-service-258044247462.us-central1.run.app}
 
 management:
   endpoints:
