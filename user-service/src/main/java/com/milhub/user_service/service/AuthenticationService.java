@@ -39,14 +39,15 @@ public class AuthenticationService {
             throw new BusinessException("User with this email already exists");
         }
 
-        var role = request.getRole() == null ? Role.BUYER : request.getRole();
-        
-        if (role == Role.ADMIN) {
+        var requestedRole = request.getRole();
+        if (requestedRole == Role.ADMIN) {
             throw new BusinessException("Cannot self-register as an administrator.");
         }
 
-        // Buyers are auto-verified; sellers require offline verification
-        boolean isVerified = role == Role.BUYER;
+        // All new self-registered accounts start as BUYER with isVerified = false.
+        // Role upgrades to SELLER or MILITARY_UNIT occur via Admin verification (AdminService.verifyUser).
+        var role = Role.BUYER;
+        boolean isVerified = false;
 
         var user = User.builder()
                 .firstName(request.getFirstName())

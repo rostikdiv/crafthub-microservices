@@ -90,6 +90,19 @@ public class OrderService {
                         throw new BusinessException("Product data integrity error: missing sellerId");
                     }
                     commonSellerId = product.sellerId();
+
+                    // Verify seller account status (unverified sellers cannot sell products)
+                    try {
+                        var sellerProfile = userServiceClient.getSellerProfile(commonSellerId);
+                        if (sellerProfile == null || !Boolean.TRUE.equals(sellerProfile.isVerified())) {
+                            throw new BusinessException("Cannot place order: Seller profile is not verified.");
+                        }
+                    } catch (BusinessException be) {
+                        throw be;
+                    } catch (Exception e) {
+                        log.error("Failed to verify seller {} status: {}", commonSellerId, e.getMessage());
+                        throw new BusinessException("Unable to verify seller profile. User service is currently unavailable.");
+                    }
                 } else {
                     if (!commonSellerId.equals(product.sellerId())) {
                         throw new BusinessException("Multi-vendor orders are not allowed. Please split your order.");

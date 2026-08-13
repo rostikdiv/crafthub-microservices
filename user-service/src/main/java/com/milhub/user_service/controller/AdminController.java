@@ -2,6 +2,7 @@ package com.milhub.user_service.controller;
 
 import com.milhub.user_service.dto.admin.VerificationRequestResponseDTO;
 import com.milhub.user_service.dto.admin.VerificationResponseDTO;
+import com.milhub.user_service.dto.user.UserResponseDTO;
 import com.milhub.user_service.service.AdminService;
 import com.milhub.user_service.service.VerificationDocService;
 import com.milhub.user_service.service.UserService;
@@ -59,8 +60,8 @@ public class AdminController {
     }
 
     @PostMapping("/users/{userId}/promote")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<com.milhub.user_service.dto.user.UserResponseDTO> promoteToAdmin(@PathVariable UUID userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserResponseDTO> promoteToAdmin(@PathVariable UUID userId) {
         com.milhub.user_service.entity.User updatedUser = userService.promoteUserToAdmin(userId);
         return ResponseEntity.ok(userService.mapToResponseDTO(updatedUser));
     }

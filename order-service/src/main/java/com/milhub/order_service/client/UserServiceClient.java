@@ -13,6 +13,9 @@ import java.util.UUID;
 @FeignClient(name = "user-service", url = "${USER_SERVICE_URL:https://milhub-user-service-258044247462.us-central1.run.app}", path = "/api/v1/sellers")
 public interface UserServiceClient {
 
+    @GetMapping("/{id}")
+    com.milhub.order_service.dto.seller.SellerPublicProfileDTO getSellerProfile(@PathVariable("id") UUID id);
+
     @PostMapping("/internal/{id}/sales/increment")
     void incrementSales(@PathVariable("id") UUID id, @org.springframework.web.bind.annotation.RequestBody(required = false) String body);
 
