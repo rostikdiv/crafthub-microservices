@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Feign client for communicating with the order-service.
  */
-@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:}", path = "/api/v1/orders")
+@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:https://milhub-order-service-258044247462.us-central1.run.app}", path = "/api/v1/orders")
 public interface OrderServiceClient {
 
     /**

@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Feign client for the Payment Service.
  */
-@FeignClient(name = "payment-service", url = "${PAYMENT_SERVICE_URL:}")
+@FeignClient(name = "payment-service", url = "${PAYMENT_SERVICE_URL:https://milhub-payment-service-258044247462.us-central1.run.app}")
 public interface PaymentServiceClient {
 
     @PostMapping("/api/v1/payments/init")

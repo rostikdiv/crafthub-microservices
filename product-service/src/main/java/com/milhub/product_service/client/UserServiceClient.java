@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 // Service name must match spring.application.name in
 // user_service/application.yaml
-@FeignClient(name = "user-service", url = "${USER_SERVICE_URL:}", path = "/api/v1/users")
+@FeignClient(name = "user-service", url = "${USER_SERVICE_URL:https://milhub-user-service-258044247462.us-central1.run.app}", path = "/api/v1/users")
 public interface UserServiceClient {
 
     @GetMapping("/{userId}/seller-info")

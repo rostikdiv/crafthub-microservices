@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Feign client for the Product Service.
  */
-@FeignClient(name = "product-service", url = "${PRODUCT_SERVICE_URL:}")
+@FeignClient(name = "product-service", url = "${PRODUCT_SERVICE_URL:https://milhub-product-service-258044247462.us-central1.run.app}")
 public interface ProductServiceClient {
 
     /**

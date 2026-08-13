@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * Feign client for the Delivery Service.
  */
-@FeignClient(name = "delivery-service", url = "${DELIVERY_SERVICE_URL:}", path = "/api/v1/delivery/return")
+@FeignClient(name = "delivery-service", url = "${DELIVERY_SERVICE_URL:https://milhub-delivery-service-258044247462.us-central1.run.app}", path = "/api/v1/delivery/return")
 public interface DeliveryServiceClient {
 
     @PostMapping

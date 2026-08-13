@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Feign client for interacting with the Order Service.
  */
-@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:}") // Order Service URL
+@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:https://milhub-order-service-258044247462.us-central1.run.app}") // Order Service URL
 public interface OrderServiceClient {
 
     @GetMapping("/api/v1/orders/{id}")

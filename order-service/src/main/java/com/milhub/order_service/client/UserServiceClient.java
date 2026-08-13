@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Feign client for the User Service (Seller management).
  */
-@FeignClient(name = "user-service", url = "${USER_SERVICE_URL:}", path = "/api/v1/sellers")
+@FeignClient(name = "user-service", url = "${USER_SERVICE_URL:https://milhub-user-service-258044247462.us-central1.run.app}", path = "/api/v1/sellers")
 public interface UserServiceClient {
 
     @PostMapping("/internal/{id}/sales/increment")
