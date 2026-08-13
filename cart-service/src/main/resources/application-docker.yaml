@@ -18,3 +18,9 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://service-discovery:8761/eureka/
+
+feign:
+  client:
+    config:
+      product-service:
+        url: ${PRODUCT_SERVICE_URL:http://product-service:8082}

@@ -76,6 +76,11 @@ management:
 feign:
   client:
     config:
+      user-service:
+        url: ${USER_SERVICE_URL:http://localhost:8081}
       product-service:
-        # For local development (direct access or via Gateway)
         url: ${PRODUCT_SERVICE_URL:http://localhost:8082}
+      delivery-service:
+        url: ${DELIVERY_SERVICE_URL:http://localhost:8084}
+      payment-service:
+        url: ${PAYMENT_SERVICE_URL:http://localhost:8085}

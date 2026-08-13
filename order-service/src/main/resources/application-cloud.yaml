@@ -27,6 +27,8 @@ feign:
         url: ${PRODUCT_SERVICE_URL:https://milhub-product-service-258044247462.us-central1.run.app}
       delivery-service:
         url: ${DELIVERY_SERVICE_URL:https://milhub-delivery-service-258044247462.us-central1.run.app}
+      payment-service:
+        url: ${PAYMENT_SERVICE_URL:https://milhub-payment-service-258044247462.us-central1.run.app}
 
 services:
   payment-service:

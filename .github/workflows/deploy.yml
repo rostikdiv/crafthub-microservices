@@ -118,6 +118,7 @@ jobs:
           gcloud run deploy milhub-api-gateway \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -139,6 +140,7 @@ jobs:
           gcloud run deploy milhub-user-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -160,6 +162,7 @@ jobs:
           gcloud run deploy milhub-product-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -181,6 +184,7 @@ jobs:
           gcloud run deploy milhub-order-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -202,6 +206,7 @@ jobs:
           gcloud run deploy milhub-cart-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -223,6 +228,7 @@ jobs:
           gcloud run deploy milhub-notification-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -244,6 +250,7 @@ jobs:
           gcloud run deploy milhub-payment-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \
@@ -265,6 +272,7 @@ jobs:
           gcloud run deploy milhub-delivery-service \
             --image $IMAGE \
             --region ${{ env.GCP_REGION }} \
+            --memory 1Gi \
             --platform managed \
             --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
             --allow-unauthenticated \

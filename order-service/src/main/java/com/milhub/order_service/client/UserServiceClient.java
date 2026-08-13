@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Feign client for the User Service (Seller management).
  */
-@FeignClient(name = "user-service", path = "/api/v1/sellers")
+@FeignClient(name = "user-service", url = "${USER_SERVICE_URL:}", path = "/api/v1/sellers")
 public interface UserServiceClient {
 
     @PostMapping("/internal/{id}/sales/increment")

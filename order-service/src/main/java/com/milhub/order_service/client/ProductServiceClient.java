@@ -13,7 +13,7 @@ import java.util.UUID;
  * Feign client for the Product Service.
  * Provides endpoints for retrieving product information and managing stock.
  */
-@FeignClient(name = "product-service", path = "/api/v1/products")
+@FeignClient(name = "product-service", url = "${PRODUCT_SERVICE_URL:}", path = "/api/v1/products")
 public interface ProductServiceClient {
 
     @GetMapping("/{id}")

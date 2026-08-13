@@ -33,7 +33,7 @@ resource "google_cloud_run_v2_service" "api_gateway" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "512Mi"
+          memory = "1024Mi"
         }
       }
 

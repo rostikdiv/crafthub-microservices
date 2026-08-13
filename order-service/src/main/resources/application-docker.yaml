@@ -16,3 +16,15 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://service-discovery:8761/eureka/
+
+feign:
+  client:
+    config:
+      user-service:
+        url: ${USER_SERVICE_URL:http://user-service:8081}
+      product-service:
+        url: ${PRODUCT_SERVICE_URL:http://product-service:8082}
+      delivery-service:
+        url: ${DELIVERY_SERVICE_URL:http://delivery-service:8084}
+      payment-service:
+        url: ${PAYMENT_SERVICE_URL:http://payment-service:8085}

@@ -16,3 +16,11 @@ minio:
   url: https://rachell-diaphanometric-viva.ngrok-free.dev
   access-key: minioadmin
   secret-key: ${MINIO_ROOT_PASSWORD:minioadmin}
+
+feign:
+  client:
+    config:
+      user-service:
+        url: ${USER_SERVICE_URL:http://user-service:8081}
+      order-service:
+        url: ${ORDER_SERVICE_URL:http://order-service:8083}

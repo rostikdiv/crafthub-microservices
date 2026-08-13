@@ -24,3 +24,9 @@ management:
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_URL}
+
+feign:
+  client:
+    config:
+      order-service:
+        url: ${ORDER_SERVICE_URL:http://order-service:8083}

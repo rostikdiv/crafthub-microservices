@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Feign client for communicating with the order-service.
  */
-@FeignClient(name = "order-service", path = "/api/v1/orders")
+@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:}", path = "/api/v1/orders")
 public interface OrderServiceClient {
 
     /**

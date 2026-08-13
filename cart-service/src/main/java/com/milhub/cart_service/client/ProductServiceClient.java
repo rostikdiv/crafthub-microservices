@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Feign client for the Product Service.
  */
-@FeignClient(name = "product-service")
+@FeignClient(name = "product-service", url = "${PRODUCT_SERVICE_URL:}")
 public interface ProductServiceClient {
 
     /**

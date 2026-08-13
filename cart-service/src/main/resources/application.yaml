@@ -71,3 +71,9 @@ management:
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
+
+feign:
+  client:
+    config:
+      product-service:
+        url: ${PRODUCT_SERVICE_URL:http://localhost:8082}

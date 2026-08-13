@@ -10,7 +10,7 @@ import java.util.UUID;
 /**
  * Feign client for interacting with the Order Service.
  */
-@FeignClient(name = "order-service", url = "${application.config.order-url:http://localhost:8083}") // Order Service URL
+@FeignClient(name = "order-service", url = "${ORDER_SERVICE_URL:}") // Order Service URL
 public interface OrderServiceClient {
 
     @GetMapping("/api/v1/orders/{id}")
