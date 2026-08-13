@@ -359,37 +359,37 @@ public class OrderService {
     }
 
     private void checkAndScheduleDelivery(Order order) {
-        // Only for BRANCH / COURIER. Self pickup is manual.
-        if (order.getDeliveryInfo().type() == DeliveryType.SELF_PICKUP) {
-            return;
-        }
-
         boolean shouldStartSimulation = false;
 
-        // Unified Logic for both COD and CARD:
-        // 1. Initial State: PENDING_CONFIRMATION (set by createOrder for COD, or
-        // confirmOrderPayment for CARD)
-        // 2. Seller Confirms: Status -> CONFIRMED (No simulation)
-        // 3. Seller Prepares: Status -> PREPARING (Start Simulation)
-
         if (order.getStatus() == OrderStatus.PREPARING || order.getStatus() == OrderStatus.CONFIRMED) {
-            // Trigger simulation when CONFIRMED or PREPARING.
-            // This ensures that "Confirming" an order kicks off the delivery flow.
             shouldStartSimulation = true;
         }
 
         if (shouldStartSimulation) {
-            scheduleDelivery(order.getId());
+            scheduleDelivery(order);
         }
     }
 
-    private void scheduleDelivery(UUID orderId) {
+    private void scheduleDelivery(Order order) {
+        UUID orderId = order.getId();
+        boolean isSelfPickup = order.getDeliveryInfo() != null && order.getDeliveryInfo().type() == DeliveryType.SELF_PICKUP;
+
         new Thread(() -> {
             try {
-                log.info("Simulation: Shipping order {}", orderId);
-                Thread.sleep(5000); // 5 seconds
-                updateOrderStatusFromDelivery(orderId, "DELIVERED");
-                log.info("Simulation: Order {} DELIVERED", orderId);
+                if (isSelfPickup) {
+                    log.info("Simulation: Self-pickup order {} is ready for pickup...", orderId);
+                    Thread.sleep(3000); // 3 seconds delay to READY_FOR_PICKUP
+                    updateOrderStatusFromDelivery(orderId, "READY_TO_SHIP");
+                    
+                    Thread.sleep(4000); // 4 seconds delay to DELIVERED
+                    updateOrderStatusFromDelivery(orderId, "DELIVERED");
+                    log.info("Simulation: Self-pickup order {} PICKED UP (DELIVERED)", orderId);
+                } else {
+                    log.info("Simulation: Shipping order {}", orderId);
+                    Thread.sleep(5000); // 5 seconds delay
+                    updateOrderStatusFromDelivery(orderId, "DELIVERED");
+                    log.info("Simulation: Order {} DELIVERED", orderId);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

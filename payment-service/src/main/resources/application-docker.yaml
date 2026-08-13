@@ -11,3 +11,6 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://service-discovery:8761/eureka/
+
+app:
+  base-url: ${API_BASE_URL:http://localhost:8080}

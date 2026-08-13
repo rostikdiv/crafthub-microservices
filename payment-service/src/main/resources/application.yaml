@@ -45,3 +45,6 @@ management:
   zipkin:
     tracing:
       endpoint: ${ZIPKIN_URL:http://localhost:9411/api/v2/spans}
+
+app:
+  base-url: ${API_BASE_URL:http://localhost:8080}

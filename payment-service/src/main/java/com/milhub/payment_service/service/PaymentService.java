@@ -36,6 +36,9 @@ public class PaymentService {
     private final KafkaProducerService kafkaProducerService;
     private final ApplicationEventPublisher eventPublisher;
 
+    @org.springframework.beans.factory.annotation.Value("${app.base-url:https://milhub-api-gateway-258044247462.us-central1.run.app}")
+    private String baseUrl;
+
     /**
      * Retrieves a payment transaction for a specific order.
      * Generates a mock webhook URL for manual simulation/testing.
@@ -44,7 +47,7 @@ public class PaymentService {
         Transaction transaction = repository.findByOrderId(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found for order: " + orderId));
 
-        String mockUrl = "http://localhost:8080/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
+        String mockUrl = baseUrl + "/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
 
         return new PaymentResponseDTO(transaction.getId(), transaction.getStatus().name(), mockUrl);
     }
@@ -59,7 +62,7 @@ public class PaymentService {
             if (existingTx.isPresent()) {
                 log.info("Idempotent request: returning existing transaction for key {}", request.idempotencyKey());
                 Transaction tx = existingTx.get();
-                String url = "http://localhost:8086/api/v1/payments/webhook/" + tx.getId() + "?status=SUCCESS";
+                String url = baseUrl + "/api/v1/payments/webhook/" + tx.getId() + "?status=SUCCESS";
                 return new PaymentResponseDTO(tx.getId(), tx.getStatus().name(), url);
             }
         }
@@ -85,11 +88,11 @@ public class PaymentService {
             log.warn("Concurrent payment initialization detected for key: {}", request.idempotencyKey());
             Transaction tx = repository.findByIdempotencyKey(request.idempotencyKey())
                     .orElseThrow(() -> new IllegalStateException("Failed to retrieve idempotency key"));
-            String url = "http://localhost:8086/api/v1/payments/webhook/" + tx.getId() + "?status=SUCCESS";
+            String url = baseUrl + "/api/v1/payments/webhook/" + tx.getId() + "?status=SUCCESS";
             return new PaymentResponseDTO(tx.getId(), tx.getStatus().name(), url);
         }
 
-        String mockUrl = "http://localhost:8086/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
+        String mockUrl = baseUrl + "/api/v1/payments/webhook/" + transaction.getId() + "?status=SUCCESS";
 
         return new PaymentResponseDTO(transaction.getId(), "PENDING", mockUrl);
     }

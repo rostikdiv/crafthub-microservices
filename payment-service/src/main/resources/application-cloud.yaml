@@ -18,6 +18,9 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.0.0.3:9092}
 
+app:
+  base-url: ${API_BASE_URL:https://milhub-api-gateway-258044247462.us-central1.run.app}
+
 management:
   endpoints:
     web:
