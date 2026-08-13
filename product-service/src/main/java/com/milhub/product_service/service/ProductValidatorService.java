@@ -29,11 +29,18 @@ public class ProductValidatorService {
      * @throws BusinessException if the user service is unavailable or the user is not a valid seller
      */
     public SellerInfoDTO validateAndGetSellerInfo(UUID userId) {
+        SellerInfoDTO sellerInfo;
         try {
-            return userServiceClient.getSellerInfo(userId);
+            sellerInfo = userServiceClient.getSellerInfo(userId);
         } catch (Exception e) {
             log.error("Failed to fetch seller info for user {}: {}", userId, e.getMessage());
             throw new BusinessException("Unable to validate seller profile. User service is currently unavailable.");
         }
+
+        if (sellerInfo == null || !Boolean.TRUE.equals(sellerInfo.isVerified())) {
+            throw new BusinessException("Seller profile is not verified. Only verified sellers can publish or update products.");
+        }
+
+        return sellerInfo;
     }
 }
