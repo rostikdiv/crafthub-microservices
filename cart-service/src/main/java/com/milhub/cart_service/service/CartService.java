@@ -204,6 +204,10 @@ public class CartService {
             throw new ResourceNotFoundException("Product not found or service unavailable");
         }
 
+        if (product == null) {
+            throw new ResourceNotFoundException("Product not found or service unavailable");
+        }
+
         if (product.quantity() < itemDto.quantity()) {
             throw new BusinessException("Not enough stock. Available: " + product.quantity());
         }

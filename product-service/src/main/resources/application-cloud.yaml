@@ -15,6 +15,10 @@ spring:
       idle-timeout: 30000
       max-lifetime: 60000
       connection-timeout: 20000
+  data:
+    redis:
+      host: ${REDIS_HOST:10.0.0.3}
+      port: ${REDIS_PORT:6379}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:10.0.0.3:9092}
 
