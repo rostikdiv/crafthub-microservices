@@ -1,6 +1,9 @@
 package com.milhub.order_service.client;
 
 import com.milhub.order_service.dto.external.ProductResponseDTO;
+
+import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,8 +23,8 @@ public interface ProductServiceClient {
     ProductResponseDTO getProductById(@PathVariable("id") UUID id);
 
     @PostMapping("/{id}/reduce-stock")
-    void reduceStock(@PathVariable("id") UUID id, @RequestParam("quantity") Integer quantity);
+    void reduceStock(@PathVariable("id") UUID id, @RequestParam("quantity") Integer quantity, @RequestBody(required = false) String body);
 
     @PostMapping("/{id}/restore-stock")
-    void restoreStock(@PathVariable("id") UUID id, @RequestParam("quantity") Integer quantity);
+    void restoreStock(@PathVariable("id") UUID id, @RequestParam("quantity") Integer quantity, @RequestBody(required = false) String body);
 }

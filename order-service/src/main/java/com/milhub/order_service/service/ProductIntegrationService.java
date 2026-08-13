@@ -36,7 +36,7 @@ public class ProductIntegrationService {
      */
     @CircuitBreaker(name = "productService", fallbackMethod = "reduceStockFallback")
     public void reduceStock(UUID productId, Integer quantity) {
-        productServiceClient.reduceStock(productId, quantity);
+        productServiceClient.reduceStock(productId, quantity, "");
     }
 
     /**
@@ -45,7 +45,7 @@ public class ProductIntegrationService {
      */
     @CircuitBreaker(name = "productService", fallbackMethod = "restoreStockFallback")
     public void restoreStock(UUID productId, Integer quantity) {
-        productServiceClient.restoreStock(productId, quantity);
+        productServiceClient.restoreStock(productId, quantity, "");
     }
 
     // ================= FALLBACK METHODS =================

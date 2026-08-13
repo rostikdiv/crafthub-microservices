@@ -108,14 +108,14 @@ public class ProductController {
 
     @PostMapping("/{id}/reduce-stock")
     @PreAuthorize("hasAuthority('product:update') or hasAuthority('order:create')")
-    public ResponseEntity<Void> reduceStock(@PathVariable UUID id, @RequestParam Integer quantity) {
+    public ResponseEntity<Void> reduceStock(@PathVariable UUID id, @RequestParam Integer quantity, @RequestBody(required = false) String body) {
         productService.reduceStock(id, quantity);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{id}/restore-stock")
     @PreAuthorize("hasAuthority('product:update') or hasAuthority('order:create')")
-    public ResponseEntity<Void> restoreStock(@PathVariable UUID id, @RequestParam Integer quantity) {
+    public ResponseEntity<Void> restoreStock(@PathVariable UUID id, @RequestParam Integer quantity, @RequestBody(required = false) String body) {
         productService.restoreStock(id, quantity);
         return ResponseEntity.ok().build();
     }
