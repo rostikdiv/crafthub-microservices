@@ -44,9 +44,9 @@ public class AuthenticationService {
             throw new BusinessException("Cannot self-register as an administrator.");
         }
 
-        // All new self-registered accounts start as BUYER with isVerified = false.
-        // Role upgrades to SELLER or MILITARY_UNIT occur via Admin verification (AdminService.verifyUser).
-        var role = Role.BUYER;
+        // Use the role selected during registration (BUYER, SELLER, MILITARY_UNIT).
+        // New accounts start with isVerified = false until documents are reviewed.
+        var role = (requestedRole != null) ? requestedRole : Role.BUYER;
         boolean isVerified = false;
 
         var user = User.builder()
