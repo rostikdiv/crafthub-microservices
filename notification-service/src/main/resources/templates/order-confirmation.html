@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Замовлення створено</title>
+    <title>Order Confirmation</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
@@ -17,23 +17,23 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>CraftHub</h1>
+            <h1>MilHub</h1>
         </div>
         <div class="content">
-            <h2>Замовлення #<span th:text="${orderId}"></span> створено!</h2>
-            <p>Дякуємо за покупку на CraftHub. Ми вже працюємо над вашим замовленням.</p>
+            <h2>Order #<span th:text="${orderId}"></span> Confirmed!</h2>
+            <p>Thank you for your purchase on MilHub. We are already processing your requisition.</p>
             
-            <p><strong>Товари:</strong> <span th:text="${products}"></span></p>
-            <p><strong>Загальна сума:</strong> <span class="highlight" th:text="${amount} + ' UAH'"></span></p>
+            <p><strong>Items:</strong> <span th:text="${products}"></span></p>
+            <p><strong>Total Amount:</strong> <span class="highlight" th:text="${amount} + ' UAH'"></span></p>
             
-            <p>Будь ласка, перейдіть до оплати, якщо ви цього ще не зробили.</p>
+            <p>Please proceed to payment if you haven't completed it yet.</p>
             
             <div style="text-align: center;">
-                <a href="#" class="btn">Перейти до замовлення</a>
+                <a href="#" class="btn">View Order Details</a>
             </div>
         </div>
         <div class="footer">
-            <p>&copy; 2026 CraftHub. Всі права захищені.</p>
+            <p>&copy; 2026 MilHub. All rights reserved.</p>
         </div>
     </div>
 </body>

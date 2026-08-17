@@ -53,7 +53,7 @@ public class EmailService {
             context.setVariable("amount", amount);
 
             String html = templateEngine.process("order-confirmation", context);
-            sendEmail(toEmail, "MilHub: Замовлення #" + orderId, html);
+            sendEmail(toEmail, "MilHub: Order Confirmation #" + orderId, html);
         } catch (Exception e) {
             log.error("Failed to send order confirmation email for order {}", orderId, e);
         }
@@ -67,7 +67,7 @@ public class EmailService {
             context.setVariable("amount", amount);
 
             String html = templateEngine.process("payment-success", context);
-            sendEmail(toEmail, "MilHub: Оплата зарахована #" + orderId, html);
+            sendEmail(toEmail, "MilHub: Payment Received #" + orderId, html);
         } catch (Exception e) {
             log.error("Failed to send payment success email for order {}", orderId, e);
         }
@@ -82,7 +82,7 @@ public class EmailService {
             context.setVariable("statusText", statusText);
 
             String html = templateEngine.process("delivery-update", context);
-            sendEmail(toEmail, "MilHub: Оновлення замовлення #" + orderId, html);
+            sendEmail(toEmail, "MilHub: Delivery Update #" + orderId, html);
         } catch (Exception e) {
             log.error("Failed to send delivery update email for order {}", orderId, e);
         }
@@ -90,10 +90,10 @@ public class EmailService {
 
     private String translateStatus(String status) {
         return switch (status) {
-            case "SHIPPED" -> "Відправлено";
-            case "DELIVERED" -> "Доставлено";
-            case "READY_FOR_PICKUP" -> "Чекає у точці видачі";
-            case "CANCELLED" -> "Скасовано";
+            case "SHIPPED" -> "Shipped";
+            case "DELIVERED" -> "Delivered";
+            case "READY_FOR_PICKUP" -> "Ready for Pickup";
+            case "CANCELLED" -> "Cancelled";
             default -> status;
         };
     }
@@ -103,7 +103,7 @@ public class EmailService {
         try {
             Context context = new Context();
             String html = templateEngine.process("verification-approved", context);
-            sendEmail(toEmail, "MilHub: Акаунт верифіковано", html);
+            sendEmail(toEmail, "MilHub: Account Verified", html);
         } catch (Exception e) {
             log.error("Failed to send verification approved email to {}", toEmail, e);
         }
@@ -113,10 +113,10 @@ public class EmailService {
         log.info("Sending verification rejected email to: {} (reason: {})", toEmail, reason);
         try {
             Context context = new Context();
-            context.setVariable("reason", reason != null ? reason : "Причина не вказана");
+            context.setVariable("reason", reason != null ? reason : "No reason provided");
 
             String html = templateEngine.process("verification-rejected", context);
-            sendEmail(toEmail, "MilHub: Відмова у верифікації", html);
+            sendEmail(toEmail, "MilHub: Verification Status Update", html);
         } catch (Exception e) {
             log.error("Failed to send verification rejected email to {}", toEmail, e);
         }

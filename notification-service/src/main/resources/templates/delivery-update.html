@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Оновлення доставки</title>
+    <title>Delivery Status Update</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #3b82f6; }
@@ -16,17 +16,17 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Оновлення статусу доставки 🚚</h1>
+            <h1>Delivery Status Update 🚚</h1>
         </div>
         <div class="content">
-            <p>Статус вашого замовлення #<span th:text="${orderId}"></span> змінився.</p>
+            <p>The delivery status for your order #<span th:text="${orderId}"></span> has been updated.</p>
             <div class="status-box">
                 <span th:text="${statusText}"></span>
             </div>
-            <p>Дякуємо за використання платформи CraftHub!</p>
+            <p>Thank you for using the MilHub platform!</p>
         </div>
         <div class="footer">
-            <p>&copy; 2026 CraftHub.</p>
+            <p>&copy; 2026 MilHub.</p>
         </div>
     </div>
 </body>

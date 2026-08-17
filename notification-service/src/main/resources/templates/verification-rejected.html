@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Верифікацію відхилено</title>
+    <title>Verification Status Update</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #ef4444; }
@@ -16,20 +16,20 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Верифікацію відхилено ❌</h1>
+            <h1>Verification Status Update ❌</h1>
         </div>
         <div class="content">
-            <p>На жаль, ми не змогли підтвердити ваш акаунт під час перевірки документів.</p>
+            <p>Unfortunately, we could not verify your account with the submitted documents.</p>
             
             <div class="reason-box">
-                <strong>Причина:</strong> <span th:text="${reason}"></span>
+                <strong>Reason:</strong> <span th:text="${reason}"></span>
             </div>
             
-            <p>Будь ласка, виправте вказані недоліки та завантажте документи повторно в особистому кабінеті.</p>
-            <p>Якщо у вас виникли питання, зверніться до нашої служби підтримки.</p>
+            <p>Please address the remarks above and upload updated verification documents in your account dashboard.</p>
+            <p>If you have any questions or require assistance, please contact our support team.</p>
         </div>
         <div class="footer">
-            <p>&copy; 2026 CraftHub.</p>
+            <p>&copy; 2026 MilHub Defense Logistics.</p>
         </div>
     </div>
 </body>

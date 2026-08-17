@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Оплата успішна</title>
+    <title>Payment Successful</title>
     <style>
         body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 4px solid #10b981; }
@@ -16,15 +16,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Оплата успішна! ✅</h1>
+            <h1>Payment Successful! ✅</h1>
         </div>
         <div class="content">
-            <p>Ваше замовлення #<span th:text="${orderId}"></span> на суму <span class="highlight" th:text="${amount} + ' UAH'"></span> успішно оплачено.</p>
-            <p>Продавець вже отримав сповіщення і починає комплектацію вашого замовлення.</p>
-            <p>Ви можете відстежувати статус замовлення в особистому кабінеті.</p>
+            <p>Your payment for order #<span th:text="${orderId}"></span> in the amount of <span class="highlight" th:text="${amount} + ' UAH'"></span> has been processed successfully.</p>
+            <p>The vendor has been notified and is now preparing your shipment.</p>
+            <p>You can track the order status directly in your dashboard.</p>
         </div>
         <div class="footer">
-            <p>&copy; 2026 CraftHub. Дякуємо, що підтримуєте українських майстрів.</p>
+            <p>&copy; 2026 MilHub. Defense Logistics & Marketplace Platform.</p>
         </div>
     </div>
 </body>
