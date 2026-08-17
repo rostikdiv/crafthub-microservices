@@ -45,43 +45,46 @@ public class EmailService {
     }
 
     public void sendOrderConfirmation(String toEmail, String orderId, BigDecimal amount, String products) {
-        Context context = new Context();
-        context.setVariable("orderId", orderId);
-        context.setVariable("products", products);
-        context.setVariable("amount", amount);
-
-        String html = templateEngine.process("order-confirmation", context);
+        log.info("Sending order confirmation email to: {} for order #{}", toEmail, orderId);
         try {
+            Context context = new Context();
+            context.setVariable("orderId", orderId);
+            context.setVariable("products", products);
+            context.setVariable("amount", amount);
+
+            String html = templateEngine.process("order-confirmation", context);
             sendEmail(toEmail, "MilHub: Замовлення #" + orderId, html);
         } catch (Exception e) {
-            log.error("Failed to queue email for order {}", orderId, e);
+            log.error("Failed to send order confirmation email for order {}", orderId, e);
         }
     }
 
     public void sendPaymentSuccess(String toEmail, String orderId, BigDecimal amount) {
-        Context context = new Context();
-        context.setVariable("orderId", orderId);
-        context.setVariable("amount", amount);
-
-        String html = templateEngine.process("payment-success", context);
+        log.info("Sending payment success email to: {} for order #{}", toEmail, orderId);
         try {
+            Context context = new Context();
+            context.setVariable("orderId", orderId);
+            context.setVariable("amount", amount);
+
+            String html = templateEngine.process("payment-success", context);
             sendEmail(toEmail, "MilHub: Оплата зарахована #" + orderId, html);
         } catch (Exception e) {
-            log.error("Failed to queue email for payment success {}", orderId, e);
+            log.error("Failed to send payment success email for order {}", orderId, e);
         }
     }
 
     public void sendDeliveryUpdate(String toEmail, String orderId, String status) {
         String statusText = translateStatus(status);
-        Context context = new Context();
-        context.setVariable("orderId", orderId);
-        context.setVariable("statusText", statusText);
-
-        String html = templateEngine.process("delivery-update", context);
+        log.info("Sending delivery update email to: {} for order #{} (status: {})", toEmail, orderId, statusText);
         try {
+            Context context = new Context();
+            context.setVariable("orderId", orderId);
+            context.setVariable("statusText", statusText);
+
+            String html = templateEngine.process("delivery-update", context);
             sendEmail(toEmail, "MilHub: Оновлення замовлення #" + orderId, html);
         } catch (Exception e) {
-            log.error("Failed to queue email for delivery update {}", orderId, e);
+            log.error("Failed to send delivery update email for order {}", orderId, e);
         }
     }
 
@@ -96,24 +99,26 @@ public class EmailService {
     }
 
     public void sendVerificationApproved(String toEmail) {
-        Context context = new Context();
-        String html = templateEngine.process("verification-approved", context);
+        log.info("Sending verification approved email to: {}", toEmail);
         try {
+            Context context = new Context();
+            String html = templateEngine.process("verification-approved", context);
             sendEmail(toEmail, "MilHub: Акаунт верифіковано", html);
         } catch (Exception e) {
-            log.error("Failed to queue email for verification approved", e);
+            log.error("Failed to send verification approved email to {}", toEmail, e);
         }
     }
 
     public void sendVerificationRejected(String toEmail, String reason) {
-        Context context = new Context();
-        context.setVariable("reason", reason != null ? reason : "Причина не вказана");
-
-        String html = templateEngine.process("verification-rejected", context);
+        log.info("Sending verification rejected email to: {} (reason: {})", toEmail, reason);
         try {
+            Context context = new Context();
+            context.setVariable("reason", reason != null ? reason : "Причина не вказана");
+
+            String html = templateEngine.process("verification-rejected", context);
             sendEmail(toEmail, "MilHub: Відмова у верифікації", html);
         } catch (Exception e) {
-            log.error("Failed to queue email for verification rejected", e);
+            log.error("Failed to send verification rejected email to {}", toEmail, e);
         }
     }
 }
