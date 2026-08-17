@@ -267,6 +267,7 @@ public class ProductService {
      * Reduces the stock quantity for a product.
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public void reduceStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + productId));
@@ -276,19 +277,22 @@ public class ProductService {
         }
 
         product.setQuantity(product.getQuantity() - quantity);
-        // productRepository.save(product); // Removed to rely on Hibernate Dirty Checking
+        productRepository.saveAndFlush(product);
+        log.info("📉 Stock reduced for product {}: -{} (New quantity: {})", productId, quantity, product.getQuantity());
     }
 
     /**
      * Restores the stock quantity for a product.
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public void restoreStock(UUID productId, Integer quantity) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         product.setQuantity(product.getQuantity() + quantity);
-        // productRepository.save(product); // Removed to rely on Hibernate Dirty Checking
+        productRepository.saveAndFlush(product);
+        log.info("📈 Stock restored for product {}: +{} (New quantity: {})", productId, quantity, product.getQuantity());
     }
 
     /**
@@ -296,6 +300,7 @@ public class ProductService {
      * Original price is saved in the oldPrice field if it's the first discount.
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public ProductResponseDTO applyDiscount(UUID productId, BigDecimal newDiscountPrice) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -319,14 +324,15 @@ public class ProductService {
         // Set the new sale price
         product.setPrice(newDiscountPrice);
 
-        productRepository.save(product);
-        return mapToProductResponse(product);
+        Product savedProduct = productRepository.saveAndFlush(product);
+        return mapToProductResponse(savedProduct);
     }
 
     /**
      * Removes the discount and restores the original price from oldPrice.
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public ProductResponseDTO removeDiscount(UUID productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -335,7 +341,7 @@ public class ProductService {
         if (product.getOldPrice() != null) {
             product.setPrice(product.getOldPrice()); // Restore price
             product.setOldPrice(null); // Clear the field
-            productRepository.save(product);
+            productRepository.saveAndFlush(product);
         }
 
         return mapToProductResponse(product);
@@ -345,6 +351,7 @@ public class ProductService {
      * Deletes a product by its identifier.
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#productId")
     public void deleteProduct(UUID productId) {
         if (!productRepository.existsById(productId)) {
             throw new ResourceNotFoundException("Product not found with id: " + productId);
