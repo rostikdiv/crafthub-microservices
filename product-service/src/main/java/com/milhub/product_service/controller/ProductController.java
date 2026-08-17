@@ -60,7 +60,7 @@ public class ProductController {
                 search, categoryId, minPrice, maxPrice, isAvailable, minRating, sellerId, accessLevel, pageable));
     }
 
-    @PostMapping("/")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('product:create')")
     public ProductResponseDTO createProduct(@RequestBody @Valid ProductRequestDTO productRequest) {

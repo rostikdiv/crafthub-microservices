@@ -7,14 +7,19 @@ import lombok.Builder;
 
 import java.util.UUID;
 
-@Builder
+@Builder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DeliveryDetailsDTO(
         // 1. Головні перемикачі
         DeliveryProvider provider,
         DeliveryType type,
 
-        // 2. Географія (Спільне для всіх крім чистого самовивозу без прив'язки)
+        // 2. Одержувач (Customer / Contact info)
+        String recipientName,
+        String recipientPhone,
+        String recipientEmail,
+
+        // 3. Географія (Спільне для всіх крім чистого самовивозу без прив'язки)
         String cityRef, // "ref-lviv-np"
         String cityName, // "Львів"
         String region, // "Львівська область"

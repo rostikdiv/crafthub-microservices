@@ -147,13 +147,20 @@ public class OrderService {
                 initialStatus = OrderStatus.PENDING_CONFIRMATION;
             }
 
+            DeliveryDetailsDTO deliveryDetails = request.deliveryDetails();
+            if (deliveryDetails != null && (deliveryDetails.recipientEmail() == null || deliveryDetails.recipientEmail().isBlank())) {
+                deliveryDetails = deliveryDetails.toBuilder()
+                        .recipientEmail(userEmail)
+                        .build();
+            }
+
             Order order = Order.builder()
                     .userId(userId)
                     .sellerId(commonSellerId)
                     .status(initialStatus)
                     .paymentMethod(request.paymentMethod()) // Save Payment Method
                     .totalPrice(totalOrderPrice)
-                    .deliveryInfo(request.deliveryDetails())
+                    .deliveryInfo(deliveryDetails)
                     .items(new ArrayList<>())
                     .build();
 
