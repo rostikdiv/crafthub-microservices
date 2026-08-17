@@ -11,6 +11,7 @@ import com.milhub.product_service.repository.ProductRepository;
 import com.milhub.product_service.repository.ProductReviewRepository;
 import com.milhub.product_service.security.UserContextService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class ProductReviewService {
      * @return created review response
      */
     @Transactional
+    @CacheEvict(value = "products", key = "#request.productId()")
     public ProductReviewResponseDTO addReview(ProductReviewRequestDTO request) {
         UUID userId = userContext.getUserId();
         // User name can be fetched from token or UserServiceClient
@@ -117,7 +119,7 @@ public class ProductReviewService {
         product.setAverageRating(newRating);
         product.setReviewCount(newCount);
 
-        productRepository.save(product);
+        productRepository.saveAndFlush(product);
     }
 
     /**
