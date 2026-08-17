@@ -206,6 +206,8 @@ services:
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - MAILTRAP_USER=${MAILTRAP_USER}
+      - MAILTRAP_PASS=${MAILTRAP_PASS}
     networks:
       - milhub-net
     depends_on:
