@@ -44,6 +44,10 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
+          ssl:
+            trust: "*"
+            protocols: TLSv1.2 TLSv1.3
 
 eureka:
   client:

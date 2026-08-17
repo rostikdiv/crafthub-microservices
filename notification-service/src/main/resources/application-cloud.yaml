@@ -14,7 +14,7 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   mail:
     host: ${SPRING_MAIL_HOST:sandbox.smtp.mailtrap.io}
-    port: ${SPRING_MAIL_PORT:2525}
+    port: ${SPRING_MAIL_PORT:587}
     username: ${SPRING_MAIL_USERNAME:${MAILTRAP_USER:dummy}}
     password: ${SPRING_MAIL_PASSWORD:${MAILTRAP_PASS:dummy}}
     properties:
@@ -23,8 +23,20 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
+          ssl:
+            trust: "*"
+            protocols: TLSv1.2 TLSv1.3
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 management:
+  tracing:
+    enabled: false
+  zipkin:
+    tracing:
+      endpoint: ""
   endpoints:
     web:
       exposure:
