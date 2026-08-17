@@ -20,6 +20,9 @@ public class ImageUploadController {
 
     private final FileStorageService fileStorageService;
 
+    @org.springframework.beans.factory.annotation.Value("${minio.bucket.products:products}")
+    private String productsBucket;
+
     /**
      * Uploads a single product image to storage.
      *
@@ -28,8 +31,7 @@ public class ImageUploadController {
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> uploadProductImage(@RequestParam("file") MultipartFile file) {
-        // Upload to the "products" bucket
-        String url = fileStorageService.uploadFile(file, "products");
+        String url = fileStorageService.uploadFile(file, productsBucket);
         return ResponseEntity.ok(Map.of("url", url));
     }
 }

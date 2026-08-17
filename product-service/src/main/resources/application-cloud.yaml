@@ -32,8 +32,11 @@ feign:
 
 minio:
   url: ${GCS_URL:https://storage.googleapis.com}
-  access-key: ${GCS_HMAC_ACCESS_KEY}
-  secret-key: ${GCS_HMAC_SECRET_KEY}
+  access-key: ${GCS_HMAC_ACCESS_KEY:}
+  secret-key: ${GCS_HMAC_SECRET_KEY:}
+  region: ${GCS_REGION:us-central1}
+  bucket:
+    products: ${GCS_PRODUCTS_BUCKET:parkflow-cloud-products-storage}
 
 management:
   endpoints:
