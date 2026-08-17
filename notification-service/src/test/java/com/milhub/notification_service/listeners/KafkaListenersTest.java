@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
@@ -40,7 +41,14 @@ class KafkaListenersTest {
     void handleOrderPlaced_ShouldCallEmailService() throws Exception {
         // Arrange
         UUID orderId = UUID.randomUUID();
-        OrderPlacedEventDTO event = new OrderPlacedEventDTO(orderId, UUID.randomUUID(), "test@user.com", "Product A", BigDecimal.valueOf(100));
+        OrderPlacedEventDTO event = new OrderPlacedEventDTO(
+                orderId,
+                UUID.randomUUID(),
+                "test@user.com",
+                BigDecimal.valueOf(100),
+                "Product A",
+                List.of(UUID.randomUUID())
+        );
         String message = objectMapper.writeValueAsString(event);
 
         // Act
