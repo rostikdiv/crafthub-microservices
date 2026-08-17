@@ -64,6 +64,11 @@ public class ProfileService {
                 .build();
 
         sellerProfileRepository.save(profile);
+
+        if (user.getRole() != Role.ADMIN) {
+            user.setRole(Role.SELLER);
+            userRepository.save(user);
+        }
     }
 
     /**
@@ -87,6 +92,11 @@ public class ProfileService {
                 .build();
 
         militaryProfileRepository.save(profile);
+
+        if (user.getRole() != Role.ADMIN) {
+            user.setRole(Role.MILITARY_UNIT);
+            userRepository.save(user);
+        }
     }
 
     /**
