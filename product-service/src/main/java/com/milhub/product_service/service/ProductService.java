@@ -21,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,8 +61,10 @@ public class ProductService {
 
         SellerInfoDTO sellerInfo = productValidatorService.validateAndGetSellerInfo(userId);
 
-        // Check (optional): is the seller verified/allowed to post
-        // if (!sellerInfo.isVerified()) { ... }
+        // Enforce: unverified sellers cannot publish products
+        if (!Boolean.TRUE.equals(sellerInfo.isVerified())) {
+            throw new AccessDeniedException("Unverified sellers cannot create or publish products. Please complete verification first.");
+        }
 
         return saveProductInternal(request, userId, sellerInfo);
     }
@@ -77,6 +80,10 @@ public class ProductService {
         UUID userId = userContext.getUserId();
 
         SellerInfoDTO sellerInfo = productValidatorService.validateAndGetSellerInfo(userId);
+
+        if (!Boolean.TRUE.equals(sellerInfo.isVerified())) {
+            throw new AccessDeniedException("Unverified sellers cannot create or publish products. Please complete verification first.");
+        }
 
         log.info("Batch creating {} products for User ID: {}", requests.size(), userId);
 
