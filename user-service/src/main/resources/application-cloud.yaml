@@ -28,6 +28,10 @@ minio:
   url: ${GCS_URL:https://storage.googleapis.com}
   access-key: ${GCS_HMAC_ACCESS_KEY}
   secret-key: ${GCS_HMAC_SECRET_KEY}
+  region: ${GCS_REGION:us-central1}
+  bucket:
+    avatars: ${GCS_AVATARS_BUCKET:${GCS_BUCKET_NAME:avatars}}
+    documents: ${GCS_DOCUMENTS_BUCKET:${GCS_BUCKET_NAME:documents}}
 
 management:
   endpoints:

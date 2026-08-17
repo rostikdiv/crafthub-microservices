@@ -23,14 +23,22 @@ public class MinioConfig {
     @Value("${minio.external-url:http://localhost:9000}")
     private String externalUrl;
 
+    @Value("${minio.region:#{null}}")
+    private String region;
+
     /**
      * Initializes the MinioClient bean with the provided credentials and endpoint.
      */
     @Bean
     public MinioClient minioClient() {
-        return MinioClient.builder()
+        var builder = MinioClient.builder()
                 .endpoint(url)
-                .credentials(accessKey, secretKey)
-                .build();
+                .credentials(accessKey, secretKey);
+
+        if (region != null && !region.isBlank()) {
+            builder.region(region);
+        }
+
+        return builder.build();
     }
 }

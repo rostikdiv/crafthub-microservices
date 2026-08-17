@@ -31,6 +31,9 @@ public class VerificationDocService {
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
 
+    @org.springframework.beans.factory.annotation.Value("${minio.bucket.documents:documents}")
+    private String documentsBucket;
+
     /**
      * Extracts the current authenticated user from the security context.
      */
@@ -147,7 +150,7 @@ public class VerificationDocService {
             throw new BusinessException("Access denied");
         }
 
-        String objectName = fileStorageService.extractObjectNameFromUrl(doc.getDocUrl(), "documents");
+        String objectName = fileStorageService.extractObjectNameFromUrl(doc.getDocUrl(), documentsBucket);
         if (objectName == null) {
             throw new ResourceNotFoundException("File not found in storage");
         }
@@ -157,7 +160,7 @@ public class VerificationDocService {
             extension = objectName.substring(objectName.lastIndexOf(".") + 1);
         }
         String contentType = FileStorageService.determineContentTypeByExtension(extension);
-        InputStream inputStream = fileStorageService.getFile("documents", objectName);
+        InputStream inputStream = fileStorageService.getFile(documentsBucket, objectName);
 
         return new DocumentDownloadDTO(inputStream, contentType, objectName);
     }
