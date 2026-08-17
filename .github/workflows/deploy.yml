@@ -235,7 +235,7 @@ jobs:
             --network=${{ env.VPC_NETWORK }} \
             --subnet=${{ env.VPC_SUBNET }} \
             --vpc-egress=private-ranges-only \
-            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }}" \
+            --set-env-vars "SPRING_PROFILES_ACTIVE=cloud,KAFKA_BOOTSTRAP_SERVERS=${{ env.KAFKA_BOOTSTRAP }},SPRING_MAIL_USERNAME=${{ secrets.MAILTRAP_USER }},SPRING_MAIL_PASSWORD=${{ secrets.MAILTRAP_PASS }},SPRING_MAIL_PORT=587" \
             --set-secrets "JWT_SECRET=milhub-jwt-secret:latest"
 
       # -----------------------------------------------------------------------
