@@ -31,11 +31,18 @@ public class DocumentController {
      */
     @GetMapping("/{docId}")
     public ResponseEntity<Resource> getDocument(@PathVariable UUID docId) {
-        InputStream fileStream = docService.downloadDocument(docId);
+        VerificationDocService.DocumentDownloadDTO download = docService.downloadDocument(docId);
+
+        MediaType mediaType;
+        try {
+            mediaType = MediaType.parseMediaType(download.contentType());
+        } catch (Exception e) {
+            mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        }
 
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"document.jpg\"")
-                .body(new InputStreamResource(fileStream));
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + download.filename() + "\"")
+                .body(new InputStreamResource(download.inputStream()));
     }
 }

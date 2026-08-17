@@ -128,12 +128,14 @@ public class VerificationDocService {
         docRepository.save(doc);
     }
 
+    public record DocumentDownloadDTO(InputStream inputStream, String contentType, String filename) {}
+
     /**
      * Downloads the document file from storage.
      * Accessible by the owner or an administrator.
      */
     @Transactional(readOnly = true)
-    public InputStream downloadDocument(UUID docId) {
+    public DocumentDownloadDTO downloadDocument(UUID docId) {
         VerificationDoc doc = docRepository.findById(docId)
                 .orElseThrow(() -> new ResourceNotFoundException("Document not found"));
 
@@ -150,7 +152,14 @@ public class VerificationDocService {
             throw new ResourceNotFoundException("File not found in storage");
         }
 
-        return fileStorageService.getFile("documents", objectName);
+        String extension = "";
+        if (objectName.contains(".")) {
+            extension = objectName.substring(objectName.lastIndexOf(".") + 1);
+        }
+        String contentType = FileStorageService.determineContentTypeByExtension(extension);
+        InputStream inputStream = fileStorageService.getFile("documents", objectName);
+
+        return new DocumentDownloadDTO(inputStream, contentType, objectName);
     }
 
     /**
