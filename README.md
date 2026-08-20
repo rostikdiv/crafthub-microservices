@@ -159,7 +159,19 @@ The platform implements stateless **JWT Authentication** with fine-grained acces
 * **`BUYER`**: Public defense catalog browsing, cart management, checkout for standard gear.
 * **`MILITARY_UNIT`**: Verified military unit / officer account. Granted exclusive access to order **`RESTRICTED`** tactical equipment (drones, thermal optics, signal jammers, tactical body armor).
 * **`SELLER`**: Verified defense vendor / manufacturer. Can publish inventory, configure clearance discounts, process orders, and review return requests in **Seller Studio**.
-* **`ADMIN`**: Platform administration, verification queue moderation (military ID & seller KYC review), catalog oversight.
+### Master Administrator Setup via Environment Variables
+
+The initial system administrator account is provisioned dynamically on startup by the `user-service` `DataInitializer` using environment variables configured in your `.env` file:
+
+```env
+# System Administrator Configuration (.env)
+ADMIN_EMAIL=admin@milhub.ua
+ADMIN_PASSWORD=your_secure_admin_password
+ADMIN_FIRST_NAME=System
+ADMIN_LAST_NAME=Admin
+```
+
+> 🔒 **Security Notice:** Default admin credentials are never hardcoded in source code or database migrations. You can customize the administrator's email, password, first name, and last name in `.env` before starting the services. Production environments inject these credentials dynamically via **Google Cloud Secret Manager**.
 
 ### Authentication & Token Flow:
 
@@ -168,12 +180,10 @@ The platform implements stateless **JWT Authentication** with fine-grained acces
 curl -X POST https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
-    "email": "user@example.com",
-    "password": "your_secure_password"
+    "email": "admin@milhub.ua",
+    "password": "your_secure_admin_password"
   }'
 ```
-
-> 🔒 **Security Notice:** Initial test credentials generated during database initialization (`node seed.js`) are safely exported to the local, git-ignored `generated_accounts.json` file. Production environments inject credentials dynamically via **Google Cloud Secret Manager**.
 
 ---
 
@@ -239,7 +249,7 @@ cd milhub-microservices
 ```
 
 ### Step 2: Environment Configuration
-Copy `.env.example` to `.env` and adjust configuration if needed:
+Copy `.env.example` to `.env` and specify your credentials (including database passwords and the system administrator account details `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_FIRST_NAME`, `ADMIN_LAST_NAME`):
 ```bash
 cp .env.example .env
 ```
