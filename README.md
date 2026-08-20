@@ -11,7 +11,7 @@
 [![Google Cloud Run](https://img.shields.io/badge/GCP-Cloud%20Run-4285F4.svg)](https://cloud.google.com/run)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-black.svg)](https://vercel.com/)
 
-* **Live Web Application (Frontend)**: [https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app](https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app)
+* **Live Web Application (Frontend)**: [https://milhub-frontend.vercel.app](https://milhub-frontend.vercel.app)
 * **Production API Gateway (Backend)**: [https://milhub-api-gateway-258044247462.us-central1.run.app](https://milhub-api-gateway-258044247462.us-central1.run.app)
 * **Frontend Repository**: [https://github.com/rostikdiv/milhub-frontend.git](https://github.com/rostikdiv/milhub-frontend.git)
 
@@ -159,6 +159,8 @@ The platform implements stateless **JWT Authentication** with fine-grained acces
 * **`BUYER`**: Public defense catalog browsing, cart management, checkout for standard gear.
 * **`MILITARY_UNIT`**: Verified military unit / officer account. Granted exclusive access to order **`RESTRICTED`** tactical equipment (drones, thermal optics, signal jammers, tactical body armor).
 * **`SELLER`**: Verified defense vendor / manufacturer. Can publish inventory, configure clearance discounts, process orders, and review return requests in **Seller Studio**.
+* **`ADMIN`**: Platform administration, verification queue moderation (military ID & seller KYC review), catalog oversight.
+
 ### Master Administrator Setup via Environment Variables
 
 The initial system administrator account is provisioned dynamically on startup by the `user-service` `DataInitializer` using environment variables configured in your `.env` file:
@@ -218,14 +220,36 @@ node seed.js cloud
 * **`seed-data.json`**: Initial category taxonomy, demo military units, suppliers, and customer profiles.
 * **`generated_accounts.json`**: Auto-generated credentials reference file created by `seed.js` for testing.
 
-### 2. Cloud Database Reset Script (`wipe-dbs.ps1`)
-A PowerShell script that safely drops and recreates all Cloud SQL databases, triggers Cloud Run service restarts, waits for Flyway migrations, and re-runs `seed.js cloud`.
+### 2. Traffic & User Activity Simulator (`simulate-activity.js`)
+Simulates realistic, lifelike activity on the platform:
+* Provisions **15 buyer accounts**: 5 verified military units (`MILITARY_UNIT`) with defense clearance + 10 defense volunteers/buyers (`BUYER`).
+* Generates **150 total orders** (10 orders per buyer) across public and restricted defense equipment.
+* Executes instant payment webhook confirmation (`PAID`) and supplier fulfillment (`DELIVERED`).
+* Publishes authentic, combat-tested **Field Reports & Reviews** (★ 4–5) that automatically receive the official **`Verified Purchase`** badge.
+
+```bash
+# Simulate traffic on local environment (http://localhost:8080/api/v1)
+node simulate-activity.js local
+
+# Simulate traffic on production Cloud Run (via API Gateway)
+node simulate-activity.js cloud
+```
+
+### 3. Cloud Database Reset & Simulation Pipeline (`wipe-dbs.ps1`)
+A complete maintenance script that safely restarts Cloud Run services, drops and recreates clean Cloud SQL databases, waits for Flyway schema migrations, executes `seed.js cloud`, and triggers `simulate-activity.js cloud`.
+
+> [!IMPORTANT]
+> **GCP Authentication Required**: Before running `./wipe-dbs.ps1`, ensure you have logged in to Google Cloud CLI and selected the target project:
+> ```bash
+> gcloud auth login
+> gcloud config set project parkflow-cloud
+> ```
 
 ```powershell
 ./wipe-dbs.ps1
 ```
 
-### 3. Local Stack Launcher (`up-stack-for-services.ps1`)
+### 4. Local Stack Launcher (`up-stack-for-services.ps1`)
 Quickly spins up local infrastructure containers (PostgreSQL, MongoDB, Kafka, Zookeeper, Redis, MinIO, Zipkin):
 
 ```powershell
