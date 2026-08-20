@@ -1,81 +1,115 @@
-# MilHub Microservices Platform
+# 🛡️ MilHub Microservices Platform
 
-*Looking for the frontend? The React UI repository can be found here: [MilHub Frontend](https://github.com/rostikdiv/milhub-frontend.git)*
+[![Deploy to Cloud Run](https://github.com/rostikdiv/milhub-microservices/actions/workflows/deploy.yml/badge.svg)](https://github.com/rostikdiv/milhub-microservices/actions/workflows/deploy.yml)
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.0.0-blue.svg)](https://spring.io/projects/spring-cloud)
+[![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-7.5.0-black.svg)](https://kafka.apache.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)](https://www.postgresql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.0-green.svg)](https://www.mongodb.com/)
+[![Redis](https://img.shields.io/badge/Redis-7.2-red.svg)](https://redis.io/)
+[![Google Cloud Run](https://img.shields.io/badge/GCP-Cloud%20Run-4285F4.svg)](https://cloud.google.com/run)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-black.svg)](https://vercel.com/)
 
-MilHub is a robust, enterprise-grade handmade marketplace built using a microservices architecture. It is designed to demonstrate advanced backend capabilities including distributed systems, event-driven architecture, and modern deployment strategies.
+* **Live Web Application (Frontend)**: [https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app](https://milhub-frontend-5idkz8o0j-rostislavbilskij-1742s-projects.vercel.app)
+* **Production API Gateway (Backend)**: [https://milhub-api-gateway-258044247462.us-central1.run.app](https://milhub-api-gateway-258044247462.us-central1.run.app)
+* **Frontend Repository**: [https://github.com/rostikdiv/milhub-frontend.git](https://github.com/rostikdiv/milhub-frontend.git)
+
+---
+
+## 📖 Overview
+
+**MilHub** is an enterprise-grade, distributed microservices platform engineered for military and defense logistics, tactical equipment procurement, and specialized military unit supply. 
+
+The platform connects verified defense manufacturers, suppliers, and volunteer organizations with armed forces units. It features strict role-based access control, cryptographic verification for restricted items (`RESTRICTED`), transactional event-driven consistency, and serverless cloud scaling on Google Cloud Platform (GCP).
+
+---
 
 ## 🛠️ Tech Stack
-- **Core**: Java 17, Spring Boot 3.5.7, Spring Cloud
-- **Security**: Spring Security, JJWT 0.12.5 (BCrypt password hashing)
-- **Databases**: PostgreSQL 16 (Relational), MongoDB 7.0 (Document)
-- **Messaging & Event Bus**: Apache Kafka 7.5.0 (Confluent Platform), Zookeeper
-- **Caching & Rate Limiting**: Redis 7.2
-- **Storage**: MinIO (S3-compatible)
-- **Observability**: Prometheus, Grafana, Zipkin
+
+- **Backend Core**: Java 17, Spring Boot 3.5.7, Spring Cloud 2025.0.0
+- **Service Discovery & Gateway**: Spring Cloud Netflix Eureka, Spring Cloud Gateway, OpenFeign
+- **Security**: Spring Security 6, Stateless JWT (JJWT 0.12.5), BCrypt hashing
+- **Messaging & Event-Driven Bus**: Apache Kafka 7.5.0, Zookeeper, Transactional Outbox Pattern
+- **Databases**: 
+  - PostgreSQL 16 (Relational: Users, Products, Orders, Payments, Delivery)
+  - MongoDB 7.0 (Document: Shopping Cart sessions)
+- **Caching & Rate Limiting**: Redis 7.2 (Spring Data Redis, Token Bucket Rate Limiter)
+- **Object Storage**: 
+  - Production: Google Cloud Storage (GCS) with HMAC credentials
+  - Local Development: MinIO (S3-compatible)
+- **Mail & Notifications**: Jakarta Mail, Angus Mail, Thymeleaf HTML Templates, Mailtrap SMTP (Port 587 STARTTLS)
+- **Resilience**: Resilience4j (Circuit Breaker, Retry, RateLimiter)
+- **Observability**: Spring Boot Actuator, Prometheus, Micrometer, Structured JSON Logging
+- **Cloud & Deployment**: Google Cloud Run (Serverless), Google Artifact Registry (GAR), Google Cloud SQL, GCP VPC Network, GitHub Actions (OIDC CI/CD)
+
+---
 
 ## 🏗️ Architecture
 
-The system consists of 9 core microservices interacting through an API Gateway and an Event Bus (Kafka).
-
-### Architecture Diagram
+The system consists of **9 core microservices** collaborating via synchronous REST APIs (for instant query validations) and asynchronous Kafka event streaming (for business workflows and cross-service sagas).
 
 ```mermaid
 graph TD
-    %% Users
-    Client["Client App / Frontend"]
+    %% Clients
+    Client["Client App / React Frontend (Vercel)"]
 
-    %% Infrastructure
-    Gateway[API Gateway]
-    Eureka["Service Discovery <br> Eureka"]
-    Kafka["Apache Kafka <br> Event Bus"]
-    Zipkin["Zipkin <br> Tracing"]
+    %% Gateway & Discovery
+    Gateway["API Gateway <br> (Spring Cloud Gateway :8080)"]
+    Eureka["Service Discovery <br> (Eureka Server :8761)"]
+    Kafka["Apache Kafka <br> (Event Bus & Sagas)"]
 
     %% Microservices
-    UserService[User Service]
-    ProductService[Product Service]
-    OrderService[Order Service]
-    CartService[Cart Service]
-    PaymentService[Payment Service]
-    DeliveryService[Delivery Service]
-    NotificationService[Notification Service]
+    UserService["User Service <br> (:8081)"]
+    ProductService["Product Service <br> (:8082)"]
+    OrderService["Order Service <br> (:8083)"]
+    CartService["Cart Service <br> (:8084)"]
+    PaymentService["Payment Service <br> (:8085)"]
+    DeliveryService["Delivery Service <br> (:8086)"]
+    NotificationService["Notification Service <br> (:8087)"]
 
-    %% Databases
-    DB_User[(PostgreSQL<br>User DB)]
-    DB_Product[(PostgreSQL<br>Product DB)]
-    DB_Order[(PostgreSQL<br>Order DB)]
-    DB_Payment[(PostgreSQL<br>Payment DB)]
-    DB_Delivery[(PostgreSQL<br>Delivery DB)]
-    Mongo_Cart[(MongoDB<br>Cart DB)]
-    Redis[(Redis<br>Cache/Rate Limit)]
-    MinIO[(MinIO<br>Object Storage)]
+    %% Databases & Storage
+    DB_User[("Cloud SQL <br> User DB")]
+    DB_Product[("Cloud SQL <br> Product DB")]
+    DB_Order[("Cloud SQL <br> Order DB")]
+    DB_Payment[("Cloud SQL <br> Payment DB")]
+    DB_Delivery[("Cloud SQL <br> Delivery DB")]
+    Mongo_Cart[("MongoDB Atlas <br> Cart DB")]
+    Redis[("Redis <br> Cache & Rate Limit")]
+    GCS[("GCS / MinIO <br> Object Storage")]
+    MailServer["Mailtrap / SMTP <br> Email Server"]
 
-    %% Connections
-    Client -->|REST API| Gateway
+    %% Gateway Routing
+    Client -->|HTTPS / REST API| Gateway
     Gateway --> UserService
     Gateway --> ProductService
     Gateway --> OrderService
     Gateway --> CartService
     Gateway --> PaymentService
     Gateway --> DeliveryService
+    Gateway --> Redis
 
-    %% Service to DB connections
+    %% Service Connections
     UserService --> DB_User
-    UserService --> MinIO
+    UserService --> GCS
     ProductService --> DB_Product
     ProductService --> Redis
+    ProductService --> GCS
     OrderService --> DB_Order
     PaymentService --> DB_Payment
     DeliveryService --> DB_Delivery
     CartService --> Mongo_Cart
-    Gateway --> Redis
+    NotificationService --> MailServer
 
-    %% Kafka Connections
-    OrderService -.->|Events|Kafka
-    PaymentService -.->|Events|Kafka
-    ProductService -.->|Events|Kafka
-    NotificationService -.->|Listen|Kafka
+    %% Kafka Event Streaming
+    OrderService -.->|OrderPlaced / Outbox| Kafka
+    PaymentService -.->|PaymentSuccess| Kafka
+    DeliveryService -.->|DeliveryStatusChanged| Kafka
+    UserService -.->|UserVerified| Kafka
+    Kafka -.->|Listen & Notify| NotificationService
+    Kafka -.->|RefundApproved / Stock Rollback| ProductService
 
-    %% Service Discovery
+    %% Service Registry
     UserService -.- Eureka
     ProductService -.- Eureka
     OrderService -.- Eureka
@@ -86,115 +120,172 @@ graph TD
     Gateway -.- Eureka
 ```
 
-## 🧠 Architectural Patterns Used
+---
 
-1. **Database-per-Service**: Each microservice manages its own exclusive database to ensure loose coupling and independent scalability. The project uses PostgreSQL for relational data and MongoDB for dynamic document storage (Cart Service).
-2. **Event-Driven Architecture (EDA)**: Services communicate asynchronously via Apache Kafka. For example:
-   - When an order is created, `order-service` publishes an `OrderPlacedEvent`. This is independently consumed by the `notification-service` (for emails) and the `delivery-service` (to initiate logistics).
-   - The `product-service` publishes events (e.g., `ProductInventoryUpdatedEvent`) when stock changes, allowing other domains to react dynamically.
-   - The `payment-service` publishes `PaymentCompletedEvent` or `PaymentFailedEvent` after processing, which `order-service` listens to in order to update the final order status.
-3. **Hybrid Sync/Async Approach**: While EDA is the primary communication pattern, the architecture pragmatically blends synchronous REST calls (via OpenFeign) for critical validations that require immediate feedback—such as the `order-service` synchronously checking inventory in the `product-service` before confirming an order checkout. Post-processing is then offloaded asynchronously.
-4. **API Gateway Pattern**: A single entry point (Spring Cloud Gateway) routes all client requests, providing centralized authentication validation, CORS handling, and Rate Limiting via Redis.
-5. **Service Discovery**: Spring Cloud Netflix Eureka is used for dynamic routing, allowing services to find each other without hardcoded IP addresses.
+## 🧠 Core Architectural Patterns
 
-## 📦 Core Services
+1. **Database-per-Service**: Each microservice strictly controls its private database schema, guaranteeing loose coupling, independent scalability, and domain boundary isolation.
+2. **Transactional Outbox Pattern**: In `order-service`, event messages are persisted to an `outbox_events` relational table within the same database transaction as the order itself. A background Outbox Scheduler polls and publishes these events to Kafka, guaranteeing *at-least-once* delivery even during broker outages.
+3. **Saga Orchestration & Stock Rollback**:
+   - Order creation checks inventory and locks stock.
+   - If an order return or cancellation is approved (`RefundApprovedEvent`), the `product-service` consumes the Kafka event and executes a compensating transaction to immediately restore stock inventory (`quantity + N`).
+4. **Hybrid Sync/Async Processing**:
+   - **Synchronous**: OpenFeign clients perform real-time stock checks and user verification clearance before checkout.
+   - **Asynchronous**: Post-order processes (payment confirmation, logistics tracking updates, multi-template HTML email notifications) are offloaded through Kafka topics.
+5. **Centralized API Gateway**: Manages JWT authentication validation, CORS policies, client IP rate limiting via Redis Token Bucket, and internal HTTP header propagation (`X-User-Id`, `X-User-Email`, `X-User-Roles`).
 
-| Service | Responsibility | Database / Storage | Port |
-|---------|----------------|-------------------|------|
-| **api-gateway** | Entry point, Routing, Rate Limiting, Security Validation | Redis | `8080` |
-| **service-discovery** | Service Registry (Eureka) | None | `8761` |
-| **user-service** | Auth, Profiles, Roles, Verification | PostgreSQL | `8081` |
-| **product-service** | Catalog, Inventory, Search | PostgreSQL, Redis | `8082` |
-| **order-service** | Order processing, Lifecycle management | PostgreSQL | `8083` |
-| **cart-service** | Shopping cart sessions | MongoDB | `8084` |
-| **payment-service** | Processing transactions | PostgreSQL | `8085` |
-| **delivery-service** | Shipping, Logistics, Tracking | PostgreSQL | `8086` |
-| **notification-service** | Email/SMS alerts (Kafka consumer) | None | `8087` |
+---
 
-## 🔒 Security
+## 📦 Microservices Breakdown
 
-The platform implements **Stateless JWT Authentication**. 
-- Users have distinct roles: `BUYER`, `SELLER`, and `ADMIN`.
-- Passwords are securely hashed using **BCrypt** before entering the database.
-- The `api-gateway` validates the JWT signature and expiration, then forwards the roles to downstream services via HTTP headers, meaning downstream services don't need to depend on the Auth database.
+| Service | Responsibilities | Storage / Tech | Local Port |
+|:---|:---|:---|:---:|
+| **`api-gateway`** | Central entry point, Routing, JWT Validation, Redis Rate Limiting | Redis 7.2 | `8080` |
+| **`service-discovery`** | Service Registry and health heartbeats (Netflix Eureka) | In-Memory | `8761` |
+| **`user-service`** | Authentication, Profile Management, Military & Seller Document Verification | PostgreSQL 16, GCS / MinIO | `8081` |
+| **`product-service`** | Tactical Catalog, Stock Inventory, Restricted Access Controls, Reviews | PostgreSQL 16, Redis 7.2 | `8082` |
+| **`order-service`** | Requisition processing, Outbox Table, Return Request lifecycle | PostgreSQL 16, Kafka Outbox | `8083` |
+| **`cart-service`** | Temporary shopping cart sessions & fast document access | MongoDB 7.0 | `8084` |
+| **`payment-service`** | Transaction simulations, payment receipt verification | PostgreSQL 16 | `8085` |
+| **`delivery-service`** | Logistics dispatch, tracking codes, shipment status lifecycle | PostgreSQL 16 | `8086` |
+| **`notification-service`** | Async Kafka listener, HTML Thymeleaf templates, Mailtrap SMTP dispatch | JavaMail (Angus), Mailtrap | `8087` |
 
-**How to get a Token (Testing):**
+---
+
+## 🔒 Security & Role-Based Access Control (RBAC)
+
+The platform implements stateless **JWT Authentication** with fine-grained access control:
+
+* **`BUYER`**: Public defense catalog browsing, cart management, checkout for standard gear.
+* **`MILITARY_UNIT`**: Verified military unit / officer account. Granted exclusive access to order **`RESTRICTED`** tactical equipment (drones, thermal optics, signal jammers, tactical body armor).
+* **`SELLER`**: Verified defense vendor / manufacturer. Can publish inventory, configure clearance discounts, process orders, and review return requests in **Seller Studio**.
+* **`ADMIN`**: Platform administration, verification queue moderation (military ID & seller KYC review), catalog oversight.
+
+### Authentication & Token Flow:
+
 ```bash
-curl -X POST http://localhost:8080/api/v1/auth/login \
+# Example Authentication Request
+curl -X POST https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "admin@milhub.com", "password": "password123"}'
+  -d '{
+    "email": "user@example.com",
+    "password": "your_secure_password"
+  }'
 ```
-*Copy the `token` from the response and use it as an `Authorization: Bearer <token>` header in subsequent requests.*
 
-> **⚠️ IMPORTANT:** The `admin@milhub.com` account is a Master Admin automatically initialized upon startup for testing purposes. **You must change this default password immediately** in a production environment.
+> 🔒 **Security Notice:** Initial test credentials generated during database initialization (`node seed.js`) are safely exported to the local, git-ignored `generated_accounts.json` file. Production environments inject credentials dynamically via **Google Cloud Secret Manager**.
 
-## 🛡️ Fault Tolerance (Resilience4j)
+---
 
-To prevent cascading failures across the distributed system, **Resilience4j** is utilized:
-- **Circuit Breaker**: Used in the `order-service` when it synchronously calls the `product-service` to check inventory. If the product service is down, the circuit opens, failing fast rather than hanging and consuming threads.
-- **Retry**: Applied to ephemeral network issues (e.g., calling the simulated 3rd party APIs in `payment-service`). *Note: The `payment-service` in this repository is a mock implementation designed to simulate transaction success/failure without hitting a real payment provider like Stripe.*
-- **Rate Limiter**: Configured at the `api-gateway` level (backed by Redis) to prevent DDoS attacks and API abuse.
+## ☁️ Google Cloud Platform (GCP) Infrastructure
 
-## 👁️ Observability & Monitoring
+The production backend runs on a fully managed serverless infrastructure on **Google Cloud Platform**:
 
-Distributed tracing and monitoring are essential for debugging microservices. I implemented a comprehensive approach:
-- **Prometheus & Grafana**: Prometheus (accessible on `http://localhost:9090`) scrapes metrics from every service's `/actuator/prometheus` endpoint. Grafana (accessible on `http://localhost:3000`) visualizes these metrics (CPU, Memory, HTTP request latency) on rich dashboards.
-- **Zipkin (Local Development)**: Provides a quick, Docker-based UI (`http://localhost:9411`) to visualize trace spans across services locally.
-- **AWS X-Ray (Production-Ready)**: The codebase is instrumented and ready to export telemetry to AWS X-Ray using OpenTelemetry for robust cloud observability.
+- **Google Artifact Registry (GAR)**: Private Docker registry storing built microservice container images (`us-central1-docker.pkg.dev/parkflow-cloud/milhub-repo`).
+- **Google Cloud Run**: Serverless container execution with automated scaling, VPC egress connector, and zero idle overhead.
+- **Google Cloud SQL**: Managed PostgreSQL 16 instance with automated backups and private VPC connectivity.
+- **Google Cloud Storage (GCS)**: Secure buckets for encrypted military documents (`parkflow-cloud-documents-protected-storage`) and public media (`parkflow-cloud-avatars-storage`, product images).
+- **CI/CD Pipeline**: GitHub Actions workflow ([.github/workflows/deploy.yml](.github/workflows/deploy.yml)) with Workload Identity Federation (OIDC) automating container builds, path filtering, and Cloud Run deployments.
 
-## 💾 Storage (MinIO)
-**MinIO** is used as an S3-compatible Object Storage server. 
-- **Purpose**: It stores all unstructured binary data, such as user avatars, seller verification documents, and product images.
-- **Why**: Keeps the relational databases lightweight and prepares the app for a seamless migration to AWS S3 in production.
+---
 
-## 📖 API Documentation (Swagger)
-Each microservice is individually documented using `springdoc-openapi`. 
-The API Gateway is configured to aggregate these docs, but you can also access each service's Swagger UI directly:
-- **API Gateway (Aggregated)**: `http://localhost:8080/swagger-ui.html`
-- **User Service (Direct)**: `http://localhost:8081/swagger-ui.html`
-- **Product Service (Direct)**: `http://localhost:8082/swagger-ui.html`
-- *(Pattern repeats for all other core services)*
+## 💾 Database Seeding & Maintenance Scripts
 
-## 🧪 Testing
+The repository includes pre-built utility scripts and seed catalogs for immediate environment setup:
 
-- **Unit & Slice Tests**: I heavily rely on Spring Boot's testing slices (`@WebMvcTest` for controllers, `@DataJpaTest` for repositories) combined with JUnit 5 and Mockito to ensure fast, isolated testing of business logic.
-- **Integration Tests (Testcontainers)**: I use Testcontainers to spin up real PostgreSQL, Kafka, and Redis Docker instances during the Maven `test` phase. This ensures the repository layer and message brokers are tested against real environments, not just mocks.
+### 1. Database Seeder (`seed.js`)
+Populates the database with realistic military hardware (thermal scopes, quadcopters, helmets, body armor), categories, user accounts, and test reviews.
 
-## ⚙️ Environment Variables & Secrets
-I strictly adhere to the 12-Factor App methodology. **No secrets are hardcoded in the repository.**
-- Local development relies on `.env` files (e.g., `POSTGRES_PASSWORD`, `JWT_SECRET`). 
-- Simply copy the provided `.env.example` to `.env` and fill in your values before running Docker Compose.
-- `application.yml` leverages Spring Profiles (`dev`, `prod`, `docker`) to inject these variables dynamically.
+```bash
+# Seed local environment (http://localhost:8080/api/v1)
+node seed.js local
 
-## 🚀 Getting Started (Local Deployment)
+# Seed production Cloud Run environment (via API Gateway)
+node seed.js cloud
+```
 
-To run the entire MilHub platform locally, you will need Docker and Docker Compose.
+* **`seed-mega-catalog.json`**: Complete tactical product catalog with real specifications, prices, images, and clearance flags.
+* **`seed-data.json`**: Initial category taxonomy, demo military units, suppliers, and customer profiles.
+* **`generated_accounts.json`**: Auto-generated credentials reference file created by `seed.js` for testing.
 
-### 1. Start the Infrastructure
-Use Docker Compose to bring up all infrastructure containers (Databases, Kafka, Zookeeper, Redis, MinIO, Zipkin, Prometheus, Grafana):
+### 2. Cloud Database Reset Script (`wipe-dbs.ps1`)
+A PowerShell script that safely drops and recreates all Cloud SQL databases, triggers Cloud Run service restarts, waits for Flyway migrations, and re-runs `seed.js cloud`.
+
+```powershell
+./wipe-dbs.ps1
+```
+
+### 3. Local Stack Launcher (`up-stack-for-services.ps1`)
+Quickly spins up local infrastructure containers (PostgreSQL, MongoDB, Kafka, Zookeeper, Redis, MinIO, Zipkin):
+
+```powershell
+./up-stack-for-services.ps1
+```
+
+---
+
+## 🚀 Local Development Quickstart
+
+### Prerequisites
+- Java 17 JDK
+- Apache Maven 3.9+
+- Docker & Docker Compose
+- Node.js 18+ (for seeding scripts)
+
+### Step 1: Clone Repository
+```bash
+git clone https://github.com/rostikdiv/milhub-microservices.git
+cd milhub-microservices
+```
+
+### Step 2: Environment Configuration
+Copy `.env.example` to `.env` and adjust configuration if needed:
+```bash
+cp .env.example .env
+```
+
+### Step 3: Start Local Infrastructure
 ```bash
 docker-compose up -d
 ```
 
-### 2. Start the Microservices
-You can run the microservices using your IDE or via Maven. 
-**Important**: The `service-discovery` (Eureka) must be started first.
-1. Run `service-discovery` (Wait until it starts on port 8761)
-2. Run `api-gateway`
-3. Run all other services (`order`, `product`, `user`, etc.)
+### Step 4: Run Microservices
+Start services in the following order:
+1. `service-discovery` (Wait for port `8761` to initialize)
+2. `api-gateway` (Port `8080`)
+3. Core microservices: `user-service`, `product-service`, `order-service`, `cart-service`, `payment-service`, `delivery-service`, `notification-service`
 
-## 🩺 Health Checks
-Since the project uses Spring Boot Actuator, every microservice exposes a health endpoint.
-- Example: `http://localhost:8081/actuator/health`
+### Step 5: Seed Demo Data
+```bash
+node seed.js local
+```
 
-## 🔄 CI/CD
-This repository includes a GitHub Actions pipeline (`.github/workflows`) that automatically builds the Maven projects, runs the Testcontainers integration tests, and verifies code quality on every Pull Request.
-Additionally, there is a `deploy.yml` pipeline configured for Amazon ECS deployment. This file is **currently commented out** and safely committed, as it is strictly intended for the final production deployment phase in AWS. No secret keys are hardcoded in it (it relies purely on GitHub Secrets).
+---
 
-## 🔧 Troubleshooting
+## 🧪 Testing & Code Quality
 
-**Q: Services keep crashing on startup with connection errors!**
-> A: This is a common "Crash Loop". Microservices depend on infrastructure like Kafka, Zookeeper, and PostgreSQL. If you start the Java services *before* Docker finishes initializing Kafka, the services will fail. **Solution**: Run `docker-compose up -d`, wait ~30 seconds for all containers to become fully healthy, and then start your Java apps.
+```bash
+# Run unit & slice tests across all modules
+mvn clean test
+
+# Run tests for a single service
+mvn test -pl notification-service
+```
+
+- **Unit & Slice Testing**: `@WebMvcTest`, `@DataJpaTest`, Mockito, JUnit 5.
+- **Integration Testing**: Testcontainers for PostgreSQL, Kafka, and Redis in isolated Docker environments during Maven builds.
+
+---
+
+## 🗺️ Roadmap & Future Enhancements
+
+- [ ] **mTLS Zero-Trust Service Mesh**: Mutual TLS between microservices using Istio.
+- [ ] **AI-Powered Document OCR**: Automated pre-validation of military IDs and service certificates.
+- [ ] **WebSocket Live Tracking**: Real-time push updates for requisition dispatches and delivery status.
+- [ ] **Change Data Capture (CDC)**: Transition outbox polling to Debezium Kafka Connect for sub-millisecond event streaming.
+
+---
 
 ## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

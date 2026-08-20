@@ -122,6 +122,8 @@ services:
       - ZIPKIN_URL=http://zipkin:9411/api/v2/spans
       - SPRING_PROFILES_ACTIVE=docker
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,prometheus
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@milhub.ua}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Password123!}
     networks:
       - milhub-net
     depends_on:

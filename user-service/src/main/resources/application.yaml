@@ -51,6 +51,11 @@ management:
 
 application:
   security:
+    admin:
+      email: ${ADMIN_EMAIL:admin@milhub.ua}
+      password: ${ADMIN_PASSWORD:Password123!}
+      first-name: ${ADMIN_FIRST_NAME:System}
+      last-name: ${ADMIN_LAST_NAME:Admin}
     jwt:
       secret-key: ${JWT_SECRET:${JWT_SECRET_KEY:bXktc3VwZXItc2VjcmV0LWtleS1mb3ItY3JhZnRodWItbWljcm9zZXJ2aWNlcy1hbmQtZm9yLWp3dC1zaWduYXR1cmUtZ2VuZXJhdGlvbg==}}
       expiration: ${JWT_EXPIRATION:86400000}
