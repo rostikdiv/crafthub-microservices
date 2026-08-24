@@ -21,7 +21,5 @@ crash.log
 crash.*.log
 .terraform.lock.hcl
 
-# Seed data and generated files
+# Generated runtime artifacts
 generated_accounts.json
-seed-*.json
-seed.js

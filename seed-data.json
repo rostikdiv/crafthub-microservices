@@ -1,0 +1,2720 @@
+{
+  "sellers": [
+    {
+      "name": "LLC Ballistica",
+      "email": "info@balistyka.ua",
+      "city": "Kyiv",
+      "taxId": "38475621",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/prof1group.ua/102bf072eab80831c1910c949de1a06b5822fcd4.webp"
+    },
+    {
+      "name": "M-Tac Ukraine",
+      "email": "sales@m-tac.ua",
+      "city": "Lviv",
+      "taxId": "49203845",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/m-tac.us/9fb08d3c39ca17753f9091fd9f49829a3d57a29d.jpg"
+    },
+    {
+      "name": "UA Drone Tech",
+      "email": "contact@uadrone.tech",
+      "city": "Dnipro",
+      "taxId": "29304856",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/pyrodrone.com/fa71be3be82dada9b7590c488838cc84d77ec72a.jpg"
+    },
+    {
+      "name": "Army Optical Center",
+      "email": "optics@army.org.ua",
+      "city": "Kharkiv",
+      "taxId": "19283745",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/www.agmglobalvision.eu/3dddb6b4d1952389731935f4aec0161aaecf2708.jpg"
+    },
+    {
+      "name": "MedTech Defense",
+      "email": "support@medtech.ua",
+      "city": "Odesa",
+      "taxId": "58392014",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/www.narescue.com/dd40a236e8bbc58036bc8c0e7eeaf3767266b53e.jpg"
+    },
+    {
+      "name": "Kozak Gear",
+      "email": "kozak@gear.com.ua",
+      "city": "Poltava",
+      "taxId": "48372615",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/prof1group.ua/102bf072eab80831c1910c949de1a06b5822fcd4.webp"
+    },
+    {
+      "name": "Energy Reserve",
+      "email": "power@reserve.ua",
+      "city": "Vinnytsia",
+      "taxId": "68392011",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/websiteoss.ecoflow.com/da443aa6f4c735171a6965bbdc2a557a9dfa8157.jpg"
+    },
+    {
+      "name": "Connection Plus",
+      "email": "comm@radio.com.ua",
+      "city": "Kyiv",
+      "taxId": "27384950",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/cdn.shopify.com/38786d94b979ad72c6bdfb268914d6e0d62c6a4c.jpg"
+    },
+    {
+      "name": "3D Drop Lab",
+      "email": "3dlab@print.ua",
+      "city": "Ternopil",
+      "taxId": "94837261",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/www.agmglobalvision.com/0af3920b0d08e2a29ad059f5a9369e69d11c6f93.png"
+    },
+    {
+      "name": "Auto-Military Group",
+      "email": "auto@milgroup.com.ua",
+      "city": "Zaporizhzhia",
+      "taxId": "58473629",
+      "logoUrl": "https://kimi-web-img.moonshot.cn/img/pyrodrone.com/fa71be3be82dada9b7590c488838cc84d77ec72a.jpg"
+    }
+  ],
+  "buyers": [
+    {
+      "first": "Oleksandr",
+      "last": "Kovalenko",
+      "email": "o.kovalenko@ukr.net"
+    },
+    {
+      "first": "Dmytro",
+      "last": "Kharchenko",
+      "email": "d.kharchenko@gmail.com"
+    },
+    {
+      "first": "Serhiy",
+      "last": "Bondar",
+      "email": "s.bondar@icloud.com"
+    },
+    {
+      "first": "Andriy",
+      "last": "Shevchenko",
+      "email": "a.shevchenko@meta.ua"
+    },
+    {
+      "first": "Maksym",
+      "last": "Tkachenko",
+      "email": "m.tkachenko@gmail.com"
+    },
+    {
+      "first": "Ivan",
+      "last": "Kravchenko",
+      "email": "i.kravchenko@ukr.net"
+    },
+    {
+      "first": "Oleksiy",
+      "last": "Pavlenko",
+      "email": "o.pavlenko@gmail.com"
+    },
+    {
+      "first": "Mykola",
+      "last": "Lysenko",
+      "email": "n.lysenko@ukr.net"
+    },
+    {
+      "first": "Viktor",
+      "last": "Savchenko",
+      "email": "v.savchenko@gmail.com"
+    },
+    {
+      "first": "Artem",
+      "last": "Melnyk",
+      "email": "a.melnyk@gmail.com"
+    }
+  ],
+  "military": [
+    {
+      "unit": "Unit 79 Air Assault",
+      "commander": "Col. Kuzmenko V.M.",
+      "edrpou": "00012345",
+      "email": "unit79@army.gov.ua"
+    },
+    {
+      "unit": "Unit 93 Mechanized",
+      "commander": "Lt. Col. Shevchuk O.I.",
+      "edrpou": "00054321",
+      "email": "unit93@army.gov.ua"
+    },
+    {
+      "unit": "Unit 3 Assault",
+      "commander": "Maj. Biletsky S.A.",
+      "edrpou": "00099887",
+      "email": "unit3@army.gov.ua"
+    },
+    {
+      "unit": "Unit 47 Mechanized",
+      "commander": "Sgt. Markus V.V.",
+      "edrpou": "00077665",
+      "email": "unit47@army.gov.ua"
+    },
+    {
+      "unit": "Unit 80 Air Assault",
+      "commander": "Col. Skyba Yu.P.",
+      "edrpou": "00044332",
+      "email": "unit80@army.gov.ua"
+    }
+  ],
+  "product_variants": {
+    "1": {
+      "brands": [
+        "M-Tac",
+        "Ballistics",
+        "Velmet"
+      ],
+      "types": [
+        "Plate carrier",
+        "Chest Rig"
+      ],
+      "features": [
+        "Cordura 1000D",
+        "Laser Cut",
+        "QRS Gen.3"
+      ]
+    },
+    "2": {
+      "brands": [
+        "Chimera",
+        "Mark FPV",
+        "GepRC"
+      ],
+      "types": [
+        "Kamikaze drone",
+        "Scout drone"
+      ],
+      "features": [
+        "TBS Crossfire",
+        "VTx 2W",
+        "ELRS 2.4G"
+      ]
+    },
+    "3": {
+      "brands": [
+        "DJI",
+        "Autel"
+      ],
+      "types": [
+        "Intelligence drone",
+        "Thermal drone"
+      ],
+      "features": [
+        "Thermal",
+        "Zoom 30x",
+        "RTK Module"
+      ]
+    },
+    "4": {
+      "brands": [
+        "M-Tac",
+        "Helikon-Tex"
+      ],
+      "types": [
+        "Ubaks",
+        "Combat Shirt"
+      ],
+      "features": [
+        "Rip-Stop",
+        "NYCO",
+        "Multicam"
+      ]
+    },
+    "5": {
+      "brands": [
+        "Carinthia",
+        "M-Tac"
+      ],
+      "types": [
+        "Winter jacket",
+        "Softshell"
+      ],
+      "features": [
+        "G-Loft",
+        "Comfort -20C",
+        "MM-14"
+      ]
+    },
+    "6": {
+      "brands": [
+        "Lowa",
+        "Haix",
+        "M-Tac"
+      ],
+      "types": [
+        "Sneakers",
+        "Tactical boots"
+      ],
+      "features": [
+        "Gore-Tex",
+        "Vibram",
+        "Coyote"
+      ]
+    },
+    "7": {
+      "brands": [
+        "North American Rescue",
+        "Rhino Rescue"
+      ],
+      "types": [
+        "Tactical first aid kit",
+        "IFAK"
+      ],
+      "features": [
+        "CAT Gen7",
+        "QuikClot",
+        "HyFin Seal"
+      ]
+    },
+    "8": {
+      "brands": [
+        "Tasmanian Tiger",
+        "Mil-Tec"
+      ],
+      "types": [
+        "Ampilnitsa",
+        "Medical Pouch"
+      ],
+      "features": [
+        "Modular",
+        "Red Color",
+        "Medical Grade"
+      ]
+    },
+    "9": {
+      "brands": [
+        "AGM",
+        "Pulsar",
+        "HikMicro"
+      ],
+      "types": [
+        "Sight",
+        "Thermal Sight"
+      ],
+      "features": [
+        "Sensor 640x512",
+        "NETD <35mk",
+        "Lens 35mm"
+      ]
+    },
+    "10": {
+      "brands": [
+        "Vortex",
+        "Bushnell"
+      ],
+      "types": [
+        "Range-finder",
+        "Laser Range-finder"
+      ],
+      "features": [
+        "HD Glass",
+        "10x42",
+        "Mil-Dot"
+      ]
+    },
+    "11": {
+      "brands": [
+        "3D-Lab",
+        "PrintArmy"
+      ],
+      "types": [
+        "Reset system",
+        "Drop System"
+      ],
+      "features": [
+        "Lightweight",
+        "Mavic 3",
+        "VOG-17"
+      ]
+    },
+    "12": {
+      "brands": [
+        "Creality",
+        "Anycubic"
+      ],
+      "types": [
+        "Spare parts",
+        "Filament"
+      ],
+      "features": [
+        "1.75mm",
+        "Black",
+        "Reinforced"
+      ]
+    },
+    "13": {
+      "brands": [
+        "M-Tac",
+        "Shaman"
+      ],
+      "types": [
+        "Gilly",
+        "Camouflage suit"
+      ],
+      "features": [
+        "Berezniak",
+        "Anti-IR",
+        "Berezniak Pro"
+      ]
+    },
+    "14": {
+      "brands": [
+        "EcoFlow",
+        "Bluetti"
+      ],
+      "types": [
+        "Charging station",
+        "Delta Max"
+      ],
+      "features": [
+        "LiFePO4",
+        "2000Wh",
+        "X-Stream"
+      ]
+    },
+    "15": {
+      "brands": [
+        "Honda",
+        "Konner&Sohnen"
+      ],
+      "types": [
+        "Gasoline generator",
+        "Diesel generator"
+      ],
+      "features": [
+        "Silent",
+        "2.0kW",
+        "Fuel Save"
+      ]
+    },
+    "16": {
+      "brands": [
+        "Anker",
+        "SolarBag"
+      ],
+      "types": [
+        "Power bank",
+        "Solar Panel"
+      ],
+      "features": [
+        "100W",
+        "PD 65W",
+        "Folding"
+      ]
+    },
+    "17": {
+      "brands": [
+        "Motorola",
+        "Baofeng"
+      ],
+      "types": [
+        "Digital Walkie-Talkie",
+        "Analog Walkie-Talkie"
+      ],
+      "features": [
+        "AES-256",
+        "VHF/UHF",
+        "IP68"
+      ]
+    },
+    "18": {
+      "brands": [
+        "Alientech",
+        "Titan"
+      ],
+      "types": [
+        "Amplifier antenna",
+        "Duo II"
+      ],
+      "features": [
+        "2.4G/5.8G",
+        "Active",
+        "Range Booster"
+      ]
+    },
+    "19": {
+      "brands": [
+        "Leatherman",
+        "Gerber"
+      ],
+      "types": [
+        "Tactical knife",
+        "Multitool"
+      ],
+      "features": [
+        "S30V Steel",
+        "MOLLE Sheath",
+        "Black Oxide"
+      ]
+    },
+    "20": {
+      "brands": [
+        "Mystery Ranch",
+        "5.11"
+      ],
+      "types": [
+        "Baul",
+        "Backpack"
+      ],
+      "features": [
+        "100L",
+        "Internal Frame",
+        "Cordura"
+      ]
+    },
+    "21": {
+      "brands": [
+        "Snugpak",
+        "Carinthia"
+      ],
+      "types": [
+        "Karemat",
+        "Sleeping Pad"
+      ],
+      "features": [
+        "Extreme -15C",
+        "Compact",
+        "Waterproof"
+      ]
+    },
+    "22": {
+      "brands": [
+        "M-Tac",
+        "Warrior Assault"
+      ],
+      "types": [
+        "AK Mag Pouch",
+        "AR Mag Pouch"
+      ],
+      "features": [
+        "Fast-Mag",
+        "Double",
+        "Ranger Green"
+      ]
+    },
+    "23": {
+      "brands": [
+        "MRE Star",
+        "Jameson"
+      ],
+      "types": [
+        "Energy drink",
+        "MRE"
+      ],
+      "features": [
+        "Menu 1",
+        "High Calorie",
+        "Self-Heating"
+      ]
+    },
+    "24": {
+      "brands": [
+        "Mitsubishi",
+        "Nissan"
+      ],
+      "types": [
+        "Pickup L200",
+        "Navara"
+      ],
+      "features": [
+        "4x4",
+        "Diesel",
+        "Mud Terrain"
+      ]
+    },
+    "25": {
+      "brands": [
+        "Zippo",
+        "HandWarmer"
+      ],
+      "types": [
+        "Gas Warmer",
+        "Liquid Warmer"
+      ],
+      "features": [
+        "12 Hours",
+        "Disposable",
+        "Pocket Size"
+      ]
+    }
+  },
+  "locations": [
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "baa21d50-633c-42b9-a70d-a8f1436fadd4",
+      "region": "Volyn Oblast",
+      "branches": [
+        {
+          "externalId": "245c4a9e-e20f-48b6-ae88-98a4c8c75407",
+          "branchNumber": "112",
+          "name": "Branch 112"
+        }
+      ],
+      "nameUkr": "Kovel"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "d4edd4d8-209c-47c2-9901-53a06120d042",
+      "region": "Chernivtsi Oblast",
+      "branches": [
+        {
+          "externalId": "31b3c179-bfa5-4de6-ae3b-6b9d268424ae",
+          "branchNumber": "8",
+          "name": "Branch 8"
+        },
+        {
+          "externalId": "33cbd3e1-7d48-41ab-9fdd-0034f0656cd7",
+          "branchNumber": "138",
+          "name": "Branch 138"
+        }
+      ],
+      "nameUkr": "Chernivtsi"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "1a11625d-9b75-4c21-b7cb-a5b5455d1624",
+      "region": "Chernihiv Oblast",
+      "branches": [
+        {
+          "externalId": "848dd0ce-29a5-429a-8ff7-adea41f4e1e7",
+          "branchNumber": "132",
+          "name": "Branch 132"
+        },
+        {
+          "externalId": "8459a663-f101-4f69-bf3a-fa65772483f8",
+          "branchNumber": "71",
+          "name": "Branch 71"
+        }
+      ],
+      "nameUkr": "Nizhyn"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "db22c27e-1c03-4873-9471-3738969719cb",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "772e5a10-4a9c-4abc-aea2-dacdd32cff42",
+          "branchNumber": "130",
+          "name": "Branch 130"
+        },
+        {
+          "externalId": "788b0de5-7deb-4b45-aa49-6a3ca26597b2",
+          "branchNumber": "9",
+          "name": "Branch 9"
+        },
+        {
+          "externalId": "4eb842d9-bcf7-463c-8f02-f0eb139088ec",
+          "branchNumber": "106",
+          "name": "Branch 106"
+        }
+      ],
+      "nameUkr": "Stryi"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "0fa69d78-2d71-4e3f-9464-5e8ec40c98b0",
+      "region": "Kharkiv Oblast",
+      "branches": [
+        {
+          "externalId": "b1f0f367-4252-4a3b-becd-cab044af0230",
+          "branchNumber": "84",
+          "name": "Branch 84"
+        },
+        {
+          "externalId": "371bac4b-f721-4de9-bdb4-03d267c0ab98",
+          "branchNumber": "131",
+          "name": "Branch 131"
+        },
+        {
+          "externalId": "07a099f7-b9bd-45e5-b087-5e529dd0c90a",
+          "branchNumber": "5",
+          "name": "Branch 5"
+        },
+        {
+          "externalId": "16c25023-8ffc-4f9d-8131-8be8cb210b68",
+          "branchNumber": "81",
+          "name": "Branch 81"
+        }
+      ],
+      "nameUkr": "Kharkiv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "731e346d-3515-4c9e-85ff-69b88ca7de2e",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "d3f8eb3e-d13d-4521-bb6f-c5493c0561fa",
+          "branchNumber": "116",
+          "name": "Branch 116"
+        },
+        {
+          "externalId": "c9d365b4-250c-4323-879f-1bfef59728b2",
+          "branchNumber": "113",
+          "name": "Branch 113"
+        },
+        {
+          "externalId": "3693684b-007f-46b8-a588-f0e3ce008ccc",
+          "branchNumber": "139",
+          "name": "Branch 139"
+        }
+      ],
+      "nameUkr": "Dnipro"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "2af28043-9836-49df-8f65-35a374d640fe",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "af5494b1-72b6-4b95-8b9c-b5fb37081924",
+          "branchNumber": "138",
+          "name": "Branch 138"
+        },
+        {
+          "externalId": "698f5484-e878-4537-9334-d5a3ed5d55fd",
+          "branchNumber": "140",
+          "name": "Branch 140"
+        },
+        {
+          "externalId": "94dc079a-fd89-4537-830b-7bdb95afab9c",
+          "branchNumber": "80",
+          "name": "Branch 80"
+        }
+      ],
+      "nameUkr": "Pavlohrad"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "2be79609-afeb-456c-83aa-35ccc12ce6d2",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "aeebbb74-85eb-431a-a72e-b31eeedc0ea4",
+          "branchNumber": "119",
+          "name": "Branch 119"
+        },
+        {
+          "externalId": "b52dca8a-155b-448a-abab-59e60416f5fe",
+          "branchNumber": "103",
+          "name": "Branch 103"
+        },
+        {
+          "externalId": "0c9e51af-fa38-4f56-9e0e-0173e007e54e",
+          "branchNumber": "60",
+          "name": "Branch 60"
+        }
+      ],
+      "nameUkr": "Chervonohrad"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "60acfe94-7c9f-4ffd-9a10-3cd7f1de2556",
+      "region": "Zhytomyr Oblast",
+      "branches": [
+        {
+          "externalId": "5a01556e-a5e0-4a57-ba75-077922693aab",
+          "branchNumber": "24",
+          "name": "Branch 24"
+        }
+      ],
+      "nameUkr": "Korosten"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "cc07e8db-883e-41f1-b891-21c650f4c36a",
+      "region": "Poltava Oblast",
+      "branches": [
+        {
+          "externalId": "81646121-7463-41be-bf62-8a5af904046c",
+          "branchNumber": "96",
+          "name": "Branch 96"
+        }
+      ],
+      "nameUkr": "Kremenchuk"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "5c51244c-ab84-4620-9c70-c71d27ad231e",
+      "region": "Ternopil Oblast",
+      "branches": [
+        {
+          "externalId": "dd35e21b-e1cd-49b3-9fda-cbc852144ea6",
+          "branchNumber": "104",
+          "name": "Branch 104"
+        },
+        {
+          "externalId": "e84fc6c0-324a-404d-b83d-e107d567ae88",
+          "branchNumber": "111",
+          "name": "Branch 111"
+        }
+      ],
+      "nameUkr": "Ternopil"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "68b62ffc-bced-4430-bd6f-489ee5b9015b",
+      "region": "Zaporizhzhia Oblast",
+      "branches": [
+        {
+          "externalId": "82411449-717a-405f-85f7-d0bbedc38178",
+          "branchNumber": "114",
+          "name": "Branch 114"
+        },
+        {
+          "externalId": "dfc7174f-174f-4a21-9800-b4216c763780",
+          "branchNumber": "101",
+          "name": "Branch 101"
+        }
+      ],
+      "nameUkr": "Zaporizhzhia"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "c8b036ed-1119-44a5-a90e-2edc7f5d00ab",
+      "region": "Poltava Oblast",
+      "branches": [
+        {
+          "externalId": "63af8eb4-42a9-4f90-ad10-ebd02c28ebaf",
+          "branchNumber": "2",
+          "name": "Branch 2"
+        },
+        {
+          "externalId": "9d393030-a986-491b-b94a-7462dc009e9d",
+          "branchNumber": "112",
+          "name": "Branch 112"
+        }
+      ],
+      "nameUkr": "Poltava"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "7460a1f9-810f-4063-bb4a-869a1f14864a",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "8882a598-26e5-437c-a645-6ffa8598d59c",
+          "branchNumber": "59",
+          "name": "Branch 59"
+        },
+        {
+          "externalId": "de317694-b949-4a66-b9f1-4b1841d2ccb9",
+          "branchNumber": "48",
+          "name": "Branch 48"
+        },
+        {
+          "externalId": "18b707e7-a1ee-4d83-ac06-0b09e5125a56",
+          "branchNumber": "34",
+          "name": "Branch 34"
+        },
+        {
+          "externalId": "ab53ac39-0811-488d-94d8-bac9537119e0",
+          "branchNumber": "131",
+          "name": "Branch 131"
+        },
+        {
+          "externalId": "04523de9-3c77-4449-a925-ef6d5e9bb8ba",
+          "branchNumber": "9",
+          "name": "Branch 9"
+        }
+      ],
+      "nameUkr": "Sumy"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "d27a3f98-c3b5-44bd-9ac2-b222aa71ba68",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "9368d9df-2d56-4980-8b18-b19658b062dc",
+          "branchNumber": "46",
+          "name": "Branch 46"
+        },
+        {
+          "externalId": "d4e2d604-52ee-40df-bebe-53605fd73175",
+          "branchNumber": "94",
+          "name": "Branch 94"
+        },
+        {
+          "externalId": "04174183-6fef-4ddf-aae1-aa50ab60779b",
+          "branchNumber": "150",
+          "name": "Branch 150"
+        }
+      ],
+      "nameUkr": "Shostka"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "6a237ecd-9548-4bba-a55b-59f68ab3324c",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "291f2693-6785-456a-a3c4-7ccc28e2f397",
+          "branchNumber": "21",
+          "name": "Branch 21"
+        },
+        {
+          "externalId": "da8f4093-9c7c-4cc6-a2b5-fe56e79f2a02",
+          "branchNumber": "88",
+          "name": "Branch 88"
+        },
+        {
+          "externalId": "1b6c8bd1-3b86-4a9f-9fcd-47433f844736",
+          "branchNumber": "83",
+          "name": "Branch 83"
+        },
+        {
+          "externalId": "43d036f1-a0a8-48be-b306-e2d6ebfac0b2",
+          "branchNumber": "57",
+          "name": "Branch 57"
+        }
+      ],
+      "nameUkr": "Okhtyrka"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "72998399-f546-4dc5-bceb-6815b6575eb1",
+      "region": "Volyn Oblast",
+      "branches": [
+        {
+          "externalId": "02f48ad4-21f7-4fdf-8246-5ec459c7bc65",
+          "branchNumber": "126",
+          "name": "Branch 126"
+        },
+        {
+          "externalId": "0a8f1ca9-9914-42d8-8b3e-d760260169c7",
+          "branchNumber": "26",
+          "name": "Branch 26"
+        },
+        {
+          "externalId": "1b9f5430-f12f-4d38-87e6-eaaed9df4b48",
+          "branchNumber": "15",
+          "name": "Branch 15"
+        },
+        {
+          "externalId": "9595fc3b-6448-41e9-b400-729beaee4f13",
+          "branchNumber": "39",
+          "name": "Branch 39"
+        },
+        {
+          "externalId": "9540d921-a8e2-4887-8989-7e0d6d4f3d0f",
+          "branchNumber": "88",
+          "name": "Branch 88"
+        }
+      ],
+      "nameUkr": "Lutsk"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "67bf233a-6275-4e49-83b6-d644ed27844d",
+      "region": "Cherkasy Oblast",
+      "branches": [
+        {
+          "externalId": "ade1d808-713f-4ee8-a361-6c5f8d187ca5",
+          "branchNumber": "147",
+          "name": "Branch 147"
+        }
+      ],
+      "nameUkr": "Uman"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "9e67eb51-1b7e-4ffc-ab6d-19d4399a8f3b",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "49b7ed15-e561-4c48-96fa-cbd2acdcc829",
+          "branchNumber": "4",
+          "name": "Branch 4"
+        }
+      ],
+      "nameUkr": "Kyiv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "ddd774ed-7925-4a16-91e2-57671cf5e9ba",
+      "region": "Odesa Oblast",
+      "branches": [
+        {
+          "externalId": "2bf64b58-00b7-4e77-9070-b20902f2b4f2",
+          "branchNumber": "53",
+          "name": "Branch 53"
+        },
+        {
+          "externalId": "c6c7b931-770c-4f7b-92e7-076941721e8f",
+          "branchNumber": "57",
+          "name": "Branch 57"
+        },
+        {
+          "externalId": "1163cb86-2005-458b-b01e-0ba209e9ef13",
+          "branchNumber": "40",
+          "name": "Branch 40"
+        }
+      ],
+      "nameUkr": "Izmail"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "06326ecf-3186-43ff-98af-c9505982a7e6",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "9e9ca813-3bb2-4bb4-ae7f-2d484d8b112e",
+          "branchNumber": "123",
+          "name": "Branch 123"
+        },
+        {
+          "externalId": "184a51f9-f3cb-47ce-90fe-e9d634fe92e9",
+          "branchNumber": "19",
+          "name": "Branch 19"
+        },
+        {
+          "externalId": "0a168217-da8e-471a-852e-fdac852083d0",
+          "branchNumber": "47",
+          "name": "Branch 47"
+        },
+        {
+          "externalId": "148c3703-83c3-459f-bf52-b9a049b5102d",
+          "branchNumber": "144",
+          "name": "Branch 144"
+        }
+      ],
+      "nameUkr": "Novomoskovsk"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "98787ed4-6b5a-408c-b00e-01f029112b10",
+      "region": "Ivano-Frankivsk Oblast",
+      "branches": [
+        {
+          "externalId": "150844e4-6b66-49b5-8be5-330dc547e548",
+          "branchNumber": "36",
+          "name": "Branch 36"
+        },
+        {
+          "externalId": "6d5d7708-baa4-42a0-b16e-2e7e23b79d25",
+          "branchNumber": "147",
+          "name": "Branch 147"
+        }
+      ],
+      "nameUkr": "Ivano-Frankivsk"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "e6bda0e0-2f69-4232-a1a5-69a15b21dfc5",
+      "region": "Kirovohrad Oblast",
+      "branches": [
+        {
+          "externalId": "068f2c11-115e-4f7c-8c5d-7125a6ba4719",
+          "branchNumber": "147",
+          "name": "Branch 147"
+        },
+        {
+          "externalId": "a0b8056e-88d9-4cbe-aafb-ef3d0f0528c2",
+          "branchNumber": "148",
+          "name": "Branch 148"
+        },
+        {
+          "externalId": "387a7dd1-9fca-45cc-9e7e-b04d51d850a3",
+          "branchNumber": "96",
+          "name": "Branch 96"
+        },
+        {
+          "externalId": "d0db7a2b-a6fa-48ac-bea9-e716e7065d70",
+          "branchNumber": "10",
+          "name": "Branch 10"
+        },
+        {
+          "externalId": "e75e00a7-c4b8-4701-9ea7-29cc07fd59f9",
+          "branchNumber": "104",
+          "name": "Branch 104"
+        }
+      ],
+      "nameUkr": "Oleksandriia"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "7d4be19c-d020-40e6-90c8-0cba481993d5",
+      "region": "Kirovohrad Oblast",
+      "branches": [
+        {
+          "externalId": "ede98b39-6cb2-4f3d-8fe0-d2cf9853746a",
+          "branchNumber": "76",
+          "name": "Branch 76"
+        },
+        {
+          "externalId": "9c5dfd3d-738c-41fd-b897-db4961acfc63",
+          "branchNumber": "114",
+          "name": "Branch 114"
+        },
+        {
+          "externalId": "1a6d014f-643f-441a-ab09-9d837a815eac",
+          "branchNumber": "98",
+          "name": "Branch 98"
+        },
+        {
+          "externalId": "38c8539e-2b4f-4818-a7ed-c53a2115aab6",
+          "branchNumber": "19",
+          "name": "Branch 19"
+        }
+      ],
+      "nameUkr": "Kropyvnytskyi"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "b9b635bc-498b-4cf6-a16f-8d7a79f12491",
+      "region": "Vinnytsia Oblast",
+      "branches": [
+        {
+          "externalId": "8ff4778c-70d9-4629-82be-cc31a37ed97c",
+          "branchNumber": "5",
+          "name": "Branch 5"
+        },
+        {
+          "externalId": "0175c495-934d-4a87-b68f-be666ec3e7e8",
+          "branchNumber": "141",
+          "name": "Branch 141"
+        },
+        {
+          "externalId": "cd1d6d29-df0e-4d47-a383-b080fd2e0b54",
+          "branchNumber": "33",
+          "name": "Branch 33"
+        }
+      ],
+      "nameUkr": "Vinnytsia"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "cd7207ce-f74c-4a7f-86dd-43deb8811ce8",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "597d31fe-3b6c-4b6b-979d-2d36845ea51d",
+          "branchNumber": "5",
+          "name": "Branch 5"
+        },
+        {
+          "externalId": "7014760f-8b89-42a4-91fe-9bd4a4a0013c",
+          "branchNumber": "145",
+          "name": "Branch 145"
+        },
+        {
+          "externalId": "f7a1cec4-f0ef-4682-9a2c-9030c06864e9",
+          "branchNumber": "125",
+          "name": "Branch 125"
+        }
+      ],
+      "nameUkr": "Fastiv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "222bdbd6-91db-4312-9239-ebb0d87db4dd",
+      "region": "Zakarpattia Oblast",
+      "branches": [
+        {
+          "externalId": "134e1a4a-7538-4dfd-bab8-1e9825888438",
+          "branchNumber": "42",
+          "name": "Branch 42"
+        },
+        {
+          "externalId": "431d7fec-7d31-45e3-b1f6-b772d75cdf02",
+          "branchNumber": "130",
+          "name": "Branch 130"
+        }
+      ],
+      "nameUkr": "Uzhhorod"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "0d986d92-cdda-4a84-8131-3f1a1189e7f4",
+      "region": "Khmelnytskyi Oblast",
+      "branches": [
+        {
+          "externalId": "06fb8381-1f85-4f8b-9636-bad463c5f636",
+          "branchNumber": "148",
+          "name": "Branch 148"
+        },
+        {
+          "externalId": "1539b274-dc4f-4f2a-84da-27b3d79b50d6",
+          "branchNumber": "9",
+          "name": "Branch 9"
+        },
+        {
+          "externalId": "43ea1e52-7d52-4e2f-8a47-a80bf4320ec5",
+          "branchNumber": "51",
+          "name": "Branch 51"
+        },
+        {
+          "externalId": "3a0d28a3-37bb-4823-8fda-2e2c750159ca",
+          "branchNumber": "96",
+          "name": "Branch 96"
+        }
+      ],
+      "nameUkr": "Slavuta"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "16319db9-6f79-4ae7-a8e2-ebb316589258",
+      "region": "Cherkasy Oblast",
+      "branches": [
+        {
+          "externalId": "560fa48b-d87e-433c-8e8c-eaebab56b6d6",
+          "branchNumber": "142",
+          "name": "Branch 142"
+        },
+        {
+          "externalId": "0bee208b-a340-484e-8cd6-4a7ae968537c",
+          "branchNumber": "23",
+          "name": "Branch 23"
+        },
+        {
+          "externalId": "629043ae-fa6c-45a0-ad97-2d00e4aaee3b",
+          "branchNumber": "66",
+          "name": "Branch 66"
+        }
+      ],
+      "nameUkr": "Smila"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "92a1d98e-07fd-4845-9ceb-ea1edb69a845",
+      "region": "Odesa Oblast",
+      "branches": [
+        {
+          "externalId": "97f58632-ce11-4221-977f-488bfde6f3b4",
+          "branchNumber": "4",
+          "name": "Branch 4"
+        }
+      ],
+      "nameUkr": "Odesa"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "6ae9a446-860a-451b-b851-814fdc7a2c71",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "647cd540-7357-4686-971f-1440d090db27",
+          "branchNumber": "62",
+          "name": "Branch 62"
+        },
+        {
+          "externalId": "82a4a68d-5e3f-4650-801a-de481f641d1c",
+          "branchNumber": "117",
+          "name": "Branch 117"
+        },
+        {
+          "externalId": "e2386777-e8a4-45eb-9e91-2e377242b8e0",
+          "branchNumber": "112",
+          "name": "Branch 112"
+        },
+        {
+          "externalId": "5b2dab21-8fd3-4a3e-af77-286aecee4e85",
+          "branchNumber": "125",
+          "name": "Branch 125"
+        }
+      ],
+      "nameUkr": "Lviv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "165eb943-8c13-4d98-8a34-0c63203642ac",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "4a70da6f-3e36-44b1-b20c-078f3c7b59ca",
+          "branchNumber": "141",
+          "name": "Branch 141"
+        },
+        {
+          "externalId": "5bed21a4-0436-4330-a2ff-7327812b99fb",
+          "branchNumber": "69",
+          "name": "Branch 69"
+        },
+        {
+          "externalId": "34a8e25a-0f1c-4c3f-a658-e57da9a75ad3",
+          "branchNumber": "140",
+          "name": "Branch 140"
+        },
+        {
+          "externalId": "fd868470-6862-4efa-9412-9523995cb75c",
+          "branchNumber": "78",
+          "name": "Branch 78"
+        },
+        {
+          "externalId": "77279999-6686-4400-ac71-fb1324febb7e",
+          "branchNumber": "15",
+          "name": "Branch 15"
+        }
+      ],
+      "nameUkr": "Romny"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "47be28c3-4e28-4747-a90e-214684677ed3",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "03741c40-8427-4c6e-8e47-f34554e74ec6",
+          "branchNumber": "77",
+          "name": "Branch 77"
+        },
+        {
+          "externalId": "2fdb5bd0-332a-47eb-968a-b07398e3c38b",
+          "branchNumber": "45",
+          "name": "Branch 45"
+        },
+        {
+          "externalId": "4163948e-1e85-46a5-981e-a511002456e6",
+          "branchNumber": "133",
+          "name": "Branch 133"
+        },
+        {
+          "externalId": "e3b1c3e0-62de-4f9d-85f2-d1c2516378eb",
+          "branchNumber": "88",
+          "name": "Branch 88"
+        }
+      ],
+      "nameUkr": "Brovary"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "a669df18-c78c-41d9-a70e-06a7d808d462",
+      "region": "Rivne Oblast",
+      "branches": [
+        {
+          "externalId": "796c8ae2-9dc0-4458-b35f-177bdf10548c",
+          "branchNumber": "63",
+          "name": "Branch 63"
+        },
+        {
+          "externalId": "df55c7c1-18bc-4446-b2bb-0ac74fcae3d8",
+          "branchNumber": "29",
+          "name": "Branch 29"
+        },
+        {
+          "externalId": "a7aa78ef-20fe-4baa-a954-9d45781f750b",
+          "branchNumber": "47",
+          "name": "Branch 47"
+        }
+      ],
+      "nameUkr": "Rivne"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "bde69a40-c46c-4178-83ee-414ac335ec91",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "8b580862-4714-4d44-8bde-9aead30e89a6",
+          "branchNumber": "104",
+          "name": "Branch 104"
+        },
+        {
+          "externalId": "5fd97bfd-73aa-46fb-b9c1-718da6bee4f8",
+          "branchNumber": "3",
+          "name": "Branch 3"
+        },
+        {
+          "externalId": "5c199e25-e3ec-4fcf-b024-58aa745176dd",
+          "branchNumber": "5",
+          "name": "Branch 5"
+        },
+        {
+          "externalId": "1c509aba-1184-4662-83d9-8bf2ae77eb2f",
+          "branchNumber": "100",
+          "name": "Branch 100"
+        }
+      ],
+      "nameUkr": "Boryspil"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "ef49067c-a22b-40ca-8b5f-b40ec62dc9e2",
+      "region": "Kirovohrad Oblast",
+      "branches": [
+        {
+          "externalId": "99efbc51-c39e-4734-9526-6b75666c8c88",
+          "branchNumber": "101",
+          "name": "Branch 101"
+        },
+        {
+          "externalId": "85c9233d-5d16-449b-8c3f-c794473415a8",
+          "branchNumber": "38",
+          "name": "Branch 38"
+        },
+        {
+          "externalId": "3f1fc86d-d499-4e82-8756-3ac05f1aa066",
+          "branchNumber": "55",
+          "name": "Branch 55"
+        },
+        {
+          "externalId": "61b59ab9-9803-434a-8c0c-02d6a577df76",
+          "branchNumber": "53",
+          "name": "Branch 53"
+        }
+      ],
+      "nameUkr": "Svitlovodsk"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "32080625-60c6-4374-8935-2e11d6ef1b7e",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "d083ab94-4bac-4260-9a8d-259ae369451c",
+          "branchNumber": "143",
+          "name": "Branch 143"
+        },
+        {
+          "externalId": "f560784e-f35e-40e0-917a-c8d619b141c5",
+          "branchNumber": "42",
+          "name": "Branch 42"
+        }
+      ],
+      "nameUkr": "Hlukhiv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "8be6912a-1be0-4673-92dc-4fe00307ee79",
+      "region": "Chernihiv Oblast",
+      "branches": [
+        {
+          "externalId": "b1e667d9-4edd-4c79-a122-383edfdcd2b7",
+          "branchNumber": "15",
+          "name": "Branch 15"
+        }
+      ],
+      "nameUkr": "Chernihiv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "7007c520-e5c8-480c-81d2-ac0685ef4b87",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "208279c2-b4cd-4ddf-a9af-58a1fa79b884",
+          "branchNumber": "6",
+          "name": "Branch 6"
+        },
+        {
+          "externalId": "307db1ee-73cc-4d04-a746-0e77e855bb15",
+          "branchNumber": "55",
+          "name": "Branch 55"
+        },
+        {
+          "externalId": "45d13c75-15c1-4475-8550-a7126c387c57",
+          "branchNumber": "74",
+          "name": "Branch 74"
+        }
+      ],
+      "nameUkr": "Bila Tserkva"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "cb5882a5-7f86-4552-a734-936bd8ed2e16",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "6a93073f-3b47-4122-a156-e2388c59fcd2",
+          "branchNumber": "146",
+          "name": "Branch 146"
+        },
+        {
+          "externalId": "c5c1ab58-b399-415b-b043-412f1d63ce0d",
+          "branchNumber": "61",
+          "name": "Branch 61"
+        },
+        {
+          "externalId": "b6e6a4ac-a975-45a6-874b-e216d08e6a9d",
+          "branchNumber": "80",
+          "name": "Branch 80"
+        },
+        {
+          "externalId": "363dfe40-b8ed-4980-9d66-3a830034363f",
+          "branchNumber": "130",
+          "name": "Branch 130"
+        }
+      ],
+      "nameUkr": "Drohobych"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "f0c8c724-7652-4626-bcee-f42440b13a16",
+      "region": "Zhytomyr Oblast",
+      "branches": [
+        {
+          "externalId": "2d1edb6a-7759-4081-815f-983663be76f8",
+          "branchNumber": "131",
+          "name": "Branch 131"
+        },
+        {
+          "externalId": "cc486220-90ba-45b1-b091-f8d91b75ea38",
+          "branchNumber": "97",
+          "name": "Branch 97"
+        },
+        {
+          "externalId": "83b737b8-4549-4e6c-a9f5-131a6f2f5164",
+          "branchNumber": "37",
+          "name": "Branch 37"
+        }
+      ],
+      "nameUkr": "Zhytomyr"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "55053ee8-dea3-4426-8e69-60767f9064ba",
+      "region": "Zhytomyr Oblast",
+      "branches": [
+        {
+          "externalId": "feda6a9b-66b5-4fca-895f-96abe5561752",
+          "branchNumber": "8",
+          "name": "Branch 8"
+        },
+        {
+          "externalId": "ff9ef56c-9012-4911-86f5-0b9241295e64",
+          "branchNumber": "78",
+          "name": "Branch 78"
+        },
+        {
+          "externalId": "60a4c0fa-8a23-403f-bd89-8d8967e5e36f",
+          "branchNumber": "108",
+          "name": "Branch 108"
+        }
+      ],
+      "nameUkr": "Berdychiv"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "a9026ba0-17cb-4b3c-bfa7-84b90ba3c043",
+      "region": "Khmelnytskyi Oblast",
+      "branches": [
+        {
+          "externalId": "f8d6bee8-0b22-4e16-bab2-99291161a067",
+          "branchNumber": "43",
+          "name": "Branch 43"
+        },
+        {
+          "externalId": "2c5f41b1-eeb4-401a-9292-de32c3675b04",
+          "branchNumber": "50",
+          "name": "Branch 50"
+        }
+      ],
+      "nameUkr": "Khmelnytskyi"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "42e06633-f082-43ca-944c-4630a8bd6e06",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "fa12d23f-e047-4955-89eb-5f99c5931b7c",
+          "branchNumber": "142",
+          "name": "Branch 142"
+        },
+        {
+          "externalId": "fa7d8d5d-2348-40e0-85d4-1830fe1aa794",
+          "branchNumber": "54",
+          "name": "Branch 54"
+        },
+        {
+          "externalId": "1f621e63-c692-454d-b955-39ee8b3a9cd4",
+          "branchNumber": "12",
+          "name": "Branch 12"
+        },
+        {
+          "externalId": "661633f0-8f5d-4bff-af38-0a26051e82e8",
+          "branchNumber": "104",
+          "name": "Branch 104"
+        }
+      ],
+      "nameUkr": "Kamianske"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "6eda1a15-532c-4537-8a33-d2480611bde4",
+      "region": "Cherkasy Oblast",
+      "branches": [
+        {
+          "externalId": "5e2648a6-f318-47f7-9094-1347c4e9fa63",
+          "branchNumber": "137",
+          "name": "Branch 137"
+        },
+        {
+          "externalId": "60aacb66-c12c-4e4e-8a11-3aa9fda7f06b",
+          "branchNumber": "84",
+          "name": "Branch 84"
+        }
+      ],
+      "nameUkr": "Cherkasy"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "e6fab274-2ad8-40ba-ae38-eb9563606fdd",
+      "region": "Ivano-Frankivsk Oblast",
+      "branches": [
+        {
+          "externalId": "4e24815d-5ac0-43aa-bfa3-ed23c288fe3e",
+          "branchNumber": "36",
+          "name": "Branch 36"
+        },
+        {
+          "externalId": "e2ce1e71-a077-4a77-b607-45345791d584",
+          "branchNumber": "122",
+          "name": "Branch 122"
+        }
+      ],
+      "nameUkr": "Kalush"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "f8d0dff8-ef0c-4b8c-ba4b-90fc20f7cc2f",
+      "region": "Poltava Oblast",
+      "branches": [
+        {
+          "externalId": "29a32c20-f8d7-481e-9d89-051aba81b847",
+          "branchNumber": "71",
+          "name": "Branch 71"
+        },
+        {
+          "externalId": "8baddf60-26f3-4c55-9036-ef7d65b2a060",
+          "branchNumber": "117",
+          "name": "Branch 117"
+        },
+        {
+          "externalId": "e5158560-f20f-4d26-9c25-0a2aba4e5a3e",
+          "branchNumber": "79",
+          "name": "Branch 79"
+        },
+        {
+          "externalId": "7793b5e6-0daa-42c2-87b7-f68500501a34",
+          "branchNumber": "135",
+          "name": "Branch 135"
+        },
+        {
+          "externalId": "59beecb5-7cc2-42cc-bf86-eb76d5e42e76",
+          "branchNumber": "125",
+          "name": "Branch 125"
+        }
+      ],
+      "nameUkr": "Lubny"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "5649c9a2-4b45-4d0c-9d5d-64cc9a071d25",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "07e05632-8c9b-40b3-a38f-c4c8cfd45e2c",
+          "branchNumber": "99",
+          "name": "Branch 99"
+        },
+        {
+          "externalId": "5007ac13-3b14-41e0-ac9f-d2f0f496dd53",
+          "branchNumber": "45",
+          "name": "Branch 45"
+        },
+        {
+          "externalId": "0e299d7a-6b24-4f6e-9c0f-ebf4e715085c",
+          "branchNumber": "150",
+          "name": "Branch 150"
+        }
+      ],
+      "nameUkr": "Marhanets"
+    },
+    {
+      "provider": "NOVA_POSHTA",
+      "externalId": "70eabf6e-3c18-49fc-8a55-897f999b7519",
+      "region": "Zakarpattia Oblast",
+      "branches": [
+        {
+          "externalId": "0de89c89-0768-4181-a938-0b6c57c44654",
+          "branchNumber": "15",
+          "name": "Branch 15"
+        },
+        {
+          "externalId": "ee61188c-251e-4ea8-b180-f9b7be7f7e1d",
+          "branchNumber": "46",
+          "name": "Branch 46"
+        },
+        {
+          "externalId": "0b6c7365-ca75-48cd-94cc-726f733fc217",
+          "branchNumber": "9",
+          "name": "Branch 9"
+        },
+        {
+          "externalId": "b905e814-8c65-4dbf-91c8-b081492162f4",
+          "branchNumber": "2",
+          "name": "Branch 2"
+        },
+        {
+          "externalId": "b49b5801-4be6-4a0d-ae0b-9928810ba7bc",
+          "branchNumber": "4",
+          "name": "Branch 4"
+        }
+      ],
+      "nameUkr": "Mukachevo"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "bbc6f4c3-c4d9-4440-9d1e-97c7711d2c7a",
+      "region": "Volyn Oblast",
+      "branches": [
+        {
+          "externalId": "1fbdcbb9-f60e-4571-8a97-3a3f86a7593a",
+          "branchNumber": "116",
+          "name": "Ukrposhta Branch 116"
+        }
+      ],
+      "nameUkr": "Kovel"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "9e28c9de-c5c3-43f2-998e-a46b7619717e",
+      "region": "Chernivtsi Oblast",
+      "branches": [
+        {
+          "externalId": "9cd31887-e859-473d-a5f9-98d7d07545ea",
+          "branchNumber": "134",
+          "name": "Ukrposhta Branch 134"
+        }
+      ],
+      "nameUkr": "Chernivtsi"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "1bfe0a69-c5e2-4d3c-b04b-42b8f1bc32be",
+      "region": "Chernihiv Oblast",
+      "branches": [
+        {
+          "externalId": "dce7958a-09f9-489b-bb81-669a140471e1",
+          "branchNumber": "128",
+          "name": "Ukrposhta Branch 128"
+        }
+      ],
+      "nameUkr": "Nizhyn"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "07b9dd2c-6273-436d-8456-febce8cf1073",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "82cf5805-13c5-4605-b886-ac0b3b884f3f",
+          "branchNumber": "114",
+          "name": "Ukrposhta Branch 114"
+        },
+        {
+          "externalId": "d97c4c6b-2f07-4acc-a30b-ddba7b46c4e0",
+          "branchNumber": "123",
+          "name": "Ukrposhta Branch 123"
+        },
+        {
+          "externalId": "686322a8-4213-4b49-9645-dd5997b13d9c",
+          "branchNumber": "138",
+          "name": "Ukrposhta Branch 138"
+        },
+        {
+          "externalId": "eaac1192-fb9d-489e-82fa-ce7bee5ba0d8",
+          "branchNumber": "18",
+          "name": "Ukrposhta Branch 18"
+        },
+        {
+          "externalId": "8add7871-704e-4c0d-b59c-9260329ff6e7",
+          "branchNumber": "143",
+          "name": "Ukrposhta Branch 143"
+        }
+      ],
+      "nameUkr": "Stryi"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "d9c7ab3e-b386-4d4f-afac-f01d02f73377",
+      "region": "Kharkiv Oblast",
+      "branches": [
+        {
+          "externalId": "5b4dd438-ab37-464f-9a27-e5ea98166da1",
+          "branchNumber": "26",
+          "name": "Ukrposhta Branch 26"
+        },
+        {
+          "externalId": "4fd04882-1bd4-4656-98dd-076b88273ea4",
+          "branchNumber": "72",
+          "name": "Ukrposhta Branch 72"
+        },
+        {
+          "externalId": "af7f0dbd-f7e7-4fc5-9bd4-7968bf64aedd",
+          "branchNumber": "52",
+          "name": "Ukrposhta Branch 52"
+        },
+        {
+          "externalId": "246dfe08-6456-4922-bb66-8928d477c811",
+          "branchNumber": "114",
+          "name": "Ukrposhta Branch 114"
+        }
+      ],
+      "nameUkr": "Kharkiv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "10941aed-f9f3-41e4-8713-bcab46cfd99f",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "8b01a7f5-f671-4f2d-bdb3-a564342c1106",
+          "branchNumber": "137",
+          "name": "Ukrposhta Branch 137"
+        },
+        {
+          "externalId": "41693208-596b-49e3-b06f-7c32ab327c95",
+          "branchNumber": "21",
+          "name": "Ukrposhta Branch 21"
+        },
+        {
+          "externalId": "fe3732a7-3237-4284-a97a-5a43764a487e",
+          "branchNumber": "117",
+          "name": "Ukrposhta Branch 117"
+        }
+      ],
+      "nameUkr": "Dnipro"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "20f3b892-946e-4b9f-9a36-841af72e25bd",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "98cb46e4-df4a-43df-b775-feaa8f8f5c5e",
+          "branchNumber": "130",
+          "name": "Ukrposhta Branch 130"
+        },
+        {
+          "externalId": "82b52163-9243-4d95-948a-df7fc408f7cd",
+          "branchNumber": "119",
+          "name": "Ukrposhta Branch 119"
+        },
+        {
+          "externalId": "7fa64ce6-6ec8-4efa-8895-2e3cdee5188b",
+          "branchNumber": "42",
+          "name": "Ukrposhta Branch 42"
+        }
+      ],
+      "nameUkr": "Pavlohrad"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "1fbc652d-8b71-47ea-9592-1296a2ec1a88",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "a3432b1b-a9d8-42c1-ad15-43c43631862b",
+          "branchNumber": "27",
+          "name": "Ukrposhta Branch 27"
+        },
+        {
+          "externalId": "3d217f72-22c7-4771-bcc8-749e8fc56ae1",
+          "branchNumber": "103",
+          "name": "Ukrposhta Branch 103"
+        },
+        {
+          "externalId": "1a027903-c176-45b2-887c-c25bb7b066fa",
+          "branchNumber": "85",
+          "name": "Ukrposhta Branch 85"
+        },
+        {
+          "externalId": "8597e699-44ce-4a6e-bde8-a36f63912f57",
+          "branchNumber": "34",
+          "name": "Ukrposhta Branch 34"
+        },
+        {
+          "externalId": "1d9455fe-3c82-4dce-9d51-768d271bd851",
+          "branchNumber": "76",
+          "name": "Ukrposhta Branch 76"
+        }
+      ],
+      "nameUkr": "Chervonohrad"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "11b4cceb-dbcc-4540-993d-882dcbf4800f",
+      "region": "Zhytomyr Oblast",
+      "branches": [
+        {
+          "externalId": "316a1485-b7d3-4fd8-acba-c42354ba6f5f",
+          "branchNumber": "91",
+          "name": "Ukrposhta Branch 91"
+        },
+        {
+          "externalId": "647d53c9-5056-44db-a64e-f2f807c36e9a",
+          "branchNumber": "132",
+          "name": "Ukrposhta Branch 132"
+        },
+        {
+          "externalId": "9df9ec0a-180d-47e3-834a-a24483be0a09",
+          "branchNumber": "136",
+          "name": "Ukrposhta Branch 136"
+        }
+      ],
+      "nameUkr": "Korosten"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "27e26c2d-041e-4767-a63a-2f14f3feaf9a",
+      "region": "Poltava Oblast",
+      "branches": [
+        {
+          "externalId": "f79cc0c0-7cc1-4659-95c5-749c757c3398",
+          "branchNumber": "148",
+          "name": "Ukrposhta Branch 148"
+        },
+        {
+          "externalId": "b23cf104-9b77-4f08-a0a7-72964b53bb1f",
+          "branchNumber": "25",
+          "name": "Ukrposhta Branch 25"
+        }
+      ],
+      "nameUkr": "Kremenchuk"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "b00b54b3-8321-49ec-acda-92f436342cb5",
+      "region": "Ternopil Oblast",
+      "branches": [
+        {
+          "externalId": "ee576f9c-8210-4f2e-ba53-3174dd0fe342",
+          "branchNumber": "143",
+          "name": "Ukrposhta Branch 143"
+        },
+        {
+          "externalId": "7e97ccdb-6408-448d-bc8b-a81799f0cde3",
+          "branchNumber": "101",
+          "name": "Ukrposhta Branch 101"
+        },
+        {
+          "externalId": "dc10a1a3-b5a4-432c-8ca9-daf3f06e0fff",
+          "branchNumber": "149",
+          "name": "Ukrposhta Branch 149"
+        }
+      ],
+      "nameUkr": "Ternopil"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "85ca403c-228e-4c05-9bd9-e3b52208884c",
+      "region": "Zaporizhzhia Oblast",
+      "branches": [
+        {
+          "externalId": "921189a9-1bfc-4442-8a05-859e1c560b21",
+          "branchNumber": "133",
+          "name": "Ukrposhta Branch 133"
+        },
+        {
+          "externalId": "f210e7ce-9e5b-40a4-87ce-95de1279e79a",
+          "branchNumber": "125",
+          "name": "Ukrposhta Branch 125"
+        },
+        {
+          "externalId": "ba47b13e-9ea0-4913-8104-ee94028212bd",
+          "branchNumber": "140",
+          "name": "Ukrposhta Branch 140"
+        }
+      ],
+      "nameUkr": "Zaporizhzhia"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "0dd80e10-7b18-4276-9d9d-a1227feed599",
+      "region": "Poltava Oblast",
+      "branches": [
+        {
+          "externalId": "41d8e2ba-fd23-45d0-b103-d2c67a604d05",
+          "branchNumber": "39",
+          "name": "Ukrposhta Branch 39"
+        },
+        {
+          "externalId": "34898f57-2692-4758-97af-1b2b27326814",
+          "branchNumber": "54",
+          "name": "Ukrposhta Branch 54"
+        },
+        {
+          "externalId": "1d9038ba-96cd-45cc-b8a9-a0d799ce1cc1",
+          "branchNumber": "132",
+          "name": "Ukrposhta Branch 132"
+        },
+        {
+          "externalId": "f758b69c-515c-4ce2-abf4-0720efb948fe",
+          "branchNumber": "67",
+          "name": "Ukrposhta Branch 67"
+        }
+      ],
+      "nameUkr": "Poltava"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "71c0ed50-9ab0-499b-b901-18bf5a7805f2",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "f0de4aae-2225-41c4-b39f-9d288a99dec4",
+          "branchNumber": "48",
+          "name": "Ukrposhta Branch 48"
+        },
+        {
+          "externalId": "86afaf21-b500-452b-818e-6095e4b62fcd",
+          "branchNumber": "97",
+          "name": "Ukrposhta Branch 97"
+        }
+      ],
+      "nameUkr": "Sumy"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "68543a87-8619-4ddc-a40d-a5b63e60a77f",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "a71a8f1f-fcf9-4083-962d-422a7bc07ce1",
+          "branchNumber": "78",
+          "name": "Ukrposhta Branch 78"
+        }
+      ],
+      "nameUkr": "Shostka"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "0896644e-7a1f-4a26-aba6-debe11da1cdf",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "92f4f3a1-f547-408a-afce-ad90cd409f05",
+          "branchNumber": "18",
+          "name": "Ukrposhta Branch 18"
+        },
+        {
+          "externalId": "edd71ade-c95b-4889-b5af-5105b2b7b1dc",
+          "branchNumber": "34",
+          "name": "Ukrposhta Branch 34"
+        },
+        {
+          "externalId": "fd4217d2-fbe0-4bd8-953a-b5df0acad6cb",
+          "branchNumber": "35",
+          "name": "Ukrposhta Branch 35"
+        },
+        {
+          "externalId": "197a8073-99d0-4e1c-9264-9847446316df",
+          "branchNumber": "96",
+          "name": "Ukrposhta Branch 96"
+        }
+      ],
+      "nameUkr": "Okhtyrka"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "06c29bd1-0d6e-4d99-9628-1e088a626ca5",
+      "region": "Volyn Oblast",
+      "branches": [
+        {
+          "externalId": "899c5332-e9c4-4d4a-a2c4-2143e4a5a7e8",
+          "branchNumber": "75",
+          "name": "Ukrposhta Branch 75"
+        },
+        {
+          "externalId": "f3897672-0049-4aa8-ab9a-9aab8ee93318",
+          "branchNumber": "106",
+          "name": "Ukrposhta Branch 106"
+        },
+        {
+          "externalId": "79539a18-7152-49a8-ad46-0dc42562fdf9",
+          "branchNumber": "93",
+          "name": "Ukrposhta Branch 93"
+        },
+        {
+          "externalId": "146d8aaf-a06d-45c9-9b4b-daf8acc5623b",
+          "branchNumber": "138",
+          "name": "Ukrposhta Branch 138"
+        },
+        {
+          "externalId": "3f5010e2-4e1f-4607-b2ae-ce61e0843bf6",
+          "branchNumber": "2",
+          "name": "Ukrposhta Branch 2"
+        }
+      ],
+      "nameUkr": "Lutsk"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "c6864ded-2166-46ec-95d4-126bb190a38f",
+      "region": "Cherkasy Oblast",
+      "branches": [
+        {
+          "externalId": "c784bfbb-d763-4f7c-85b9-c5f1c77ce880",
+          "branchNumber": "100",
+          "name": "Ukrposhta Branch 100"
+        },
+        {
+          "externalId": "ff3d0be3-0b98-43d1-b9ed-c26b6cf3eb3d",
+          "branchNumber": "146",
+          "name": "Ukrposhta Branch 146"
+        },
+        {
+          "externalId": "0b2c31b8-ca0e-46c2-87e2-9a3a3e161b96",
+          "branchNumber": "14",
+          "name": "Ukrposhta Branch 14"
+        },
+        {
+          "externalId": "a0d97214-0dd1-419b-9710-95af6680aac6",
+          "branchNumber": "63",
+          "name": "Ukrposhta Branch 63"
+        },
+        {
+          "externalId": "31813b82-a7b6-4d79-be66-1eeb2c14b04b",
+          "branchNumber": "84",
+          "name": "Ukrposhta Branch 84"
+        }
+      ],
+      "nameUkr": "Uman"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "f568904a-e325-4bf0-a4c3-db39f449acd2",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "3e33b30a-0294-4bb4-aab9-3e7d1e6aca74",
+          "branchNumber": "22",
+          "name": "Ukrposhta Branch 22"
+        },
+        {
+          "externalId": "6ffd4513-728d-4948-932b-2c78dd2bbfa8",
+          "branchNumber": "144",
+          "name": "Ukrposhta Branch 144"
+        },
+        {
+          "externalId": "8477862c-1bd8-4989-a9e5-1dfbcfae6bbe",
+          "branchNumber": "94",
+          "name": "Ukrposhta Branch 94"
+        },
+        {
+          "externalId": "f3b258ea-ecdc-4f31-b757-b2b41943d025",
+          "branchNumber": "2",
+          "name": "Ukrposhta Branch 2"
+        }
+      ],
+      "nameUkr": "Kyiv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "778e88c4-d5a2-4e82-9f8f-5fa7223d3d87",
+      "region": "Odesa Oblast",
+      "branches": [
+        {
+          "externalId": "fab2bd9d-3d05-4acc-9bac-2694dfda27ee",
+          "branchNumber": "45",
+          "name": "Ukrposhta Branch 45"
+        },
+        {
+          "externalId": "37111a19-8011-4617-9d70-06418d89b884",
+          "branchNumber": "67",
+          "name": "Ukrposhta Branch 67"
+        }
+      ],
+      "nameUkr": "Izmail"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "215ea98f-54c8-4ef3-a3bf-7fac6754ae42",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "eea42c00-b606-4903-9e5c-71104bde5290",
+          "branchNumber": "83",
+          "name": "Ukrposhta Branch 83"
+        },
+        {
+          "externalId": "c804dbc9-7bf1-4322-9abd-e9282cc91a93",
+          "branchNumber": "133",
+          "name": "Ukrposhta Branch 133"
+        },
+        {
+          "externalId": "f1ec1e3f-cb15-465c-9ef9-ca2214f0b50a",
+          "branchNumber": "43",
+          "name": "Ukrposhta Branch 43"
+        }
+      ],
+      "nameUkr": "Novomoskovsk"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "b698a425-1efb-4fff-b872-1a674f9a8a97",
+      "region": "Ivano-Frankivsk Oblast",
+      "branches": [
+        {
+          "externalId": "1f122583-771a-4cc8-80a7-369db27bfc97",
+          "branchNumber": "27",
+          "name": "Ukrposhta Branch 27"
+        }
+      ],
+      "nameUkr": "Ivano-Frankivsk"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "fef3fa26-1170-4b74-80e5-31fa81b8db28",
+      "region": "Kirovohrad Oblast",
+      "branches": [
+        {
+          "externalId": "6caee78d-f917-4673-8523-1f1a8b904522",
+          "branchNumber": "142",
+          "name": "Ukrposhta Branch 142"
+        },
+        {
+          "externalId": "6a849843-e426-4a22-aad0-6bc16a3d9289",
+          "branchNumber": "60",
+          "name": "Ukrposhta Branch 60"
+        },
+        {
+          "externalId": "d198386c-727e-4746-b067-d599737bb03b",
+          "branchNumber": "124",
+          "name": "Ukrposhta Branch 124"
+        }
+      ],
+      "nameUkr": "Oleksandriia"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "0d33242f-7c87-4ada-aed8-41ba540ac5f9",
+      "region": "Kirovohrad Oblast",
+      "branches": [
+        {
+          "externalId": "20f3e7ef-6184-4bfb-886a-e77ba9dff2e9",
+          "branchNumber": "142",
+          "name": "Ukrposhta Branch 142"
+        }
+      ],
+      "nameUkr": "Kropyvnytskyi"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "dd17b86f-5af6-406d-a352-793a1e53cb10",
+      "region": "Vinnytsia Oblast",
+      "branches": [
+        {
+          "externalId": "48a91b87-606e-41fd-89db-ba0d27133c35",
+          "branchNumber": "32",
+          "name": "Ukrposhta Branch 32"
+        },
+        {
+          "externalId": "856f9e69-79ed-4b74-b5c5-44aa4d0cf41d",
+          "branchNumber": "79",
+          "name": "Ukrposhta Branch 79"
+        },
+        {
+          "externalId": "50db706a-a4db-4430-bc7b-4756c74c735f",
+          "branchNumber": "8",
+          "name": "Ukrposhta Branch 8"
+        }
+      ],
+      "nameUkr": "Vinnytsia"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "e4227168-f36b-42a1-98ab-895052fb6f43",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "376e1e2e-c64b-4732-a050-cbfee8158557",
+          "branchNumber": "64",
+          "name": "Ukrposhta Branch 64"
+        },
+        {
+          "externalId": "03662c1e-49cb-4aac-853b-2e3432bb46ca",
+          "branchNumber": "77",
+          "name": "Ukrposhta Branch 77"
+        }
+      ],
+      "nameUkr": "Fastiv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "41bafb64-9498-43a6-8e8d-2a3957e3ad35",
+      "region": "Zakarpattia Oblast",
+      "branches": [
+        {
+          "externalId": "8a519264-1986-49b4-a896-a7ae7dd5e230",
+          "branchNumber": "114",
+          "name": "Ukrposhta Branch 114"
+        },
+        {
+          "externalId": "4f1d3eeb-c398-40b0-9324-439aebddd0d4",
+          "branchNumber": "37",
+          "name": "Ukrposhta Branch 37"
+        },
+        {
+          "externalId": "acaa01ae-a140-49d2-b1cd-1bc785802770",
+          "branchNumber": "127",
+          "name": "Ukrposhta Branch 127"
+        },
+        {
+          "externalId": "0fdcd810-9325-48dc-8253-639f8f7e0317",
+          "branchNumber": "101",
+          "name": "Ukrposhta Branch 101"
+        }
+      ],
+      "nameUkr": "Uzhhorod"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "7d10dc9f-fff5-4bc6-aec4-abbeac78eb2c",
+      "region": "Khmelnytskyi Oblast",
+      "branches": [
+        {
+          "externalId": "b1a94e03-e9e3-4799-8821-e5d59a562fba",
+          "branchNumber": "147",
+          "name": "Ukrposhta Branch 147"
+        },
+        {
+          "externalId": "87c8a3b8-2308-404a-94df-1fb9ef7cb55a",
+          "branchNumber": "113",
+          "name": "Ukrposhta Branch 113"
+        },
+        {
+          "externalId": "060f2a1c-0266-4836-8d3e-6b5ae51741e7",
+          "branchNumber": "59",
+          "name": "Ukrposhta Branch 59"
+        },
+        {
+          "externalId": "64bad70d-e47b-43c8-a492-f73e64c8bed2",
+          "branchNumber": "49",
+          "name": "Ukrposhta Branch 49"
+        }
+      ],
+      "nameUkr": "Slavuta"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "7718f7bd-157e-4381-b94b-c82a7ca80a67",
+      "region": "Cherkasy Oblast",
+      "branches": [
+        {
+          "externalId": "52d0d82e-96b4-4032-a816-8f0a8bb71d78",
+          "branchNumber": "71",
+          "name": "Ukrposhta Branch 71"
+        },
+        {
+          "externalId": "a7f69b21-8e84-494f-b292-f6e1d9b757ad",
+          "branchNumber": "112",
+          "name": "Ukrposhta Branch 112"
+        },
+        {
+          "externalId": "f6fafcbc-ea04-4d53-921b-ee9f9ae1caef",
+          "branchNumber": "143",
+          "name": "Ukrposhta Branch 143"
+        },
+        {
+          "externalId": "f07ecb64-d8ac-4f6b-ac64-adee32f39de5",
+          "branchNumber": "99",
+          "name": "Ukrposhta Branch 99"
+        }
+      ],
+      "nameUkr": "Smila"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "3c02e769-380f-407b-8d57-ae69f7330219",
+      "region": "Odesa Oblast",
+      "branches": [
+        {
+          "externalId": "21853fff-82d8-477e-b23b-f48512593e0f",
+          "branchNumber": "40",
+          "name": "Ukrposhta Branch 40"
+        },
+        {
+          "externalId": "66d0238d-9c92-429b-ad43-cc87b8c407ae",
+          "branchNumber": "57",
+          "name": "Ukrposhta Branch 57"
+        },
+        {
+          "externalId": "3bf210f3-50fc-4174-a511-024f95ca825c",
+          "branchNumber": "26",
+          "name": "Ukrposhta Branch 26"
+        }
+      ],
+      "nameUkr": "Odesa"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "208813a5-fd07-4c2a-8deb-64fabe52438e",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "7578fac5-bf51-475f-91e4-07359f8255c7",
+          "branchNumber": "63",
+          "name": "Ukrposhta Branch 63"
+        },
+        {
+          "externalId": "c951fdbe-8164-41da-b62a-bd183e9eafa3",
+          "branchNumber": "65",
+          "name": "Ukrposhta Branch 65"
+        }
+      ],
+      "nameUkr": "Lviv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "a33e728b-563a-492b-b3fa-d75d041ca709",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "b12b2ab0-7622-44bb-9b70-442cf2232a61",
+          "branchNumber": "15",
+          "name": "Ukrposhta Branch 15"
+        },
+        {
+          "externalId": "1a10119d-42f7-4cc4-b7dd-1aeb748f1085",
+          "branchNumber": "128",
+          "name": "Ukrposhta Branch 128"
+        }
+      ],
+      "nameUkr": "Romny"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "5451a4a0-b59b-4a04-84ca-caab4176edd1",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "2f96189f-6de6-43a3-9d8d-d29ef111429d",
+          "branchNumber": "89",
+          "name": "Ukrposhta Branch 89"
+        }
+      ],
+      "nameUkr": "Brovary"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "fcc6b40c-95b5-400c-ae98-c01b6ffb70fe",
+      "region": "Rivne Oblast",
+      "branches": [
+        {
+          "externalId": "d057f3fe-5dc4-4017-a998-b9888f0ffe57",
+          "branchNumber": "69",
+          "name": "Ukrposhta Branch 69"
+        },
+        {
+          "externalId": "8a1fd512-2a7c-4d3c-a742-a53a6845c6d6",
+          "branchNumber": "29",
+          "name": "Ukrposhta Branch 29"
+        }
+      ],
+      "nameUkr": "Rivne"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "d3ec2595-0cb6-4e72-bec7-0d9461c66ccf",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "ca42957b-2050-4e4d-a569-a9a7f618ae85",
+          "branchNumber": "48",
+          "name": "Ukrposhta Branch 48"
+        },
+        {
+          "externalId": "b2a9c0d2-7e2e-423f-b6ed-98ec63dd8d8b",
+          "branchNumber": "148",
+          "name": "Ukrposhta Branch 148"
+        },
+        {
+          "externalId": "c561e5f2-5d6f-42d3-aa91-354214d06d13",
+          "branchNumber": "87",
+          "name": "Ukrposhta Branch 87"
+        },
+        {
+          "externalId": "4381e16b-b7c3-4e4e-9ae9-2ca729fa6f49",
+          "branchNumber": "46",
+          "name": "Ukrposhta Branch 46"
+        }
+      ],
+      "nameUkr": "Boryspil"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "208a8951-3e8b-4bc5-b891-c286b2aeb9d3",
+      "region": "Kirovohrad Oblast",
+      "branches": [
+        {
+          "externalId": "e816131b-b4f2-4299-afeb-82277de518c4",
+          "branchNumber": "64",
+          "name": "Ukrposhta Branch 64"
+        }
+      ],
+      "nameUkr": "Svitlovodsk"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "d70be439-2c0b-4ac9-aa30-436cdea1f301",
+      "region": "Sumy Oblast",
+      "branches": [
+        {
+          "externalId": "e45868e1-34b7-4425-bd80-d25de4101873",
+          "branchNumber": "12",
+          "name": "Ukrposhta Branch 12"
+        },
+        {
+          "externalId": "2478d77f-3225-445d-a595-01b45c0a2ea3",
+          "branchNumber": "90",
+          "name": "Ukrposhta Branch 90"
+        },
+        {
+          "externalId": "5532d3e3-6b18-4e9c-af95-2cc8cd4709f3",
+          "branchNumber": "110",
+          "name": "Ukrposhta Branch 110"
+        },
+        {
+          "externalId": "5fca21ad-a050-4f2e-bf1b-9615c56aa104",
+          "branchNumber": "140",
+          "name": "Ukrposhta Branch 140"
+        },
+        {
+          "externalId": "a071c5b5-4266-4eef-8f7b-cd77d1bb171c",
+          "branchNumber": "115",
+          "name": "Ukrposhta Branch 115"
+        }
+      ],
+      "nameUkr": "Hlukhiv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "c5a22380-0183-4627-9786-04e838e7fae5",
+      "region": "Chernihiv Oblast",
+      "branches": [
+        {
+          "externalId": "1d542fde-be3e-4006-94b1-6e066d681725",
+          "branchNumber": "7",
+          "name": "Ukrposhta Branch 7"
+        },
+        {
+          "externalId": "bf13780e-ca00-41a5-9e8c-0560c2dfd997",
+          "branchNumber": "59",
+          "name": "Ukrposhta Branch 59"
+        }
+      ],
+      "nameUkr": "Chernihiv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "bc2f2200-8f3e-4783-b65f-15952829c52e",
+      "region": "Kyiv Oblast",
+      "branches": [
+        {
+          "externalId": "bff0d8f6-a1b8-407d-b6ca-3b01890af67d",
+          "branchNumber": "46",
+          "name": "Ukrposhta Branch 46"
+        },
+        {
+          "externalId": "49802a8e-95fa-4f05-9428-cb3eea1926ad",
+          "branchNumber": "132",
+          "name": "Ukrposhta Branch 132"
+        },
+        {
+          "externalId": "241b02c5-4001-4caf-9339-d4c66877322e",
+          "branchNumber": "138",
+          "name": "Ukrposhta Branch 138"
+        }
+      ],
+      "nameUkr": "Bila Tserkva"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "84941a76-c3a0-4ba1-9252-355d266b71c5",
+      "region": "Lviv Oblast",
+      "branches": [
+        {
+          "externalId": "7379fc19-1041-4d47-a10f-6092bce629a9",
+          "branchNumber": "97",
+          "name": "Ukrposhta Branch 97"
+        },
+        {
+          "externalId": "7cd9dcad-c9c0-4d29-b750-42f89c68e7a8",
+          "branchNumber": "77",
+          "name": "Ukrposhta Branch 77"
+        }
+      ],
+      "nameUkr": "Drohobych"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "f0dc7859-0a81-46ec-9114-828571a2874a",
+      "region": "Zhytomyr Oblast",
+      "branches": [
+        {
+          "externalId": "10d4a584-8af3-4c6d-9993-dd9ddf899d46",
+          "branchNumber": "14",
+          "name": "Ukrposhta Branch 14"
+        },
+        {
+          "externalId": "ee59faea-919f-4aa1-be96-0b7540fecfdf",
+          "branchNumber": "46",
+          "name": "Ukrposhta Branch 46"
+        },
+        {
+          "externalId": "931497a9-8a1e-4d68-806d-5b540346513e",
+          "branchNumber": "118",
+          "name": "Ukrposhta Branch 118"
+        }
+      ],
+      "nameUkr": "Zhytomyr"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "c9571165-35d4-48e3-a108-27a4c60f33b1",
+      "region": "Zhytomyr Oblast",
+      "branches": [
+        {
+          "externalId": "16ad1c07-45f1-4291-a5ca-61789ddf7c01",
+          "branchNumber": "5",
+          "name": "Ukrposhta Branch 5"
+        },
+        {
+          "externalId": "da8597ae-a005-4039-9b47-563462fc5aa5",
+          "branchNumber": "114",
+          "name": "Ukrposhta Branch 114"
+        }
+      ],
+      "nameUkr": "Berdychiv"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "a6f210bc-ec26-422c-961e-f90d73965ac5",
+      "region": "Khmelnytskyi Oblast",
+      "branches": [
+        {
+          "externalId": "db2e7b5a-e536-477d-a438-6267de46815a",
+          "branchNumber": "101",
+          "name": "Ukrposhta Branch 101"
+        },
+        {
+          "externalId": "6d203365-4e74-4436-beb8-2162e9a0c3a9",
+          "branchNumber": "23",
+          "name": "Ukrposhta Branch 23"
+        },
+        {
+          "externalId": "12d271b5-7e8c-458e-9b0c-31ae3f0cdc3d",
+          "branchNumber": "126",
+          "name": "Ukrposhta Branch 126"
+        },
+        {
+          "externalId": "e52efe1d-024e-467e-a945-c2d80af58fa8",
+          "branchNumber": "71",
+          "name": "Ukrposhta Branch 71"
+        }
+      ],
+      "nameUkr": "Khmelnytskyi"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "36b3dbe0-e403-4564-8563-423797dfbcf4",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "f2c975a5-2b30-4ec8-973a-745966cf5e37",
+          "branchNumber": "73",
+          "name": "Ukrposhta Branch 73"
+        }
+      ],
+      "nameUkr": "Kamianske"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "408a4f7e-1d2a-499c-8f44-e5cc82904f71",
+      "region": "Cherkasy Oblast",
+      "branches": [
+        {
+          "externalId": "aaeeb28a-dc39-4935-bb38-2ce677b9ce5d",
+          "branchNumber": "94",
+          "name": "Ukrposhta Branch 94"
+        },
+        {
+          "externalId": "8cc38b01-78ae-4c59-b95e-34353e50f7b0",
+          "branchNumber": "138",
+          "name": "Ukrposhta Branch 138"
+        }
+      ],
+      "nameUkr": "Cherkasy"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "37a43b40-7568-458f-9424-2d5ff0641031",
+      "region": "Ivano-Frankivsk Oblast",
+      "branches": [
+        {
+          "externalId": "b409c76b-0201-48ef-9a5a-de15a6f2a0bf",
+          "branchNumber": "125",
+          "name": "Ukrposhta Branch 125"
+        },
+        {
+          "externalId": "f1177890-e334-40e0-82f4-32a808da07f7",
+          "branchNumber": "2",
+          "name": "Ukrposhta Branch 2"
+        },
+        {
+          "externalId": "2dff500d-17b9-4dbb-9781-b14b17106acc",
+          "branchNumber": "40",
+          "name": "Ukrposhta Branch 40"
+        },
+        {
+          "externalId": "b49fbfa5-77ef-40aa-83a2-3f22f4d007fd",
+          "branchNumber": "150",
+          "name": "Ukrposhta Branch 150"
+        },
+        {
+          "externalId": "400123cf-ba54-4c4e-9bd5-0904a9445763",
+          "branchNumber": "22",
+          "name": "Ukrposhta Branch 22"
+        }
+      ],
+      "nameUkr": "Kalush"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "3062df96-e5ef-405f-85af-47f2743b88bb",
+      "region": "Poltava Oblast",
+      "branches": [
+        {
+          "externalId": "41ba8511-93f1-4459-b008-8086eb770ed3",
+          "branchNumber": "114",
+          "name": "Ukrposhta Branch 114"
+        }
+      ],
+      "nameUkr": "Lubny"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "3c408bbd-f83a-4782-a548-7995b8b4b74a",
+      "region": "Dnipropetrovsk Oblast",
+      "branches": [
+        {
+          "externalId": "2b911844-b192-4965-916d-d5abe8fbf471",
+          "branchNumber": "135",
+          "name": "Ukrposhta Branch 135"
+        }
+      ],
+      "nameUkr": "Marhanets"
+    },
+    {
+      "provider": "UKRPOSHTA",
+      "externalId": "033f72fe-85d0-4652-b3d9-e97697c8b618",
+      "region": "Zakarpattia Oblast",
+      "branches": [
+        {
+          "externalId": "658b7e61-2f2d-4d0c-a214-d3969b344e56",
+          "branchNumber": "143",
+          "name": "Ukrposhta Branch 143"
+        },
+        {
+          "externalId": "170fd650-ccb5-4d7d-b5ab-2bc09035c1d3",
+          "branchNumber": "30",
+          "name": "Ukrposhta Branch 30"
+        }
+      ],
+      "nameUkr": "Mukachevo"
+    }
+  ]
+}

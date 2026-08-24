@@ -1,0 +1,1259 @@
+{
+  "catalog": [
+    {
+      "name": "Summer Tactical Shirt",
+      "category": "Clothes: Summer",
+      "price": 14200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/1bb8061e2-3850-406c-acfb-c7866f05797b1643.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/0bb8061e2-3850-406c-acfb-c7866f05797b7700.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/4bb8061e2-3850-406c-acfb-c7866f05797b9273.png"
+      ]
+    },
+    {
+      "name": "Winter Combat Jacket",
+      "category": "Clothes: Winter",
+      "price": 3400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3bb8061e2-3850-406c-acfb-c7866f05797b9486.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/0bb8061e2-3850-406c-acfb-c7866f05797b3588.png"
+      ]
+    },
+    {
+      "name": "Tactical Boots Lowa",
+      "category": "Footwear",
+      "price": 9800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2bb8061e2-3850-406c-acfb-c7866f05797b8891.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/1bb8061e2-3850-406c-acfb-c7866f05797b9249.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/7bb8061e2-3850-406c-acfb-c7866f05797b3042.png"
+      ]
+    },
+    {
+      "name": "Sneakers Haix",
+      "category": "Footwear",
+      "price": 8600,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3bb8061e2-3850-406c-acfb-c7866f05797b2483.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/6bb8061e2-3850-406c-acfb-c7866f05797b2105.png"
+      ]
+    },
+    {
+      "name": "Red Dot Sight",
+      "category": "Optics: Basic",
+      "price": 34500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2bb8061e2-3850-406c-acfb-c7866f05797b3260.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/1bb8061e2-3850-406c-acfb-c7866f05797b2139.png"
+      ]
+    },
+    {
+      "name": "PVS-14 NVG Monocular",
+      "category": "Optics: Special devices",
+      "price": 145000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3bb8061e2-3850-406c-acfb-c7866f05797b4192.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/0bb8061e2-3850-406c-acfb-c7866f05797b8539.png"
+      ]
+    },
+    {
+      "name": "Honda EU22i Generator",
+      "category": "Energy: Stations",
+      "price": 54000,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/0bb8061e2-3850-406c-acfb-c7866f05797b6987.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/1bb8061e2-3850-406c-acfb-c7866f05797b3643.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2bb8061e2-3850-406c-acfb-c7866f05797b1800.png"
+      ]
+    },
+    {
+      "name": "Power Bank 20000mAh",
+      "category": "Energy: Mobile",
+      "price": 6200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/6bb8061e2-3850-406c-acfb-c7866f05797b6496.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/7bb8061e2-3850-406c-acfb-c7866f05797b6511.png"
+      ]
+    },
+    {
+      "name": "Mitsubishi L200 Pickup",
+      "category": "Auto/Technology",
+      "price": 850000,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/5bb8061e2-3850-406c-acfb-c7866f05797b4531.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/4bb8061e2-3850-406c-acfb-c7866f05797b4696.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3bb8061e2-3850-406c-acfb-c7866f05797b6090.png"
+      ]
+    },
+    {
+      "name": "Hi-Lift Jack 48\"",
+      "category": "Auto/Technology",
+      "price": 72000,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2bb8061e2-3850-406c-acfb-c7866f05797b2951.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/5bb8061e2-3850-406c-acfb-c7866f05797b1708.png"
+      ]
+    },
+    {
+      "name": "Motorola DP4800",
+      "category": "Communication: Walkie-talkies",
+      "price": 1400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/4bb8061e2-3850-406c-acfb-c7866f05797b1141.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/5bb8061e2-3850-406c-acfb-c7866f05797b6981.png"
+      ]
+    },
+    {
+      "name": "Baofeng UV-5R",
+      "category": "Communication: Walkie-talkies",
+      "price": 32000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3bb8061e2-3850-406c-acfb-c7866f05797b1705.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2bb8061e2-3850-406c-acfb-c7866f05797b1481.png"
+      ]
+    },
+    {
+      "name": "Drone Drop System",
+      "category": "3D Printing: Special",
+      "price": 2400,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/87cd90daa-cf63-4298-8ede-2ae72271d4ab1078.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/07cd90daa-cf63-4298-8ede-2ae72271d4ab8931.png"
+      ]
+    },
+    {
+      "name": "VOG-17 Tail",
+      "category": "3D Printing: Special",
+      "price": 1200,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/37cd90daa-cf63-4298-8ede-2ae72271d4ab4469.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab7007.png"
+      ]
+    },
+    {
+      "name": "Ghillie Suit",
+      "category": "Disguise",
+      "price": 1800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/67cd90daa-cf63-4298-8ede-2ae72271d4ab3575.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab9734.png"
+      ]
+    },
+    {
+      "name": "Camouflage Net",
+      "category": "Disguise",
+      "price": 4200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/27cd90daa-cf63-4298-8ede-2ae72271d4ab7543.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab1248.png"
+      ]
+    },
+    {
+      "name": "Antenna Alientech DUO 3 Booster",
+      "category": "Communication: Walkie-talkies",
+      "price": 18500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/47cd90daa-cf63-4298-8ede-2ae72271d4ab1880.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/57cd90daa-cf63-4298-8ede-2ae72271d4ab9736.png"
+      ]
+    },
+    {
+      "name": "Tactical Headset",
+      "category": "Communication: Walkie-talkies",
+      "price": 3800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/070e54f01-f47b-48f4-811a-f195be4bf91e1123.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/270e54f01-f47b-48f4-811a-f195be4bf91e8027.png"
+      ]
+    },
+    {
+      "name": "Tactical Chair",
+      "category": "Equipment: Household",
+      "price": 8400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/37cd90daa-cf63-4298-8ede-2ae72271d4ab3346.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab7128.png"
+      ]
+    },
+    {
+      "name": "Gas burner Jetboil Flash Camo",
+      "category": "Heating",
+      "price": 6200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/37cd90daa-cf63-4298-8ede-2ae72271d4ab5969.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/47cd90daa-cf63-4298-8ede-2ae72271d4ab1075.png"
+      ]
+    },
+    {
+      "name": "Shovel folding Fiskars Solid",
+      "category": "Tools",
+      "price": 2200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/67cd90daa-cf63-4298-8ede-2ae72271d4ab3684.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/37cd90daa-cf63-4298-8ede-2ae72271d4ab9771.png"
+      ]
+    },
+    {
+      "name": "Multitool Leatherman",
+      "category": "Tools",
+      "price": 4800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/27cd90daa-cf63-4298-8ede-2ae72271d4ab7647.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/47cd90daa-cf63-4298-8ede-2ae72271d4ab6434.png"
+      ]
+    },
+    {
+      "name": "Assault Backpack 30L",
+      "category": "Equipment: Backpacks",
+      "price": 9200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/07cd90daa-cf63-4298-8ede-2ae72271d4ab5231.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/77cd90daa-cf63-4298-8ede-2ae72271d4ab3415.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab3875.png"
+      ]
+    },
+    {
+      "name": "Dump Pouch",
+      "category": "Equipment: Pouches",
+      "price": 750,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/87cd90daa-cf63-4298-8ede-2ae72271d4ab1028.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab7421.png"
+      ]
+    },
+    {
+      "name": "Off-road Tires Set",
+      "category": "Auto/Technology",
+      "price": 2400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab2110.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/77cd90daa-cf63-4298-8ede-2ae72271d4ab2531.png"
+      ]
+    },
+    {
+      "name": "MRE 24h Menu 1",
+      "category": "Life: Food",
+      "price": 1400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/17cd90daa-cf63-4298-8ede-2ae72271d4ab2110.png",
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/27cd90daa-cf63-4298-8ede-2ae72271d4ab6664.png"
+      ]
+    },
+    {
+      "name": "Portable Gas Heater",
+      "category": "Heating",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/07cd90daa-cf63-4298-8ede-2ae72271d4ab9852.png"
+      ]
+    },
+    {
+      "name": "Level 3 Body Armor Plate",
+      "category": "Armor: Elements",
+      "price": 12500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/19a48b144-4151-4423-9c06-9b188396f21b2549.png"
+      ]
+    },
+    {
+      "name": "Level 4 Ceramic Plate",
+      "category": "Armor: Elements",
+      "price": 48000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/59a48b144-4151-4423-9c06-9b188396f21b1058.png"
+      ]
+    },
+    {
+      "name": "ESAPI Level IV armor plates",
+      "category": "Armor: Elements",
+      "price": 18500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/49a48b144-4151-4423-9c06-9b188396f21b1464.png"
+      ]
+    },
+    {
+      "name": "Kevlar Helmet Cover",
+      "category": "Armor: Elements",
+      "price": 3200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/49a48b144-4151-4423-9c06-9b188396f21b5034.png"
+      ]
+    },
+    {
+      "name": "Side Armor Plates Pair",
+      "category": "Armor: Elements",
+      "price": 2800,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/39a48b144-4151-4423-9c06-9b188396f21b3894.png"
+      ]
+    },
+    {
+      "name": "FPV Drone 7 inch",
+      "category": "Drones: FPV",
+      "price": 18900,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/79a48b144-4151-4423-9c06-9b188396f21b4823.png"
+      ]
+    },
+    {
+      "name": "iFlight Chimera7 LR Edition",
+      "category": "Drones: FPV",
+      "price": 24000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/39a48b144-4151-4423-9c06-9b188396f21b8357.png"
+      ]
+    },
+    {
+      "name": "Nazgul5 Evoque F5 Analog",
+      "category": "Drones: FPV",
+      "price": 21500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/39a48b144-4151-4423-9c06-9b188396f21b7729.png"
+      ]
+    },
+    {
+      "name": "Carbon Custom 7 frame",
+      "category": "Drones: FPV",
+      "price": 3500,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/29a48b144-4151-4423-9c06-9b188396f21b7587.png"
+      ]
+    },
+    {
+      "name": "FPV Propellers set",
+      "category": "Drones: FPV",
+      "price": 4200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/19a48b144-4151-4423-9c06-9b188396f21b6215.png"
+      ]
+    },
+    {
+      "name": "Scope Mount 30mm",
+      "category": "Optics: Basic",
+      "price": 9500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/09a48b144-4151-4423-9c06-9b188396f21b8440.png"
+      ]
+    },
+    {
+      "name": "Vortex Crossfire II 1-4x24",
+      "category": "Optics: Basic",
+      "price": 12800,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/19a48b144-4151-4423-9c06-9b188396f21b9373.png"
+      ]
+    },
+    {
+      "name": "Aimpoint Micro T-2 Red Dot",
+      "category": "Optics: Basic",
+      "price": 38000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/59a48b144-4151-4423-9c06-9b188396f21b6654.png"
+      ]
+    },
+    {
+      "name": "Thermal Imaging Scope",
+      "category": "Optics: Special devices",
+      "price": 42000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/19a48b144-4151-4423-9c06-9b188396f21b8749.png"
+      ]
+    },
+    {
+      "name": "Binoculars 10x50",
+      "category": "Optics: Basic",
+      "price": 18900,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/29a48b144-4151-4423-9c06-9b188396f21b1276.png"
+      ]
+    },
+    {
+      "name": "Summer Tactical Pants",
+      "category": "Clothes: Summer",
+      "price": 4500,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/803205c28-f1d3-47d6-aac3-f6a8960079888139.png"
+      ]
+    },
+    {
+      "name": "Olive Green Softshell Jacket",
+      "category": "Clothes: Winter",
+      "price": 3800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/603205c28-f1d3-47d6-aac3-f6a8960079882995.png"
+      ]
+    },
+    {
+      "name": "Coyote Tan Tactical Polo",
+      "category": "Clothes: Summer",
+      "price": 1200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/403205c28-f1d3-47d6-aac3-f6a8960079886456.png"
+      ]
+    },
+    {
+      "name": "Mechanix Original Black gloves",
+      "category": "Clothes: Winter",
+      "price": 950,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/803205c28-f1d3-47d6-aac3-f6a8960079882888.png"
+      ]
+    },
+    {
+      "name": "Winter Fleece Jacket",
+      "category": "Clothes: Winter",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/803205c28-f1d3-47d6-aac3-f6a8960079888007.png"
+      ]
+    },
+    {
+      "name": "Tactical Boots Lowa Zephyr",
+      "category": "Footwear",
+      "price": 6800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/503205c28-f1d3-47d6-aac3-f6a8960079881072.png"
+      ]
+    },
+    {
+      "name": "Haix Black Eagle Tactical 2.0 Black",
+      "category": "Footwear",
+      "price": 8200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/003205c28-f1d3-47d6-aac3-f6a8960079882400.png"
+      ]
+    },
+    {
+      "name": "Belleville One Xero C320 Coyote",
+      "category": "Footwear",
+      "price": 9400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/103205c28-f1d3-47d6-aac3-f6a8960079884752.png"
+      ]
+    },
+    {
+      "name": "Tactical Socks Summer",
+      "category": "Footwear",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/203205c28-f1d3-47d6-aac3-f6a8960079881541.png"
+      ]
+    },
+    {
+      "name": "Tactical Socks Winter",
+      "category": "Footwear",
+      "price": 150,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/703205c28-f1d3-47d6-aac3-f6a8960079881489.png"
+      ]
+    },
+    {
+      "name": "Backpack 5.11 Rush 12 Multicam Classic",
+      "category": "Equipment: Backpacks",
+      "price": 5800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/303205c28-f1d3-47d6-aac3-f6a8960079881866.png"
+      ]
+    },
+    {
+      "name": "Pouch for Multicam Cordura walkie-talkie",
+      "category": "Communication: Walkie-talkies",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/103205c28-f1d3-47d6-aac3-f6a8960079886511.png"
+      ]
+    },
+    {
+      "name": "Tactical Table",
+      "category": "Equipment: Household",
+      "price": 2400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/603205c28-f1d3-47d6-aac3-f6a8960079889729.png"
+      ]
+    },
+    {
+      "name": "Camouflage Paint",
+      "category": "Disguise",
+      "price": 1800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/703205c28-f1d3-47d6-aac3-f6a8960079888697.png"
+      ]
+    },
+    {
+      "name": "Folding Shovel",
+      "category": "Equipment: Household",
+      "price": 1200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/003205c28-f1d3-47d6-aac3-f6a8960079888087.png"
+      ]
+    },
+    {
+      "name": "Electronic antenna housing (3D Print)",
+      "category": "3D Printing: Special",
+      "price": 1200,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b4866.png"
+      ]
+    },
+    {
+      "name": "3D Printed Drone Parts",
+      "category": "3D Printing: Special",
+      "price": 650,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b4657.png"
+      ]
+    },
+    {
+      "name": "3D Printed Mounts",
+      "category": "3D Printing: Special",
+      "price": 3200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b5810.png"
+      ]
+    },
+    {
+      "name": "3D Printed Accessories",
+      "category": "3D Printing: Special",
+      "price": 1800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b3975.png"
+      ]
+    },
+    {
+      "name": "Wilcox Style helmet mount PNB",
+      "category": "Armor: Elements",
+      "price": 950,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b3094.png"
+      ]
+    },
+    {
+      "name": "Sniper Veil",
+      "category": "Disguise",
+      "price": 650,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/44d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b1115.png"
+      ]
+    },
+    {
+      "name": "Face Paint Kit",
+      "category": "Disguise",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/54d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b2565.png"
+      ]
+    },
+    {
+      "name": "Camo Tape",
+      "category": "Disguise",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/24d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b7090.png"
+      ]
+    },
+    {
+      "name": "Backpack Rain Cover Large",
+      "category": "Equipment: Backpacks",
+      "price": 400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/14d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b5678.png"
+      ]
+    },
+    {
+      "name": "Ghillie Suit Woodland",
+      "category": "Disguise",
+      "price": 250,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b2512.png"
+      ]
+    },
+    {
+      "name": "Remote antenna 2.4GHz High Gain",
+      "category": "Communication: Walkie-talkies",
+      "price": 3200,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/24d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b4760.png"
+      ]
+    },
+    {
+      "name": "PTT button U94 Military",
+      "category": "Communication: Walkie-talkies",
+      "price": 1200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/34d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b8016.png"
+      ]
+    },
+    {
+      "name": "Walkie-talkie Antenna",
+      "category": "Communication: Walkie-talkies",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/64d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b6305.png"
+      ]
+    },
+    {
+      "name": "Tangent Baofeng Waterproof",
+      "category": "Communication: Walkie-talkies",
+      "price": 950,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b9676.png"
+      ]
+    },
+    {
+      "name": "Tactical Radio Pouch",
+      "category": "Communication: Walkie-talkies",
+      "price": 400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/44d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b5396.png"
+      ]
+    },
+    {
+      "name": "Medical Backpack 40L",
+      "category": "Equipment: Backpacks",
+      "price": 3800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b7881.png"
+      ]
+    },
+    {
+      "name": "Hydration Backpack 3L",
+      "category": "Equipment: Backpacks",
+      "price": 2400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/44d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b6789.png"
+      ]
+    },
+    {
+      "name": "RollUp shopping bag",
+      "category": "Equipment: Backpacks",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/84d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b5692.png"
+      ]
+    },
+    {
+      "name": "Tactical Sleeping Bag",
+      "category": "Equipment: Household",
+      "price": 4200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b3538.png"
+      ]
+    },
+    {
+      "name": "Hydrator Tactical 3L",
+      "category": "Equipment: Backpacks",
+      "price": 1100,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b9901.png"
+      ]
+    },
+    {
+      "name": "Bandage 6 Israeli Bandage",
+      "category": "Medicine: Basic",
+      "price": 650,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/34d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b8231.png"
+      ]
+    },
+    {
+      "name": "Celox Hemostatic Granules",
+      "category": "Medicine: Basic",
+      "price": 1800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/54d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b2793.png"
+      ]
+    },
+    {
+      "name": "SICH Orange Gen2 tourniquet",
+      "category": "Medicine: Tourniquets",
+      "price": 1400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b6111.png"
+      ]
+    },
+    {
+      "name": "Nasopharyngeal tube with lubricant",
+      "category": "Medicine: Basic",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/14d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b2477.png"
+      ]
+    },
+    {
+      "name": "Basic First Aid Kit",
+      "category": "Medicine: Basic",
+      "price": 320,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/34d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b3045.png"
+      ]
+    },
+    {
+      "name": "Flexible solar panel 100W Slim",
+      "category": "Energy: Solar",
+      "price": 7500,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/370e54f01-f47b-48f4-811a-f195be4bf91e1584.png"
+      ]
+    },
+    {
+      "name": "Portable Power Station 500W",
+      "category": "Energy: Stations",
+      "price": 2800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/070e54f01-f47b-48f4-811a-f195be4bf91e1123.png"
+      ]
+    },
+    {
+      "name": "MC4 T-Branch",
+      "category": "Energy: Solar",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/270e54f01-f47b-48f4-811a-f195be4bf91e7205.png"
+      ]
+    },
+    {
+      "name": "Portable Power Station 1000W",
+      "category": "Energy: Stations",
+      "price": 6400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/270e54f01-f47b-48f4-811a-f195be4bf91e2443.png"
+      ]
+    },
+    {
+      "name": "Solar Power Bank 10000mAh",
+      "category": "Energy: Mobile",
+      "price": 3200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/770e54f01-f47b-48f4-811a-f195be4bf91e9456.png"
+      ]
+    },
+    {
+      "name": "Off-road LED Light Bar",
+      "category": "Auto/Technology",
+      "price": 4800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/570e54f01-f47b-48f4-811a-f195be4bf91e1842.png"
+      ]
+    },
+    {
+      "name": "Sand tracks MudTracks 2.0",
+      "category": "Auto/Technology",
+      "price": 3500,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/170e54f01-f47b-48f4-811a-f195be4bf91e6720.png"
+      ]
+    },
+    {
+      "name": "Recovery Strap 10000kg",
+      "category": "Auto/Technology",
+      "price": 2400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/270e54f01-f47b-48f4-811a-f195be4bf91e6366.png"
+      ]
+    },
+    {
+      "name": "Winch 12000lbs",
+      "category": "Auto/Technology",
+      "price": 3200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/770e54f01-f47b-48f4-811a-f195be4bf91e2437.png"
+      ]
+    },
+    {
+      "name": "Portable Air Compressor",
+      "category": "Auto/Technology",
+      "price": 6800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/670e54f01-f47b-48f4-811a-f195be4bf91e1831.png"
+      ]
+    },
+    {
+      "name": "Camping Set 4-in-1 tableware set",
+      "category": "Equipment: Household",
+      "price": 1800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/470e54f01-f47b-48f4-811a-f195be4bf91e7374.png"
+      ]
+    },
+    {
+      "name": "Compact Spider gas burner",
+      "category": "Equipment: Household",
+      "price": 1200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/070e54f01-f47b-48f4-811a-f195be4bf91e2938.png"
+      ]
+    },
+    {
+      "name": "LifeStraw Personal Blue filter",
+      "category": "Life: Water",
+      "price": 950,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/070e54f01-f47b-48f4-811a-f195be4bf91e8463.png"
+      ]
+    },
+    {
+      "name": "Camping Cooking Set",
+      "category": "Equipment: Household",
+      "price": 1400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/770e54f01-f47b-48f4-811a-f195be4bf91e5524.png"
+      ]
+    },
+    {
+      "name": "Magnifier 3x",
+      "category": "Optics: Basic",
+      "price": 1800,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/070e54f01-f47b-48f4-811a-f195be4bf91e2502.png"
+      ]
+    },
+    {
+      "name": "Red Dot Cover",
+      "category": "Optics: Basic",
+      "price": 650,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/170e54f01-f47b-48f4-811a-f195be4bf91e1591.png"
+      ]
+    },
+    {
+      "name": "Scope Rings 30mm",
+      "category": "Optics: Basic",
+      "price": 400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/170e54f01-f47b-48f4-811a-f195be4bf91e6388.png"
+      ]
+    },
+    {
+      "name": "Lens Cleaning Kit",
+      "category": "Optics: Basic",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/070e54f01-f47b-48f4-811a-f195be4bf91e8758.png"
+      ]
+    },
+    {
+      "name": "PNB Tactical Wilcox bracket",
+      "category": "Optics: Mounts",
+      "price": 12500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/670e54f01-f47b-48f4-811a-f195be4bf91e2977.png"
+      ]
+    },
+    {
+      "name": "Tactical Knife",
+      "category": "Tools",
+      "price": 3200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/00836f092-0caf-4835-887e-f3af323b0e3c4774.png"
+      ]
+    },
+    {
+      "name": "Wire Cutters",
+      "category": "Tools",
+      "price": 1400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/20836f092-0caf-4835-887e-f3af323b0e3c3126.png"
+      ]
+    },
+    {
+      "name": "Tool Set 50pcs",
+      "category": "Tools",
+      "price": 7800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/30836f092-0caf-4835-887e-f3af323b0e3c2326.png"
+      ]
+    },
+    {
+      "name": "Bolt Cutters",
+      "category": "Tools",
+      "price": 2800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/20836f092-0caf-4835-887e-f3af323b0e3c9010.png"
+      ]
+    },
+    {
+      "name": "Crowbar",
+      "category": "Tools",
+      "price": 1200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/60836f092-0caf-4835-887e-f3af323b0e3c7609.png"
+      ]
+    },
+    {
+      "name": "Hand Warmers 10pcs",
+      "category": "Heating",
+      "price": 150,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/30836f092-0caf-4835-887e-f3af323b0e3c4652.png"
+      ]
+    },
+    {
+      "name": "Foot Warmers Set",
+      "category": "Heating",
+      "price": 3200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/60836f092-0caf-4835-887e-f3af323b0e3c8418.png"
+      ]
+    },
+    {
+      "name": "Reusable salt heating pad Heart",
+      "category": "Heating",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/30836f092-0caf-4835-887e-f3af323b0e3c2387.png"
+      ]
+    },
+    {
+      "name": "Chemical Heating Pad",
+      "category": "Heating",
+      "price": 300,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/00836f092-0caf-4835-887e-f3af323b0e3c4699.png"
+      ]
+    },
+    {
+      "name": "Reusable Heat Pack",
+      "category": "Heating",
+      "price": 250,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/50836f092-0caf-4835-887e-f3af323b0e3c8625.png"
+      ]
+    },
+    {
+      "name": "Electric blanket USB Camo 5V",
+      "category": "Heating",
+      "price": 2400,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/90836f092-0caf-4835-887e-f3af323b0e3c1534.png"
+      ]
+    },
+    {
+      "name": "Winter Beanie Hat",
+      "category": "Clothes: Winter",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/30836f092-0caf-4835-887e-f3af323b0e3c1203.png"
+      ]
+    },
+    {
+      "name": "Neck Gaiter Fleece",
+      "category": "Clothes: Winter",
+      "price": 350,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/30836f092-0caf-4835-887e-f3af323b0e3c6051.png"
+      ]
+    },
+    {
+      "name": "Thermal underwear Level 1 Black Set",
+      "category": "Clothes: Winter",
+      "price": 1800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/20836f092-0caf-4835-887e-f3af323b0e3c5782.png"
+      ]
+    },
+    {
+      "name": "Fleece gloves OD",
+      "category": "Clothes: Winter",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/00836f092-0caf-4835-887e-f3af323b0e3c2838.png"
+      ]
+    },
+    {
+      "name": "Garmin GPSMAP 66sr Tactical",
+      "category": "Electronics: Navigation",
+      "price": 28000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2052acf1d-fddf-44ab-ab7f-a217ce5464d95481.png"
+      ]
+    },
+    {
+      "name": "Tactical Pro liquid compass",
+      "category": "Electronics: Navigation",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2052acf1d-fddf-44ab-ab7f-a217ce5464d96928.png"
+      ]
+    },
+    {
+      "name": "Samsung Active Tab Rugged Case",
+      "category": "Electronics: Navigation",
+      "price": 4200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3052acf1d-fddf-44ab-ab7f-a217ce5464d93221.png"
+      ]
+    },
+    {
+      "name": "Garmin Fenix 7 Tactical Solar Edition",
+      "category": "Electronics: Navigation",
+      "price": 38000,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3052acf1d-fddf-44ab-ab7f-a217ce5464d96390.png"
+      ]
+    },
+    {
+      "name": "GPS Mount Clip",
+      "category": "Electronics: Navigation",
+      "price": 650,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/6052acf1d-fddf-44ab-ab7f-a217ce5464d96159.png"
+      ]
+    },
+    {
+      "name": "Yegoza barbed wire 450mm",
+      "category": "Special means: Fencing",
+      "price": 2800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/0052acf1d-fddf-44ab-ab7f-a217ce5464d96083.png"
+      ]
+    },
+    {
+      "name": "Barbed Wire 100m",
+      "category": "Special means: Fencing",
+      "price": 450,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2052acf1d-fddf-44ab-ab7f-a217ce5464d91940.png"
+      ]
+    },
+    {
+      "name": "Concertina Wire 50m",
+      "category": "Special means: Fencing",
+      "price": 350,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/0052acf1d-fddf-44ab-ab7f-a217ce5464d91021.png"
+      ]
+    },
+    {
+      "name": "Security Fencing Panel",
+      "category": "Special means: Fencing",
+      "price": 120,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/7052acf1d-fddf-44ab-ab7f-a217ce5464d95471.png"
+      ]
+    },
+    {
+      "name": "Razor Wire Roll",
+      "category": "Special means: Fencing",
+      "price": 1800,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2052acf1d-fddf-44ab-ab7f-a217ce5464d96485.png"
+      ]
+    },
+    {
+      "name": "Digital Multimeter",
+      "category": "Electronics: Measurement",
+      "price": 18500,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/4052acf1d-fddf-44ab-ab7f-a217ce5464d95046.png"
+      ]
+    },
+    {
+      "name": "Laser Distance Meter",
+      "category": "Electronics: Measurement",
+      "price": 12400,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/4052acf1d-fddf-44ab-ab7f-a217ce5464d92692.png"
+      ]
+    },
+    {
+      "name": "Anemometer Wind Speed Meter",
+      "category": "Electronics: Measurement",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/2052acf1d-fddf-44ab-ab7f-a217ce5464d94405.png"
+      ]
+    },
+    {
+      "name": "Radiation Detector",
+      "category": "Electronics: Measurement",
+      "price": 9800,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/1052acf1d-fddf-44ab-ab7f-a217ce5464d95781.png"
+      ]
+    },
+    {
+      "name": "Thermal Imager Camera",
+      "category": "Electronics: Measurement",
+      "price": 4200,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/3052acf1d-fddf-44ab-ab7f-a217ce5464d98336.png"
+      ]
+    },
+    {
+      "name": "3D Printed Drone Shell",
+      "category": "3D Printing: Special",
+      "price": 1800,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b4866.png"
+      ]
+    },
+    {
+      "name": "3D Printed Antenna Mount",
+      "category": "3D Printing: Special",
+      "price": 350,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b4657.png"
+      ]
+    },
+    {
+      "name": "Mounting the antenna for the drone",
+      "category": "3D Printing: Special",
+      "price": 450,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/04d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b5810.png"
+      ]
+    },
+    {
+      "name": "Housing for electronic device module (L)",
+      "category": "3D Printing: Special",
+      "price": 2800,
+      "access": "RESTRICTED",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b3975.png"
+      ]
+    },
+    {
+      "name": "3D Printed Drop System",
+      "category": "3D Printing: Special",
+      "price": 850,
+      "access": "PUBLIC",
+      "images": [
+        "https://image.qwenlm.ai/public_source/13366f94-dc86-4ceb-9162-fc5ddcaae62c/74d9cf69e-b2ec-4e7e-b2f5-b847defa4c1b3094.png"
+      ]
+    }
+  ]
+}
