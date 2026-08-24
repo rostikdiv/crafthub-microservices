@@ -26,6 +26,40 @@
 const fs = require('fs');
 const path = require('path');
 
+// Zero-dependency .env loader
+function loadEnv() {
+    const envPaths = [
+        path.join(__dirname, '.env'),
+        path.join(process.cwd(), '.env'),
+        path.join(__dirname, '..', '.env')
+    ];
+    for (const envPath of envPaths) {
+        if (fs.existsSync(envPath)) {
+            try {
+                const content = fs.readFileSync(envPath, 'utf-8');
+                content.split('\n').forEach(line => {
+                    const trimmed = line.trim();
+                    if (trimmed && !trimmed.startsWith('#')) {
+                        const eqIdx = trimmed.indexOf('=');
+                        if (eqIdx !== -1) {
+                            const key = trimmed.slice(0, eqIdx).trim();
+                            let val = trimmed.slice(eqIdx + 1).trim();
+                            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+                                val = val.slice(1, -1);
+                            }
+                            if (!process.env[key]) {
+                                process.env[key] = val;
+                            }
+                        }
+                    }
+                });
+            } catch (e) { }
+            break;
+        }
+    }
+}
+loadEnv();
+
 const args = process.argv.slice(2);
 const modeInput = (args[0] || 'local').toLowerCase();
 const isCloud = ['cloud', 'cloude', 'gcp', 'prod', 'production'].includes(modeInput);
@@ -267,18 +301,24 @@ const CITIES = [
 async function runTrafficSimulator() {
     // 1. Authenticate Admin
     console.log("🔑 1. Authenticating System Administrator...");
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
     let adminToken = null;
-    try {
-        const adminRes = await request('/auth/authenticate', 'POST', {
-            email: 'admin@milhub.ua',
-            password: 'Password123!'
-        }, null, true);
-        if (adminRes && adminRes.token) {
-            adminToken = adminRes.token;
-            console.log("  ✅ Administrator authenticated successfully.");
+    if (adminEmail && adminPassword) {
+        try {
+            const adminRes = await request('/auth/authenticate', 'POST', {
+                email: adminEmail,
+                password: adminPassword
+            }, null, true);
+            if (adminRes && adminRes.token) {
+                adminToken = adminRes.token;
+                console.log(`  ✅ Administrator authenticated successfully (${adminEmail}).`);
+            }
+        } catch (e) {
+            console.warn(`  ⚠️ Could not authenticate with ${adminEmail}:`, e.message);
         }
-    } catch (e) {
-        console.warn("  ⚠️ Could not authenticate with admin@milhub.ua:", e.message);
+    } else {
+        console.warn("  ℹ️ ADMIN_EMAIL / ADMIN_PASSWORD not set in .env, skipping admin session.");
     }
 
     // 2. Fetch Catalog Products

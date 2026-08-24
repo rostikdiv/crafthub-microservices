@@ -1,6 +1,40 @@
 const fs = require('fs');
 const path = require('path');
 
+// Zero-dependency .env loader
+function loadEnv() {
+    const envPaths = [
+        path.join(__dirname, '.env'),
+        path.join(process.cwd(), '.env'),
+        path.join(__dirname, '..', '.env')
+    ];
+    for (const envPath of envPaths) {
+        if (fs.existsSync(envPath)) {
+            try {
+                const content = fs.readFileSync(envPath, 'utf-8');
+                content.split('\n').forEach(line => {
+                    const trimmed = line.trim();
+                    if (trimmed && !trimmed.startsWith('#')) {
+                        const eqIdx = trimmed.indexOf('=');
+                        if (eqIdx !== -1) {
+                            const key = trimmed.slice(0, eqIdx).trim();
+                            let val = trimmed.slice(eqIdx + 1).trim();
+                            if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+                                val = val.slice(1, -1);
+                            }
+                            if (!process.env[key]) {
+                                process.env[key] = val;
+                            }
+                        }
+                    }
+                });
+            } catch (e) { }
+            break;
+        }
+    }
+}
+loadEnv();
+
 // Usage:
 //   node seed.js         -> Default: Local (http://localhost:8080/api/v1)
 //   node seed.js cloud   -> Cloud (https://milhub-api-gateway-258044247462.us-central1.run.app/api/v1)
@@ -168,32 +202,34 @@ async function runMegaSeeder() {
 
     // 2. Admin Authentication
     console.log('🔑 2. Authenticating System Administrator...');
-    const adminCandidates = [
-        { email: 'admin@milhub.ua', password: 'Password123!' },
-        { email: 'admin@milhub.com', password: 'Password123!' }
-    ];
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
     let adminToken = null;
     let adminErrorDetail = '';
 
-    for (const cand of adminCandidates) {
+    if (adminEmail && adminPassword) {
         try {
-            const res = await request('/auth/authenticate', 'POST', cand, null, true);
+            const res = await request('/auth/authenticate', 'POST', {
+                email: adminEmail,
+                password: adminPassword
+            }, null, true);
             if (res && res.token) {
                 adminToken = res.token;
                 masterAuthToken = res.token;
-                console.log(`  ✅ Admin authenticated successfully as [${cand.email}]\n`);
-                break;
+                console.log(`  ✅ Admin authenticated successfully as [${adminEmail}]\n`);
             }
         } catch (e) {
             adminErrorDetail = e.message;
         }
+    } else {
+        adminErrorDetail = 'ADMIN_EMAIL or ADMIN_PASSWORD not set in .env';
     }
 
     if (!adminToken) {
         console.error(`\n======================================================================`);
         console.error(`🚨 [CRITICAL WARNING] ADMIN AUTHENTICATION FAILED!`);
-        console.error(`❌ Could not log in as admin@milhub.ua or admin@milhub.com.`);
-        console.error(`👉 Server Response: ${adminErrorDetail || 'HTTP 401 Unauthorized'}`);
+        console.error(`❌ ${adminErrorDetail || 'HTTP 401 Unauthorized'}`);
+        console.error(`👉 Ensure ADMIN_EMAIL and ADMIN_PASSWORD are set in your .env file.`);
         console.error(`⚠️ CONSEQUENCE: Seller accounts CANNOT be verified without Admin approval.`);
         console.error(`⚠️ Product creation will fail (HTTP 403) for unverified sellers!`);
         console.error(`======================================================================\n`);
