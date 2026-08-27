@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {
 
-//    // === 1. Створення "фальшивих" залежностей (Mocks) ===
+//    // === 1. Create mock dependencies ===
 //    @Mock
 //    private UserRepository userRepository;
 //    @Mock
@@ -38,18 +38,18 @@ class AuthenticationServiceTest {
 //    @Mock
 //    private AuthenticationManager authenticationManager;
 //
-//    // === 2. Впровадження Моків (InjectMocks) ===
+//    // === 2. Inject Mocks ===
 //    @InjectMocks
 //    private AuthenticationService authenticationService;
 //
-//    // === 3. Тестові Методи ===
+//    // === 3. Test Methods ===
 //
 //    @Test
 //    @DisplayName("Should Register User Successfully")
 //    void shouldRegisterUserSuccessfully() {
-//        // --- 1. ARRANGE (Налаштування) ---
+//        // --- 1. ARRANGE ---
 //
-//        // Вхідні дані
+//        // Input data
 //        RegisterRequest request = RegisterRequest.builder()
 //                .firstName("Test")
 //                .lastName("User")
@@ -60,85 +60,84 @@ class AuthenticationServiceTest {
 //        String fakeHashedPassword = "hashed_password_abc123";
 //        String fakeJwtToken = "mock.jwt.token";
 //
-//        // Навчаємо Моки:
-//        // "КОЛИ passwordEncoder.encode("password123") буде викликаний..."
+//        // Mock behaviors:
+//        // "WHEN passwordEncoder.encode("password123") is called..."
 //        when(passwordEncoder.encode("password123"))
-//                .thenReturn(fakeHashedPassword); // "...повернути фальшивий хеш"
+//                .thenReturn(fakeHashedPassword); // "...return fake hash"
 //
-//        // "КОЛИ jwtService.generateToken() буде викликаний з БУДЬ-ЯКИМ User..."
+//        // "WHEN jwtService.generateToken() is called with ANY User..."
 //        when(jwtService.generateToken(any(User.class)))
-//                .thenReturn(fakeJwtToken); // "...повернути фальшивий токен"
+//                .thenReturn(fakeJwtToken); // "...return fake token"
 //
-//        // Створюємо "пастку" (ArgumentCaptor), щоб зловити об'єкт User,
-//        // який буде переданий у userRepository.save()
+//        // Create ArgumentCaptor to capture the User object
+//        // that will be passed to userRepository.save()
 //        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
 //
-//        // --- 2. ACT (Дія) ---
+//        // --- 2. ACT ---
 //
-//        // Викликаємо метод реєстрації
+//        // Call registration method
 //        AuthenticationResponse response = authenticationService.register(request);
 //
-//        // --- 3. ASSERT (Перевірка) ---
+//        // --- 3. ASSERT ---
 //
-//        // A) Перевіряємо відповідь (чи повернули ми токен)
+//        // A) Verify response (token returned)
 //        assertThat(response).isNotNull();
 //        assertThat(response.getToken()).isEqualTo(fakeJwtToken);
 //
-//        // B) Перевіряємо, що метод save був викликаний 1 раз
+//        // B) Verify save method was called once
 //        verify(userRepository).save(userArgumentCaptor.capture());
 //
-//        // C) Дістаємо "зловленого" User і перевіряємо його поля
+//        // C) Retrieve captured User and verify fields
 //        User savedUser = userArgumentCaptor.getValue();
 //        assertThat(savedUser.getEmail()).isEqualTo("test@user.com");
 //        assertThat(savedUser.getFirstName()).isEqualTo("Test");
-//        assertThat(savedUser.getRole()).isEqualTo(Role.USER); // Перевірка ролі
-//        assertThat(savedUser.getPassword()).isEqualTo(fakeHashedPassword); // Критична перевірка!
+//        assertThat(savedUser.getRole()).isEqualTo(Role.USER); // Role check
+//        assertThat(savedUser.getPassword()).isEqualTo(fakeHashedPassword); // Critical password check!
 //    }
 //
 //    @Test
 //    @DisplayName("Should Login User Successfully")
 //    void shouldLoginUserSuccessfully() {
-//        // --- 1. ARRANGE (Налаштування) ---
+//        // --- 1. ARRANGE ---
 //
-//        // Вхідні дані
+//        // Input data
 //        LoginRequest request = LoginRequest.builder()
 //                .email("test@user.com")
 //                .password("password123")
 //                .build();
 //
-//        // Створюємо фальшивого User, якого "знайде" репозиторій
+//        // Create mock User to be returned by repository
 //        User mockUser = User.builder()
 //                .email("test@user.com")
-//                .password("hashed_password") // Неважливо, що тут
+//                .password("hashed_password") // Irrelevant value for mock
 //                .role(Role.USER)
 //                .build();
 //
 //        String fakeJwtToken = "mock.jwt.token";
 //
-//        // Навчаємо Моки:
-//        // "КОЛИ authenticationManager.authenticate() буде викликаний...
-//        // ...він має просто успішно відпрацювати (нічого не повертати)"
-//        // (Для void методів Mockito нічого не робить за замовчуванням - це ідеально)
+//        // Mock behaviors:
+//        // "WHEN authenticationManager.authenticate() is called...
+//        // ...it should complete successfully without returning anything"
+//        // (For void methods, Mockito does nothing by default)
 //
-//        // "КОЛИ userRepository.findByEmail("test@user.com") буде викликаний..."
+//        // "WHEN userRepository.findByEmail("test@user.com") is called..."
 //        when(userRepository.findByEmail("test@user.com"))
-//                .thenReturn(Optional.of(mockUser)); // "...повернути нашого fake User"
+//                .thenReturn(Optional.of(mockUser)); // "...return fake User"
 //
-//        // "КОЛИ jwtService.generateToken(mockUser)..."
+//        // "WHEN jwtService.generateToken(mockUser)..."
 //        when(jwtService.generateToken(mockUser))
-//                .thenReturn(fakeJwtToken); // "...повернути fake token"
+//                .thenReturn(fakeJwtToken); // "...return fake token"
 //
-//        // --- 2. ACT (Дія) ---
+//        // --- 2. ACT ---
 //        AuthenticationResponse response = authenticationService.login(request);
 //
-//        // --- 3. ASSERT (Перевірка) ---
+//        // --- 3. ASSERT ---
 //
-//        // A) Перевіряємо відповідь
+//        // A) Verify response
 //        assertThat(response).isNotNull();
 //        assertThat(response.getToken()).isEqualTo(fakeJwtToken);
 //
-//        // B) Перевіряємо, що AuthenticationManager був викликаний 1 раз
-//        // з правильними даними (email та паролем)
+//        // B) Verify AuthenticationManager was called once with correct credentials
 //        verify(authenticationManager).authenticate(
 //                new UsernamePasswordAuthenticationToken(
 //                        "test@user.com",
@@ -146,7 +145,7 @@ class AuthenticationServiceTest {
 //                )
 //        );
 //
-//        // C) Перевіряємо, що ми 1 раз шукали юзера в базі
+//        // C) Verify repository was queried once
 //        verify(userRepository).findByEmail("test@user.com");
 //    }
 }

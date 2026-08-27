@@ -82,7 +82,7 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
-        <!-- Micrometer Tracing для Zipkin (для локальної розробки) -->
+        <!-- Micrometer Tracing for Zipkin (for local development) -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-brave</artifactId>

@@ -1,13 +1,13 @@
-# --------- ЕТАП 1: ЗБІРКА (Build) ---------
-# Використовуємо офіційний образ Maven з Java 17
+# --------- STAGE 1: Build ---------
+# Using official Maven image with Java 17
 FROM maven:3.9.6-eclipse-temurin-17-focal AS builder
 
-# Встановлюємо робочу директорію всередині контейнера
+# Set working directory inside container
 WORKDIR /app
 
-# Копіюємо ТІЛЬКИ pom.xml файли (спочатку батьківський, потім наш)
-# Це трюк кешування Docker. Якщо залежності не змінились,
-# Docker не буде завантажувати їх знову.
+# Copy ONLY pom.xml files (parent first, then child modules)
+# Docker caching optimization: if dependencies haven't changed,
+# Docker will reuse the cached layer.
 COPY pom.xml .
 
 COPY api-gateway/pom.xml ./api-gateway/
@@ -20,29 +20,27 @@ COPY cart-service/pom.xml ./cart-service/
 COPY payment-service/pom.xml ./payment-service/
 COPY delivery-service/pom.xml ./delivery-service/
 
-# Використовуємо кеш Docker BuildKit для папки .m2
+# Use Docker BuildKit cache for .m2 directory
 RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
-# Копіюємо решту коду нашого проекту
+# Copy remaining source code of service discovery
 COPY service-discovery/src ./service-discovery/src
 
-# Збираємо наш .jar файл
-# Збираємо, але знову монтуємо кеш .m2, щоб не качати нічого зайвого
+# Build package using .m2 cache
 RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -pl service-discovery -am
 
-# --------- ЕТАП 2: ЗАПУСК (Run) ---------
-# Використовуємо МІНІМАЛЬНИЙ образ тільки з Java Runtime
+# --------- STAGE 2: Run ---------
+# Minimal runtime image with JRE
 FROM eclipse-temurin:17-jre-focal
 
-# Встановлюємо робочу директорію
+# Set working directory
 WORKDIR /app
 
-# Копіюємо наш .jar файл з ЕТАПУ 1 (builder)
-# Зверни увагу на шлях, Maven кладе jar в папку 'target'
+# Copy built .jar from builder stage
 COPY --from=builder /app/service-discovery/target/service-discovery*.jar app.jar
 
-# Вказуємо порт, який наш додаток буде слухати всередині контейнера
+# Expose container port
 EXPOSE 8761
 
-# Команда, яка виконається при запуску контейнера
+# Container entrypoint
 ENTRYPOINT ["java", "-jar", "app.jar"]

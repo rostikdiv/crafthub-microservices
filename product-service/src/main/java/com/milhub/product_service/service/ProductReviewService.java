@@ -31,7 +31,7 @@ public class ProductReviewService {
     private final ProductRepository productRepository;
     private final OrderServiceIntegration orderServiceIntegration;
     private final UserContextService userContext;
-    private final UserServiceClient userServiceClient; // Якщо треба дістати ім'я
+    private final UserServiceClient userServiceClient; // To retrieve user name if needed
 
     /**
      * Adds a new review or reply.

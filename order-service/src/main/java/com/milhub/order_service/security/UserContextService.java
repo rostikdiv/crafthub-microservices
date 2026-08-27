@@ -13,8 +13,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserContextService {
 
-    // Ми не інжектимо HttpServletRequest напряму в поле,
-    // щоб уникнути проблем з потоками, а беремо його з контексту.
+    // We do not inject HttpServletRequest directly into a field
+    // to avoid thread safety issues, but retrieve it from the request context.
 
     public UUID getUserId() {
         String userId = getHeader("X-User-Id");
@@ -32,13 +32,13 @@ public class UserContextService {
 
     public boolean isVerified() {
         String isVerified = getHeader("X-User-Is-Verified");
-        return Boolean.parseBoolean(isVerified); // поверне false, якщо null
+        return Boolean.parseBoolean(isVerified); // returns false if null
     }
 
     private String getHeader(String headerName) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {
-            // Це може статись, якщо метод викликається не через HTTP запит (наприклад, Kafka Listener)
+            // This can happen if the method is called outside an HTTP request (e.g. Kafka Listener)
             return null;
         }
         HttpServletRequest request = attributes.getRequest();

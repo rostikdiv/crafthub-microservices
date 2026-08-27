@@ -27,7 +27,7 @@ public class PaymentIntegrationService {
 
     public PaymentResponseDTO initPaymentFallback(PaymentRequestDTO request, Throwable t) {
         log.error("Payment service is unavailable for user {}", request.userId());
-        throw new BusinessException("Неможливо провести оплату сервіс не доступний.");
+        throw new BusinessException("Unable to process payment: payment service is unavailable.");
     }
 
     @CircuitBreaker(name = "paymentService", fallbackMethod = "refundPaymentFallback")
@@ -37,6 +37,6 @@ public class PaymentIntegrationService {
 
     public void refundPaymentFallback(UUID orderId, java.math.BigDecimal amount, Throwable t) {
         log.error("Payment service unavailable during refund for order {}", orderId, t);
-        throw new BusinessException("Неможливо оформити повернення коштів. Сервіс оплати недоступний.");
+        throw new BusinessException("Unable to process refund: payment service is unavailable.");
     }
 }

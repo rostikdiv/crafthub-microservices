@@ -23,14 +23,14 @@ public class UserFileUploadController {
     @Value("${minio.bucket.documents:documents}")
     private String documentsBucket;
 
-    // 1. Завантаження Аватарки
+    // 1. Upload Avatar
     @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> uploadAvatar(@RequestParam("file") MultipartFile file) {
         String url = fileStorageService.uploadFile(file, avatarsBucket);
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    // 2. Завантаження Документів для верифікації
+    // 2. Upload Documents for Verification
     @PostMapping(value = "/document", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> uploadVerificationDocument(@RequestParam("file") MultipartFile file) {
         String url = fileStorageService.uploadFile(file, documentsBucket);
