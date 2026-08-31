@@ -20,34 +20,56 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID orderId;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID userId;
 
     @Column(nullable = false)
+    @ToString.Include
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @ToString.Include
     private TransactionStatus status;
 
+    @ToString.Include
     private String provider; // e.g., STRIPE, LIQPAY, MOCK_PAY
 
     @Column(unique = true)
+    @ToString.Include
     private String idempotencyKey;
 
     @Version
     private Long version;
 
     @CreationTimestamp
+    @ToString.Include
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        Transaction that = (Transaction) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -18,25 +18,31 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @Column(nullable = false)
+    @ToString.Include
     private String name;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(nullable = false)
+    @ToString.Include
     private BigDecimal price;
 
     @Column(name = "old_price")
+    @ToString.Include
     private BigDecimal oldPrice;
 
     @Column(nullable = false)
+    @ToString.Include
     private Integer quantity;
 
     @Column(nullable = false)
@@ -61,27 +67,33 @@ public class Product {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @ToString.Include
     private AccessLevel accessLevel;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID sellerId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ToString.Include
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    @ToString.Include
     private String sellerName;
     private String sellerLogoUrl;
 
     @Builder.Default
     @Column(nullable = false, columnDefinition = "double precision default 0.0")
+    @ToString.Include
     private Double averageRating = 0.0;
 
     @Builder.Default
     @Column(nullable = false, columnDefinition = "integer default 0")
+    @ToString.Include
     private Integer reviewCount = 0;
 
     @PrePersist
@@ -95,5 +107,18 @@ public class Product {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        Product product = (Product) o;
+        return getId() != null && getId().equals(product.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

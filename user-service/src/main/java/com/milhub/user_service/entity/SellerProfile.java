@@ -16,10 +16,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class SellerProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -28,6 +30,7 @@ public class SellerProfile {
     private User user;
 
     @Column(nullable = false)
+    @ToString.Include
     private String companyName;
 
     @Column(columnDefinition = "TEXT")
@@ -36,16 +39,20 @@ public class SellerProfile {
     private String logoUrl;
 
     @Column(nullable = false, unique = true)
+    @ToString.Include
     private String taxId;
 
+    @ToString.Include
     private Float rating;
 
     @Column(nullable = false)
     @Builder.Default
+    @ToString.Include
     private Integer reviewCount = 0;
 
     @Column(nullable = false, columnDefinition = "integer default 0")
     @Builder.Default
+    @ToString.Include
     private Integer totalSales = 0;
 
     @Column(nullable = false, columnDefinition = "boolean default true")
@@ -54,4 +61,17 @@ public class SellerProfile {
 
     @OneToMany(mappedBy = "sellerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<SellerPoint> pickupPoints;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        SellerProfile that = (SellerProfile) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

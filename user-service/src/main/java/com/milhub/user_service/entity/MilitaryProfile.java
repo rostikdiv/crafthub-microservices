@@ -16,10 +16,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class MilitaryProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -28,12 +30,29 @@ public class MilitaryProfile {
     private User user;
 
     @Column(nullable = false)
+    @ToString.Include
     private String unitNumber;
 
     @Column(nullable = false)
+    @ToString.Include
     private String edrpou;
 
+    @ToString.Include
     private String commanderName;
 
+    @ToString.Include
     private String officialAddress;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        MilitaryProfile that = (MilitaryProfile) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

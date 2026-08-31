@@ -20,10 +20,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class OrderReturn {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     // Link to the order
@@ -35,20 +37,25 @@ public class OrderReturn {
     // ID of the specific OrderItem being returned (MVP simplification: one item per
     // request)
     @Column(nullable = false)
+    @ToString.Include
     private Long orderItemId;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID productId;
 
     @Column(nullable = false)
+    @ToString.Include
     private Integer quantity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @ToString.Include
     private ReturnReason reason;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @ToString.Include
     private ReturnStatus status;
 
     // --- Financial Information ---
@@ -62,6 +69,7 @@ public class OrderReturn {
 
     // Final refund amount to be paid back
     @Column(nullable = false)
+    @ToString.Include
     private BigDecimal finalRefundAmount;
 
     // Whether shipping costs were deducted from the refund amount
@@ -69,9 +77,11 @@ public class OrderReturn {
     private boolean isShippingDeducted = false;
 
     // Tracking number for return shipment (from Delivery Service)
+    @ToString.Include
     private String returnTrackingNumber;
     private UUID returnShipmentId;
 
+    @ToString.Include
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -86,5 +96,18 @@ public class OrderReturn {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        OrderReturn that = (OrderReturn) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

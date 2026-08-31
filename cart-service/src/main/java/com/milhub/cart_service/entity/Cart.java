@@ -22,12 +22,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class Cart {
 
     /**
      * Unique identifier for the cart, corresponding to the user ID.
      */
     @Id
+    @ToString.Include
     private UUID userId;
 
     @Version
@@ -43,6 +45,7 @@ public class Cart {
      * Total price of all items in the cart across all sections.
      */
     @Builder.Default
+    @ToString.Include
     private BigDecimal totalPrice = BigDecimal.ZERO;
 
     /**
@@ -51,5 +54,19 @@ public class Cart {
      */
     @Transient
     @Builder.Default
+    @ToString.Include
     private boolean isDataUpToDate = true;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cart cart = (Cart) o;
+        return getUserId() != null && getUserId().equals(cart.getUserId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

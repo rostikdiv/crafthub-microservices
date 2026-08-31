@@ -15,20 +15,26 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class SellerReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID sellerId;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID userId;
 
+    @ToString.Include
     private String userName;
 
+    @ToString.Include
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")
@@ -37,10 +43,24 @@ public class SellerReview {
     @Column(columnDefinition = "TEXT")
     private String sellerReply;
 
+    @ToString.Include
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        SellerReview that = (SellerReview) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

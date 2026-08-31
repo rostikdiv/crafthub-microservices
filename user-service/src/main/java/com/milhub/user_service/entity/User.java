@@ -23,22 +23,27 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @Column(nullable = false, unique = true)
+    @ToString.Include
     private String email;
 
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
+    @ToString.Include
     private String firstName;
 
     @Column(nullable = false)
+    @ToString.Include
     private String lastName;
 
     private String phoneNumber;
@@ -47,9 +52,11 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @ToString.Include
     private Role role;
 
     @Column(nullable = false)
+    @ToString.Include
     private Boolean isVerified = false;
 
     @Column(nullable = false, updatable = false)
@@ -118,5 +125,18 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        User user = (User) o;
+        return getId() != null && getId().equals(user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

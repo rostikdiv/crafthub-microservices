@@ -18,26 +18,33 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class ProductReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID productId; // Link to the product (loose coupling, no @ManyToOne in Product)
 
     @Column(nullable = false)
+    @ToString.Include
     private UUID userId;
 
+    @ToString.Include
     private String userName; // Cached user name
     private String userAvatarUrl; // Optional avatar URL
 
+    @ToString.Include
     private Integer rating; // Rating (1-5). May be null for replies.
 
     @Column(columnDefinition = "TEXT")
     private String comment;
 
+    @ToString.Include
     private boolean isVerifiedPurchase;
 
     // SELF-REFERENCING FOR THREADS (Replies)
@@ -52,6 +59,7 @@ public class ProductReview {
     @Builder.Default
     private List<ProductReview> replies = new ArrayList<>();
 
+    @ToString.Include
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -63,5 +71,18 @@ public class ProductReview {
     public void addReply(ProductReview reply) {
         replies.add(reply);
         reply.setParent(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        ProductReview that = (ProductReview) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

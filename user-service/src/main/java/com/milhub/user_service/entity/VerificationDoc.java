@@ -19,10 +19,12 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(onlyExplicitlyIncluded = true)
 public class VerificationDoc {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @ToString.Include
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,17 +33,33 @@ public class VerificationDoc {
     private User user;
 
     @Enumerated(EnumType.STRING)
+    @ToString.Include
     private DocumentType documentType;
 
     private String docUrl;
 
     @Enumerated(EnumType.STRING)
+    @ToString.Include
     private VerificationStatus status;
 
+    @ToString.Include
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != org.hibernate.Hibernate.getClass(o)) return false;
+        VerificationDoc that = (VerificationDoc) o;
+        return getId() != null && getId().equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
