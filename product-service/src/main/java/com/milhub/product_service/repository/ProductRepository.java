@@ -12,9 +12,15 @@ import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
     
-    @EntityGraph(attributePaths = {"category", "imageUrls"})
+    // Only join @ManyToOne category to allow pure SQL LIMIT/OFFSET pagination without in-memory warning (HHH000104).
+    // imageUrls will be batch-fetched via hibernate.default_batch_fetch_size: 50.
+    @EntityGraph(attributePaths = {"category"})
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
 
     @EntityGraph(attributePaths = {"category", "imageUrls"})
     Optional<Product> findById(UUID id);
+
+    // Batch retrieval with both associations safely fetched via single JOIN (no pagination)
+    @EntityGraph(attributePaths = {"category", "imageUrls"})
+    java.util.List<Product> findAllByIdIn(java.util.Collection<UUID> ids);
 }

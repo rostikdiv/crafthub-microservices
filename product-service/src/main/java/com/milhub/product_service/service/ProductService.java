@@ -1,6 +1,7 @@
 package com.milhub.product_service.service;
 
 
+import java.util.Collections;
 import com.milhub.product_service.dto.product.ProductRequestDTO;
 import com.milhub.product_service.dto.product.ProductResponseDTO;
 import com.milhub.product_service.dto.SellerInfoDTO;
@@ -204,7 +205,10 @@ public class ProductService {
      * Retrieves multiple products by their identifiers.
      */
     public List<ProductResponseDTO> getProductsByIds(List<UUID> ids) {
-        return productRepository.findAllById(ids).stream()
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return productRepository.findAllByIdIn(ids).stream()
                 .map(this::mapToProductResponse)
                 .toList();
     }

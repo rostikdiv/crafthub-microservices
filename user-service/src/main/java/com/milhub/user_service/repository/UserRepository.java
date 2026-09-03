@@ -29,4 +29,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     @EntityGraph(attributePaths = {"sellerProfile", "militaryProfile"})
     @Query("SELECT u FROM User u")
     java.util.List<User> findAllWithProfiles();
+
+    /**
+     * Efficiently fetches non-verified users who have pending verification documents,
+     * eager-loading their documents and profiles in a single query to eliminate N+1 queries.
+     */
+    @Query("SELECT DISTINCT u FROM User u " +
+           "JOIN FETCH u.documents d " +
+           "LEFT JOIN FETCH u.sellerProfile " +
+           "LEFT JOIN FETCH u.militaryProfile " +
+           "WHERE u.isVerified = false AND d.status = com.milhub.user_service.entity.enums.VerificationStatus.PENDING")
+    java.util.List<User> findUsersWithPendingDocuments();
 }

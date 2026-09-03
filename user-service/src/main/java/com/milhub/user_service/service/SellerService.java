@@ -30,7 +30,7 @@ public class SellerService {
          */
         @Transactional(readOnly = true)
         public List<SellerPublicProfileDTO> getAllSellers() {
-                return sellerProfileRepository.findAll().stream()
+                return sellerProfileRepository.findAllWithUser().stream()
                         .map(profile -> new SellerPublicProfileDTO(
                                 profile.getUser().getId(),
                                 profile.getCompanyName(),

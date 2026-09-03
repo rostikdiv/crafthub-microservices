@@ -38,9 +38,7 @@ public class AdminService {
      */
     @Transactional(readOnly = true)
     public List<VerificationRequestResponseDTO> getPendingVerifications() {
-        return userRepository.findAll().stream()
-                .filter(user -> !Boolean.TRUE.equals(user.getIsVerified())) // Only non-verified users
-                .filter(this::hasPendingDocs) // Only those with documents awaiting review
+        return userRepository.findUsersWithPendingDocuments().stream()
                 .map(this::mapToRequestDTO)
                 .collect(Collectors.toList());
     }

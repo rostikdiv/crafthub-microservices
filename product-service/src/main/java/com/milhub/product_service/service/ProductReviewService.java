@@ -5,6 +5,7 @@ import com.milhub.product_service.client.UserServiceClient;
 import com.milhub.product_service.dto.review.ProductReviewRequestDTO;
 import com.milhub.product_service.dto.review.ProductReviewResponseDTO;
 import com.milhub.product_service.dto.review.UserReviewHistoryDTO;
+import com.milhub.product_service.entity.Product;
 import com.milhub.product_service.entity.ProductReview;
 import com.milhub.product_service.exception.ResourceNotFoundException;
 import com.milhub.product_service.repository.ProductRepository;
@@ -17,7 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -88,13 +90,28 @@ public class ProductReviewService {
     }
 
     /**
-     * Retrieves root reviews for a product. Children are fetched via recursion in
-     * mapToDTO.
+     * Retrieves root reviews for a product with child replies fetched in a single batch query.
      */
+    @Transactional(readOnly = true)
     public Page<ProductReviewResponseDTO> getReviewsByProduct(UUID productId, Pageable pageable) {
-        // Fetch only top-level reviews; recursion handles children
-        return reviewRepository.findAllRootReviewsByProductId(productId, pageable)
-                .map(this::mapToDTO);
+        Page<ProductReview> rootReviewsPage = reviewRepository.findAllRootReviewsByProductId(productId, pageable);
+        if (rootReviewsPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        List<UUID> rootIds = rootReviewsPage.getContent().stream()
+                .map(ProductReview::getId)
+                .toList();
+
+        // Batch fetch all replies for the root reviews of the current page in a single query
+        List<ProductReview> allReplies = reviewRepository.findAllByParentIdInOrderByCreatedAtAsc(rootIds);
+
+        // Group replies by parent ID for fast O(1) in-memory tree assembly
+        Map<UUID, List<ProductReview>> repliesByParentId = allReplies.stream()
+                .filter(r -> r.getParent() != null)
+                .collect(Collectors.groupingBy(r -> r.getParent().getId()));
+
+        return rootReviewsPage.map(rootReview -> mapToDTOWithReplies(rootReview, repliesByParentId));
     }
 
     /**
@@ -123,20 +140,29 @@ public class ProductReviewService {
     }
 
     /**
-     * Retrieves review history for the current user.
+     * Retrieves review history for the current user using batch product lookups.
      */
     @Transactional(readOnly = true)
     public Page<UserReviewHistoryDTO> getUserReviewHistory(Pageable pageable) {
         UUID userId = userContext.getUserId();
 
-        return reviewRepository.findAllByUserId(userId, pageable)
-                .map(this::mapToHistoryDTO);
+        Page<ProductReview> reviewsPage = reviewRepository.findAllByUserId(userId, pageable);
+        if (reviewsPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        // Batch fetch all products referenced on this page in a single query
+        Set<UUID> productIds = reviewsPage.getContent().stream()
+                .map(ProductReview::getProductId)
+                .collect(Collectors.toSet());
+
+        Map<UUID, Product> productMap = productRepository.findAllByIdIn(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
+        return reviewsPage.map(review -> mapToHistoryDTO(review, productMap.get(review.getProductId())));
     }
 
-    private UserReviewHistoryDTO mapToHistoryDTO(ProductReview review) {
-        // Fetch product info for name and image
-        // Cache or batch-fetch recommended for high volume
-        var product = productRepository.findById(review.getProductId()).orElse(null);
+    private UserReviewHistoryDTO mapToHistoryDTO(ProductReview review, Product product) {
         String productName = (product != null) ? product.getName() : "Unknown Product";
         String productImg = (product != null) ? product.getPreviewImageUrl() : null;
 
@@ -149,7 +175,9 @@ public class ProductReviewService {
             replyToUser = review.getParent().getUserName();
             // Truncate parent comment if it's too long
             String parentText = review.getParent().getComment();
-            replyToText = parentText.length() > 50 ? parentText.substring(0, 50) + "..." : parentText;
+            replyToText = (parentText != null && parentText.length() > 50)
+                    ? parentText.substring(0, 50) + "..."
+                    : parentText;
         }
 
         return new UserReviewHistoryDTO(
@@ -166,7 +194,28 @@ public class ProductReviewService {
     }
 
     /**
-     * Recursive mapper for reviews and their replies.
+     * Hierarchical mapper for reviews with pre-fetched replies map.
+     */
+    private ProductReviewResponseDTO mapToDTOWithReplies(ProductReview review, Map<UUID, List<ProductReview>> repliesByParentId) {
+        List<ProductReview> childReplies = repliesByParentId.getOrDefault(review.getId(), Collections.emptyList());
+        List<ProductReviewResponseDTO> repliesDto = childReplies.stream()
+                .map(child -> mapToDTOWithReplies(child, repliesByParentId))
+                .collect(Collectors.toList());
+
+        return new ProductReviewResponseDTO(
+                review.getId(),
+                review.getUserId(),
+                review.getUserName(),
+                review.getRating(),
+                review.getComment(),
+                review.isVerifiedPurchase(),
+                review.getCreatedAt(),
+                review.getParent() != null ? review.getParent().getId() : null,
+                repliesDto);
+    }
+
+    /**
+     * Fallback mapper for single review operations (e.g., creation).
      */
     private ProductReviewResponseDTO mapToDTO(ProductReview review) {
         return new ProductReviewResponseDTO(
@@ -178,6 +227,8 @@ public class ProductReviewService {
                 review.isVerifiedPurchase(),
                 review.getCreatedAt(),
                 review.getParent() != null ? review.getParent().getId() : null,
-                review.getReplies().stream().map(this::mapToDTO).collect(Collectors.toList()));
+                review.getReplies() != null
+                        ? review.getReplies().stream().map(this::mapToDTO).collect(Collectors.toList())
+                        : Collections.emptyList());
     }
 }

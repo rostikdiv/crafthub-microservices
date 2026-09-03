@@ -104,6 +104,9 @@ class OrderServiceTest {
                 .build();
 
         ReflectionTestUtils.setField(orderService, "self", orderService);
+
+        lenient().when(userServiceClient.getSellerProfile(any()))
+                .thenReturn(new com.milhub.order_service.dto.seller.SellerPublicProfileDTO(sellerId, "Test Seller", true));
     }
 
     private void setupSecurityContext(String... authorities) {

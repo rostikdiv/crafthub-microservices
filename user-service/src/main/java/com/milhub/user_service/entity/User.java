@@ -66,6 +66,17 @@ public class User implements UserDetails {
 
     // Relationships
 
+    /*
+     * ARCHITECTURAL NOTE (JPA / Hibernate Pitfall):
+     * Non-owning side of bidirectional @OneToOne ("mappedBy = user") CANNOT be truly lazy
+     * without bytecode instrumentation. Because the foreign key resides in the child table,
+     * Hibernate must execute an immediate query to check if the association is null or requires a proxy.
+     *
+     * Trade-off Decision:
+     * We accept eager queries upon single-user lookups (e.g. findById during authenticated requests).
+     * For bulk queries, ALWAYS use the existing UserRepository#findAllWithProfiles() with @EntityGraph,
+     * or dedicated projections, to avoid 1 + 2N queries.
+     */
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private MilitaryProfile militaryProfile;
 

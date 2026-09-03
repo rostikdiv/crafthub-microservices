@@ -26,7 +26,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
      * @param pageable Pagination information.
      * @return A page of orders.
      */
-    @EntityGraph(attributePaths = {"items"})
+    // Intentionally omit @EntityGraph on @OneToMany items to prevent in-memory pagination (HHH000104).
+    // Child items are safely batch-fetched via hibernate.default_batch_fetch_size: 50.
     Page<Order> findAllByUserId(UUID userId, Pageable pageable);
 
     /**

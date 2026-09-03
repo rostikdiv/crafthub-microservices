@@ -11,7 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,15 +60,22 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves all available product categories.
+     * Retrieves all available product categories built hierarchically in memory (single SQL query).
      *
-     * @return list of categories
+     * @return list of root categories with nested subcategories
      */
     @GetMapping("/")
     public List<CategoryResponseDTO> getAllCategories() {
-        return categoryRepository.findAll().stream()
-                .filter(c -> c.getParent() == null) // Only root categories
-                .map(this::mapToResponse)
+        List<Category> allCategories = categoryRepository.findAll();
+
+        // Group child categories by their parent ID in memory to prevent N+1 lazy queries
+        Map<Long, List<Category>> childrenByParentId = allCategories.stream()
+                .filter(c -> c.getParent() != null)
+                .collect(Collectors.groupingBy(c -> c.getParent().getId()));
+
+        return allCategories.stream()
+                .filter(c -> c.getParent() == null) // Root categories
+                .map(root -> mapToTreeResponse(root, childrenByParentId))
                 .collect(Collectors.toList());
     }
 
@@ -83,6 +90,21 @@ public class CategoryController {
         return (categoryRepository.findById(id)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found")));
+    }
+
+    private CategoryResponseDTO mapToTreeResponse(Category category, Map<Long, List<Category>> childrenByParentId) {
+        List<Category> children = childrenByParentId.getOrDefault(category.getId(), Collections.emptyList());
+        List<CategoryResponseDTO> subCats = children.isEmpty() ? null : children.stream()
+                .map(child -> mapToTreeResponse(child, childrenByParentId))
+                .collect(Collectors.toList());
+
+        return CategoryResponseDTO.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .description(category.getDescription())
+                .parentId(category.getParent() != null ? category.getParent().getId() : null)
+                .subCategories(subCats)
+                .build();
     }
 
     private CategoryResponseDTO mapToResponse(Category category) {
