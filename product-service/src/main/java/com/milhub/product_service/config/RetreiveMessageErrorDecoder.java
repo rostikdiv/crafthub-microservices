@@ -22,13 +22,15 @@ public class RetreiveMessageErrorDecoder implements ErrorDecoder {
     @Override
     public Exception decode(String methodKey, Response response) {
         String errorMessage = null;
-        try (InputStream bodyIs = response.body().asInputStream()) {
-            // Read error text returned by the external service
-            if (bodyIs != null) {
-                errorMessage = StreamUtils.copyToString(bodyIs, StandardCharsets.UTF_8);
+        if (response.body() != null) {
+            try (InputStream bodyIs = response.body().asInputStream()) {
+                // Read error text returned by the external service
+                if (bodyIs != null) {
+                    errorMessage = StreamUtils.copyToString(bodyIs, StandardCharsets.UTF_8);
+                }
+            } catch (IOException e) {
+                errorMessage = "Failed to process error response";
             }
-        } catch (IOException e) {
-            errorMessage = "Failed to process error response";
         }
 
         // fallback to default if message is empty

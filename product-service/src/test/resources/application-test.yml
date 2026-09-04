@@ -17,6 +17,10 @@ spring:
       mode: never
   kafka:
     bootstrap-servers: localhost:9092
+    admin:
+      auto-create: false
+    listener:
+      auto-startup: false
   cache:
     type: simple
 eureka:
