@@ -10,4 +10,9 @@ class ApiGatewayApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void testApplicationInstantiation() {
+		ApiGatewayApplication app = new ApiGatewayApplication();
+		org.junit.jupiter.api.Assertions.assertNotNull(app);
+	}
 }
