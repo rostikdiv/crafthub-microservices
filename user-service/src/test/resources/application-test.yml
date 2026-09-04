@@ -8,10 +8,16 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+  kafka:
+    admin:
+      auto-create: false
 
 minio:
   url: http://localhost:9000
   access-key: minioadmin
   secret-key: minioadmin
   external-url: http://localhost:9000
+
+eureka:
+  client:
+    enabled: false
