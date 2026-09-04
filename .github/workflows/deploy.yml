@@ -102,9 +102,14 @@ jobs:
       - name: Configure Docker authentication for Artifact Registry
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }} --quiet
 
-      # Compile and package all Spring Boot microservices into JAR files
+            # Run full test suite across the Maven reactor before building deployable artifacts.
+      # Uses 'verify' (not just 'test') so the build fails on the same lifecycle phase as pr-check.yml.
+      - name: Run Tests
+        run: mvn clean verify
+
+      # Package all Spring Boot microservices into JAR files (tests already passed above)
       - name: Build All Microservices JARs
-        run: mvn clean package -DskipTests
+        run: mvn package -DskipTests
 
       # -----------------------------------------------------------------------
       # 1. API Gateway Service Deployment
