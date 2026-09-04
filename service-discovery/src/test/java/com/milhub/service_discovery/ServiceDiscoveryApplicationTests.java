@@ -10,4 +10,10 @@ class ServiceDiscoveryApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void mainMethodRuns() {
+		ServiceDiscoveryApplication.main(new String[]{"--spring.profiles.active=test", "--server.port=0"});
+	}
+
 }
+
