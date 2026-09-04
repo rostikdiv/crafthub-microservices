@@ -1,5 +1,6 @@
 target/
 .mvn/
+!.mvn/wrapper/
 .idea/
 *.iml
 *.log
