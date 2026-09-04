@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: delivery-service-test
+  kafka:
+    bootstrap-servers: localhost:29092
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+eureka:
+  client:
+    enabled: false
