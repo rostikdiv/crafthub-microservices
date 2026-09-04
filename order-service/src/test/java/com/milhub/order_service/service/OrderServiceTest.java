@@ -671,4 +671,351 @@ class OrderServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Return must be APPROVED before completing refund.");
     }
+
+    @Test
+    void createOrder_SellerProfileNotVerified_ThrowsBusinessException() {
+        mockUserContext(true);
+        when(userServiceClient.getSellerProfile(sellerId))
+                .thenReturn(new com.milhub.order_service.dto.seller.SellerPublicProfileDTO(sellerId, "Unverified Seller", false));
+
+        OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), validDeliveryDetails, PaymentMethod.CARD);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Item", BigDecimal.TEN, "PUBLIC", 5, sellerId);
+        when(productIntegrationService.getProductById(productId)).thenReturn(product);
+
+        assertThatThrownBy(() -> orderService.createOrder(request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Seller profile is not verified");
+    }
+
+    @Test
+    void createOrder_UserServiceUnavailable_ThrowsBusinessException() {
+        mockUserContext(true);
+        when(userServiceClient.getSellerProfile(sellerId))
+                .thenThrow(new RuntimeException("Service down"));
+
+        OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), validDeliveryDetails, PaymentMethod.CARD);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Item", BigDecimal.TEN, "PUBLIC", 5, sellerId);
+        when(productIntegrationService.getProductById(productId)).thenReturn(product);
+
+        assertThatThrownBy(() -> orderService.createOrder(request))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("User service is currently unavailable");
+    }
+
+    @Test
+    void createOrder_DeliveryDetailsWithoutEmail_SetsUserEmail() {
+        mockUserContext(true);
+        setupSecurityContext("order:create");
+
+        DeliveryDetailsDTO detailsWithoutEmail = DeliveryDetailsDTO.builder()
+                .provider(DeliveryProvider.NOVA_POSHTA)
+                .type(DeliveryType.BRANCH)
+                .cityRef("City")
+                .branchRef("1")
+                .recipientEmail(null)
+                .build();
+
+        OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), detailsWithoutEmail, PaymentMethod.COD);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Item", BigDecimal.TEN, "PUBLIC", 5, sellerId);
+        when(productIntegrationService.getProductById(productId)).thenReturn(product);
+        when(userServiceClient.getAutoConfirm(sellerId)).thenReturn(false);
+
+        PaymentResponseDTO response = orderService.createOrder(request);
+        assertThat(response.status()).isEqualTo("PENDING_CONFIRMATION");
+    }
+
+    @Test
+    void createOrder_UserServiceExceptionsIgnoredGracefully() {
+        mockUserContext(true);
+        setupSecurityContext("order:create");
+
+        OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), validDeliveryDetails, PaymentMethod.COD);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Item", BigDecimal.TEN, "PUBLIC", 5, sellerId);
+        when(productIntegrationService.getProductById(productId)).thenReturn(product);
+
+        doThrow(new RuntimeException("increment sales failed")).when(userServiceClient).incrementSales(any(), any());
+        when(userServiceClient.getAutoConfirm(any())).thenThrow(new RuntimeException("auto confirm error"));
+
+        PaymentResponseDTO response = orderService.createOrder(request);
+        assertThat(response.status()).isEqualTo("PENDING_CONFIRMATION");
+    }
+
+    @Test
+    void createOrder_CompensatingTransactionFailureLogged() {
+        mockUserContext(true);
+
+        OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
+        OrderRequestDTO request = new OrderRequestDTO(List.of(itemRequest), validDeliveryDetails, PaymentMethod.CARD);
+        ProductResponseDTO product = new ProductResponseDTO(productId, "Item", BigDecimal.TEN, "PUBLIC", 5, sellerId);
+        when(productIntegrationService.getProductById(productId)).thenReturn(product);
+
+        doThrow(new RuntimeException("DB save failed")).when(orderRepository).save(any());
+        doThrow(new RuntimeException("Restore stock failed")).when(productIntegrationService).restoreStock(any(), any());
+
+        assertThatThrownBy(() -> orderService.createOrder(request))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void mapToOrderResponseDTO_ItemNameNull_DefaultsToUnknown() {
+        UUID orderId = UUID.randomUUID();
+        Order order = Order.builder()
+                .id(orderId)
+                .userId(userId)
+                .status(OrderStatus.CREATED)
+                .totalPrice(BigDecimal.TEN)
+                .createdAt(LocalDateTime.now())
+                .items(List.of(OrderItem.builder().productId(productId).name(null).quantity(1).pricePerUnit(BigDecimal.TEN).build()))
+                .build();
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        OrderResponseDTO result = orderService.getOrderById(orderId);
+        assertThat(result.items().get(0).name()).isEqualTo("Unknown Product");
+    }
+
+    @Test
+    void updateOrderStatusFromDelivery_AllDeliveryStatuses() {
+        Order order = new Order();
+        order.setId(orderId);
+        order.setStatus(OrderStatus.CONFIRMED);
+        order.setDeliveryInfo(validDeliveryDetails);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        // PREPARING
+        orderService.updateOrderStatusFromDelivery(orderId, "PREPARING");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PREPARING);
+
+        // SHIPPED
+        orderService.updateOrderStatusFromDelivery(orderId, "SHIPPED");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.SHIPPED);
+
+        // DELIVERED
+        orderService.updateOrderStatusFromDelivery(orderId, "DELIVERED");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.DELIVERED);
+
+        // CANCELLED
+        orderService.updateOrderStatusFromDelivery(orderId, "CANCELLED");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+
+        // READY_TO_SHIP with non-SELF_PICKUP
+        orderService.updateOrderStatusFromDelivery(orderId, "READY_TO_SHIP");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PREPARING);
+
+        // READY_TO_SHIP with SELF_PICKUP
+        DeliveryDetailsDTO pickupDelivery = DeliveryDetailsDTO.builder()
+                .provider(DeliveryProvider.SELLER)
+                .type(DeliveryType.SELF_PICKUP)
+                .pickupAddress("Main Base")
+                .build();
+        order.setDeliveryInfo(pickupDelivery);
+        orderService.updateOrderStatusFromDelivery(orderId, "READY_TO_SHIP");
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.READY_FOR_PICKUP);
+    }
+
+    @Test
+    void hasUserPurchasedProduct_ReturnsRepositoryResult() {
+        mockUserContext(true);
+        when(orderRepository.existsByUserIdAndItemsProductIdAndStatusIn(eq(userId), eq(productId), anyList()))
+                .thenReturn(true);
+
+        boolean result = orderService.hasUserPurchasedProduct(productId);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void hasUserBoughtFromSeller_ReturnsRepositoryResult() {
+        when(orderRepository.existsByUserIdAndSellerIdAndStatusIn(eq(userId), eq(sellerId), anyList()))
+                .thenReturn(true);
+
+        boolean result = orderService.hasUserBoughtFromSeller(userId, sellerId);
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void getSellerOrders_StatusNullAndNotNull() {
+        lenient().when(userContext.getUserId()).thenReturn(sellerId);
+        Pageable pageable = PageRequest.of(0, 10);
+        Order order = new Order();
+        order.setId(orderId);
+        order.setItems(List.of());
+        Page<Order> page = new PageImpl<>(List.of(order));
+
+        when(orderRepository.findAllBySellerIdAndStatus(sellerId, OrderStatus.DELIVERED, pageable)).thenReturn(page);
+        when(orderRepository.findAllBySellerId(sellerId, pageable)).thenReturn(page);
+
+        var resWithStatus = orderService.getSellerOrders(OrderStatus.DELIVERED, pageable);
+        assertThat(resWithStatus).hasSize(1);
+
+        var resWithoutStatus = orderService.getSellerOrders(null, pageable);
+        assertThat(resWithoutStatus).hasSize(1);
+    }
+
+    @Test
+    void updateOrderStatusBySeller_CancelOrder_RestoresStock() {
+        lenient().when(userContext.getUserId()).thenReturn(sellerId);
+        Order order = new Order();
+        order.setId(orderId);
+        order.setSellerId(sellerId);
+        order.setStatus(OrderStatus.CONFIRMED);
+        OrderItem item = OrderItem.builder().productId(productId).quantity(2).pricePerUnit(BigDecimal.TEN).build();
+        order.setItems(List.of(item));
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenReturn(order);
+
+        OrderResponseDTO result = orderService.updateOrderStatusBySeller(orderId, OrderStatus.CANCELLED);
+        assertThat(result.status()).isEqualTo(OrderStatus.CANCELLED);
+        verify(productIntegrationService).restoreStock(productId, 2);
+    }
+
+    @Test
+    void validateDeliveryDetails_AllValidationBranches() {
+        mockUserContext(true);
+        setupSecurityContext("order:create");
+        OrderItemRequestDTO itemRequest = new OrderItemRequestDTO(productId, 1);
+
+        // 1. Details null
+        OrderRequestDTO req1 = new OrderRequestDTO(List.of(itemRequest), null, PaymentMethod.CARD);
+        assertThatThrownBy(() -> orderService.createOrder(req1))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("Delivery details are required");
+
+        // 2. Provider null
+        DeliveryDetailsDTO noProvider = DeliveryDetailsDTO.builder().provider(null).type(DeliveryType.BRANCH).build();
+        OrderRequestDTO req2 = new OrderRequestDTO(List.of(itemRequest), noProvider, PaymentMethod.CARD);
+        assertThatThrownBy(() -> orderService.createOrder(req2))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("Delivery provider and type are required");
+
+        // 3. Branch missing city/branch
+        DeliveryDetailsDTO noBranch = DeliveryDetailsDTO.builder().provider(DeliveryProvider.NOVA_POSHTA).type(DeliveryType.BRANCH).cityRef(null).build();
+        OrderRequestDTO req3 = new OrderRequestDTO(List.of(itemRequest), noBranch, PaymentMethod.CARD);
+        assertThatThrownBy(() -> orderService.createOrder(req3))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("City and Branch are required");
+
+        // 4. Courier non-seller missing city
+        DeliveryDetailsDTO courierNoCity = DeliveryDetailsDTO.builder().provider(DeliveryProvider.NOVA_POSHTA).type(DeliveryType.COURIER).cityRef(null).street("Street").building("1").build();
+        OrderRequestDTO req4 = new OrderRequestDTO(List.of(itemRequest), courierNoCity, PaymentMethod.CARD);
+        assertThatThrownBy(() -> orderService.createOrder(req4))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("Address details are required for COURIER");
+
+        // 5. Courier missing street/building
+        DeliveryDetailsDTO courierNoStreet = DeliveryDetailsDTO.builder().provider(DeliveryProvider.SELLER).type(DeliveryType.COURIER).street(null).building(null).build();
+        OrderRequestDTO req5 = new OrderRequestDTO(List.of(itemRequest), courierNoStreet, PaymentMethod.CARD);
+        assertThatThrownBy(() -> orderService.createOrder(req5))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("Address details are required for COURIER");
+
+        // 6. Self pickup missing address
+        DeliveryDetailsDTO pickupNoAddr = DeliveryDetailsDTO.builder().provider(DeliveryProvider.SELLER).type(DeliveryType.SELF_PICKUP).pickupAddress(null).build();
+        OrderRequestDTO req6 = new OrderRequestDTO(List.of(itemRequest), pickupNoAddr, PaymentMethod.CARD);
+        assertThatThrownBy(() -> orderService.createOrder(req6))
+                .isInstanceOf(BusinessException.class).hasMessageContaining("Pickup address is required");
+    }
+
+    @Test
+    void cancelMyOrder_WrongUser_ThrowsAccessDenied() {
+        mockUserContext(true);
+        Order order = new Order();
+        order.setUserId(UUID.randomUUID()); // Different user
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.cancelMyOrder(orderId, "reason"))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("You can only cancel your own orders");
+    }
+
+    @Test
+    void requestReturn_WrongUser_ThrowsAccessDenied() {
+        mockUserContext(true);
+        Order order = new Order();
+        order.setUserId(UUID.randomUUID());
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.requestReturn(orderId, "Defect"))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("You can only request return for your own orders");
+    }
+
+    @Test
+    void requestReturn_NotDelivered_ThrowsBusinessException() {
+        mockUserContext(true);
+        Order order = new Order();
+        order.setUserId(userId);
+        order.setStatus(OrderStatus.SHIPPED);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.requestReturn(orderId, "Defect"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Return can only be requested for DELIVERED orders");
+    }
+
+    @Test
+    void processReturn_WrongSeller_ThrowsAccessDenied() {
+        lenient().when(userContext.getUserId()).thenReturn(UUID.randomUUID());
+        Order order = new Order();
+        order.setSellerId(sellerId);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.processReturn(orderId, true))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("You are not the seller of this order");
+    }
+
+    @Test
+    void processReturn_InvalidStatus_ThrowsBusinessException() {
+        lenient().when(userContext.getUserId()).thenReturn(sellerId);
+        Order order = new Order();
+        order.setSellerId(sellerId);
+        order.setStatus(OrderStatus.DELIVERED);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.processReturn(orderId, true))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Order is not in RETURN_REQUESTED state");
+    }
+
+    @Test
+    void completeReturn_WrongSeller_ThrowsAccessDenied() {
+        lenient().when(userContext.getUserId()).thenReturn(UUID.randomUUID());
+        Order order = new Order();
+        order.setSellerId(sellerId);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.completeReturn(orderId))
+                .isInstanceOf(AccessDeniedException.class)
+                .hasMessageContaining("You are not the seller of this order");
+    }
+
+    @Test
+    void confirmOrderPayment_AlreadyDeliveredOrPaid_ReturnsImmediately() {
+        Order orderDelivered = new Order();
+        orderDelivered.setStatus(OrderStatus.DELIVERED);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderDelivered));
+
+        orderService.confirmOrderPayment(orderId);
+        verify(orderRepository, never()).save(any());
+
+        Order orderPaid = new Order();
+        orderPaid.setStatus(OrderStatus.PAID);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(orderPaid));
+
+        orderService.confirmOrderPayment(orderId);
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    void confirmOrderPayment_AutoConfirmConfigured_UpdatesStatus() {
+        Order order = new Order();
+        order.setId(orderId);
+        order.setSellerId(sellerId);
+        order.setStatus(OrderStatus.PENDING_PAYMENT);
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(userServiceClient.getAutoConfirm(sellerId)).thenReturn(true);
+
+        orderService.confirmOrderPayment(orderId);
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.PENDING_CONFIRMATION);
+        verify(orderRepository).save(order);
+    }
 }

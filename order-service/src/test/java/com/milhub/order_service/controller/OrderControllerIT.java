@@ -45,14 +45,28 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-
-
+@Testcontainers
+@org.springframework.test.context.TestPropertySource(properties = {
+    "spring.kafka.listener.auto-startup=false",
+    "eureka.client.enabled=false"
+})
 class OrderControllerIT {
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
+
+
 
     @Autowired
     private OrderRepository orderRepository;
@@ -105,6 +119,7 @@ class OrderControllerIT {
 
         ProductResponseDTO product = new ProductResponseDTO(productId, "Test Item", BigDecimal.valueOf(100), "PUBLIC", 10, sellerId);
         when(productIntegrationService.getProductById(productId)).thenReturn(product);
+        when(userServiceClient.getSellerProfile(any())).thenReturn(new com.milhub.order_service.dto.seller.SellerPublicProfileDTO(sellerId, "Company", true));
 
         PaymentResponseDTO paymentResponse = new PaymentResponseDTO(UUID.randomUUID(), "PENDING", "http://pay.url");
         when(paymentIntegrationService.initPayment(any(PaymentRequestDTO.class))).thenReturn(paymentResponse);
@@ -114,6 +129,7 @@ class OrderControllerIT {
                         .header("X-User-Id", userId.toString())
                         .header("X-User-Email", "test@example.com")
                         .header("X-User-Role", "BUYER")
+                        .header("X-User-Permissions", "order:create,order:read:my,order:read,order:update,ROLE_BUYER,ROLE_SELLER")
                         .header("X-User-Is-Verified", "true")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -143,6 +159,7 @@ class OrderControllerIT {
         // Act & Assert
         mockMvc.perform(post("/api/v1/orders")
                         .header("X-User-Id", userId.toString())
+                        .header("X-User-Permissions", "order:create,order:read,order:update,ROLE_BUYER,ROLE_SELLER")
                         .header("X-User-Role", "BUYER")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -166,6 +183,7 @@ class OrderControllerIT {
         // Act & Assert
         mockMvc.perform(get("/api/v1/orders/my")
                         .header("X-User-Id", userId.toString())
+                        .header("X-User-Permissions", "order:read:my,ROLE_BUYER")
                         .header("X-User-Role", "BUYER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(1))
@@ -189,6 +207,7 @@ class OrderControllerIT {
         // Act & Assert
         mockMvc.perform(get("/api/v1/orders/" + order.getId())
                         .header("X-User-Id", userId.toString())
+                        .header("X-User-Permissions", "order:create,order:read,order:update,ROLE_BUYER,ROLE_SELLER")
                         .header("X-User-Role", "BUYER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(order.getId().toString()))
@@ -211,6 +230,7 @@ class OrderControllerIT {
         // Act & Assert
         mockMvc.perform(post("/api/v1/orders/" + order.getId() + "/cancel")
                         .header("X-User-Id", userId.toString())
+                        .header("X-User-Permissions", "order:create,order:read,order:update,ROLE_BUYER,ROLE_SELLER")
                         .header("X-User-Role", "BUYER")
                         .content("Changed mind"))
                 .andExpect(status().isOk());
@@ -236,6 +256,7 @@ class OrderControllerIT {
         mockMvc.perform(patch("/api/v1/orders/" + order.getId() + "/status")
                         .param("status", "CONFIRMED")
                         .header("X-User-Id", sellerId.toString()) // Seller makes request
+                        .header("X-User-Permissions", "order:create,order:read,order:update,ROLE_BUYER,ROLE_SELLER")
                         .header("X-User-Role", "SELLER"))
                 .andExpect(status().isOk());
 
