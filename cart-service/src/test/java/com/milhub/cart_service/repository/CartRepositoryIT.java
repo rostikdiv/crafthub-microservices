@@ -21,9 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataMongoTest(excludeAutoConfiguration = {
-    de.flapdoodle.embed.mongo.spring.autoconfigure.EmbeddedMongoAutoConfiguration.class
-})
+@DataMongoTest
 @Testcontainers
 class CartRepositoryIT {
 

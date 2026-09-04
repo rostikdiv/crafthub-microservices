@@ -13,7 +13,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -26,12 +30,14 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import org.springframework.test.annotation.DirtiesContext;
-
 @SpringBootTest
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class CartServiceMongoTest {
+@Testcontainers
+class CartServiceIT {
+
+    @Container
+    @ServiceConnection
+    static MongoDBContainer mongo = new MongoDBContainer("mongo:7.0");
 
     @Autowired
     private CartService cartService;
@@ -62,12 +68,12 @@ class CartServiceMongoTest {
                 .sections(new ArrayList<>())
                 .totalPrice(BigDecimal.ZERO)
                 .build();
-        
+
         CartSection section = new CartSection(sellerId, "Test Seller", "logo.png", new ArrayList<>());
         CartItem item = new CartItem(productId, "Test Product", "img.png", 1, BigDecimal.TEN);
         section.getItems().add(item);
         cart.getSections().add(section);
-        
+
         cartRepository.save(cart); // Saves version 0
     }
 
@@ -111,10 +117,7 @@ class CartServiceMongoTest {
         Cart updatedCart = cartRepository.findById(userId).orElseThrow();
         int totalQuantity = updatedCart.getSections().get(0).getItems().get(0).getQuantity();
 
-        // If CartService correctly increments: 1 (initial) + (5 * 2) = 11.
-        // Wait, does addItemToCart add or set? We need to fix CartService logic!
         assertThat(totalQuantity).isEqualTo(11);
-        // Also check if version was incremented
         assertThat(updatedCart.getVersion()).isGreaterThan(0L);
     }
 }

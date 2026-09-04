@@ -102,7 +102,7 @@ jobs:
       - name: Configure Docker authentication for Artifact Registry
         run: gcloud auth configure-docker ${{ env.GAR_LOCATION }} --quiet
 
-            # Run full test suite across the Maven reactor before building deployable artifacts.
+      # Run full test suite across the Maven reactor before building deployable artifacts.
       # Uses 'verify' (not just 'test') so the build fails on the same lifecycle phase as pr-check.yml.
       - name: Run Tests
         run: mvn clean verify
