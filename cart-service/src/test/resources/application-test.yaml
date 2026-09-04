@@ -7,6 +7,11 @@ spring:
       # Flapdoodle Embedded MongoDB auto-configures the connection URI via
       # DynamicPropertySource, which overrides these at test startup.
       database: test_cart_db
+  kafka:
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
 
 de:
   flapdoodle:

@@ -50,6 +50,9 @@ public class KafkaConsumerConfig {
                 deserializer);
     }
 
+    @Value("${spring.kafka.listener.auto-startup:true}")
+    private boolean autoStartup;
+
     /**
      * Factory for concurrent Kafka listener containers.
      */
@@ -57,6 +60,7 @@ public class KafkaConsumerConfig {
     public ConcurrentKafkaListenerContainerFactory<String, OrderPlacedEventDTO> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, OrderPlacedEventDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        factory.setAutoStartup(autoStartup);
         return factory;
     }
 }
